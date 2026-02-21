@@ -108,12 +108,14 @@ function createWordElement(wordObj) {
 // ------------------------------
 
 function persistWords() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+  chrome.storage.local.set({ [STORAGE_KEY]: words });
 }
 
 function loadWords() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  words = stored ? JSON.parse(stored) : [];
+  chrome.storage.local.get([STORAGE_KEY], (result) => {
+    words = result[STORAGE_KEY] || [];
+    renderWords();
+  });
 }
 
 // ------------------------------
