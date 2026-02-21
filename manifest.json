@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Productivity application",
+  "version": "0.1",
+  "description": "making chrome productivity specific",
+
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  }
+}

@@ -1,0 +1,731 @@
+/* ===================================================== */
+/* GLOBAL RESET + BASE STYLES */
+/* ===================================================== */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #e5e7eb;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  height: 100vh;
+  overflow: hidden;
+  
+}
+
+
+/* ===================================================== */
+/* GRID LAYOUT */
+/* ===================================================== */
+
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;
+  height: 100%;
+  overflow: hidden;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Collapsed States */
+.app.right-collapsed {
+  grid-template-columns: 260px 1fr 50px;
+}
+
+.app.left-collapsed {
+  grid-template-columns: 50px 1fr 300px;
+}
+
+.app.left-collapsed.right-collapsed {
+  grid-template-columns: 50px 1fr 50px;
+}
+
+
+/* ===================================================== */
+/* PANELS (LEFT + RIGHT) */
+/* ===================================================== */
+
+.panel {
+  background: #020617;
+  padding: 10px;
+  overflow: auto;
+  transition: opacity 0.2s ease;
+}
+
+/* Borders */
+.panel.left {
+  border-right: 1px solid #1e293b;
+}
+
+.panel.right {
+  border-left: 1px solid #1e293b;
+}
+
+.panel,
+.center {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Base scroll container styling */
+.panel,
+.center {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Thin scrollbar always */
+.panel::-webkit-scrollbar,
+.center::-webkit-scrollbar {
+  width: 6px;
+  height: 0px;
+}
+
+/* Smooth fade thumb */
+.panel::-webkit-scrollbar-thumb,
+.center::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0);
+  border-radius: 4px;
+  transition: background 0.25s ease;
+}
+
+/* Visible while scrolling */
+.panel.scrolling::-webkit-scrollbar-thumb,
+.center.scrolling::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0.7);
+}
+
+/* Firefox */
+.panel,
+.center {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.panel.scrolling,
+.center.scrolling {
+  scrollbar-color: rgba(30, 41, 59, 0.7) transparent;
+}
+
+/* ===================================================== */
+/* PANEL HEADER */
+/* ===================================================== */
+
+.panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panel header button {
+  flex-shrink: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.panel header button:hover {
+  transform: scale(1.1);
+}
+
+
+/* ===================================================== */
+/* COLLAPSED BEHAVIOR */
+/* ===================================================== */
+
+/* Hide content but keep header visible */
+.app.right-collapsed .panel.right > *:not(header),
+.app.left-collapsed .panel.left > *:not(header) {
+  display: none;
+}
+
+/* Hide title when collapsed */
+.app.right-collapsed .panel.right header h3,
+.app.left-collapsed .panel.left header h3 {
+  display: none;
+}
+
+/* Center toggle icon */
+.app.right-collapsed .panel.right header,
+.app.left-collapsed .panel.left header {
+  justify-content: center;
+}
+
+/* Rotate toggle icon when right collapsed */
+.app.right-collapsed .panel.right header button {
+  transform: rotate(180deg);
+}
+
+
+/* ===================================================== */
+/* CENTER DASHBOARD */
+/* ===================================================== */
+
+.center {
+  padding: 20px;
+}
+
+.center-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.center-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.center-header button:hover {
+  transform: rotate(20deg);
+}
+
+
+/* ===================================================== */
+/* MODALS */
+/* ===================================================== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background: #020617;
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Close button */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  transform: scale(1.2);
+  color: #ef4444;
+}
+
+
+/* ===================================================== */
+/* TRACK LIST (MODAL CONTENT) */
+/* ===================================================== */
+
+#trackList > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Action buttons */
+.track-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-track-btn,
+.delete-track-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.edit-track-btn {
+  color: #38bdf8;
+}
+
+.delete-track-btn {
+  color: #ef4444;
+}
+
+.edit-track-btn:hover,
+.delete-track-btn:hover {
+  transform: scale(1.2);
+}
+
+
+/* ===================================================== */
+/* INLINE EDIT + ICON PICKER */
+/* ===================================================== */
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.preview-icon {
+  font-size: 20px;
+}
+
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.icon-option {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  text-align: center;
+  border-radius: 6px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.icon-option:hover {
+  background: #1e293b;
+  transform: scale(1.05);
+}
+
+.selected-icon {
+  background: #2563eb;
+}
+
+
+/* ===================================================== */
+/* ADD TRACK HEADER */
+/* ===================================================== */
+
+.add-track-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.add-icon-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #38bdf8;
+  transition: transform 0.2s ease;
+}
+
+.add-icon-btn:hover {
+  transform: scale(1.2);
+}
+
+
+/* ===================================================== */
+/* DELETE CONFIRMATION */
+/* ===================================================== */
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+/* ===================================================== */
+/* TOAST NOTIFICATIONS */
+/* ===================================================== */
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1100;
+}
+
+.toast:not(.hidden) {
+  opacity: 1;
+}
+
+/* ===================================================== */
+/* TRACK WORKSPACE VIEW */
+/* ===================================================== */
+
+/* ---------- Header ---------- */
+
+.workspace-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+
+/* Navigation Container */
+.track-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* center everything */
+  gap: 20px;                 /* spacing between elements */
+  margin-top: 10px;
+}
+
+.track-navigation button,
+.workspace-header button {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.track-navigation button:hover,
+.workspace-header button:hover {
+  transform: scale(1.1);
+}
+
+/* Title */
+.track-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Navigation Buttons */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;      /* bigger */
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.nav-btn:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.editable-track-name {
+  transition: border-bottom 0.2s ease;
+}
+
+.editable-track-name:hover {
+  cursor: text;
+}
+
+.editable-track-name.editing {
+  background-image: linear-gradient(#4f46e5, #4f46e5);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;  /* <-- thickness here */
+}
+
+
+/* ---------- Horizontal Track Divider ---------- */
+
+.workspace-divider {
+  margin: 15px 0 25px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  gap: 15px;
+  overflow-x: overlay;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.workspace-divider.scrolling {
+  scrollbar-width: thin;
+}
+
+.workspace-divider::-webkit-scrollbar {
+  height: 4px;   /* thinner horizontal scrollbar */
+  width: 0px;
+}
+
+.workspace-divider::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0);
+  border-radius: 4px;
+  transition: background 0.25s ease;
+}
+
+.workspace-divider.scrolling::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0.7);
+}
+
+.track-chip {
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #0f172a;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.track-chip:hover {
+  background: #1e293b;
+  transform: scale(1.05);
+}
+
+.active-chip {
+  background: #2563eb;
+}
+
+
+/* ---------- Main Workspace Layout ---------- */
+
+.workspace-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+/* Top row cards (Reading, Tasks, Deadlines) */
+.workspace-layout > .workspace-card:nth-child(-n+3) {
+  min-height: 500px;
+}
+
+/* Bottom notes spans full width */
+.workspace-notes {
+  grid-column: 1 / -1;
+  min-height: 220px;
+}
+
+
+/* ---------- Workspace Cards ---------- */
+
+.workspace-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 20px;
+
+  /* Scroll behavior */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Smooth internal scroll */
+  scrollbar-width: thin;
+}
+
+.workspace-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workspace-card::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+.workspace-card::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* ===================================================== */
+/* DEADLINES */
+/* ===================================================== */
+
+.deadline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.deadline-item {
+  padding: 10px;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deadline-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.deadline-status.upcoming {
+  background: #2563eb;
+}
+
+.deadline-status.finished {
+  background: #16a34a;
+}
+
+.deadline-status.missed {
+  background: #dc2626;
+}
+
+.deadline-status.cancelled {
+  background: #6b7280;
+}
+
+/* ---------- Deadline Form ---------- */
+
+.deadline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  background: #0b1220;
+}
+
+.deadline-form input {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  padding: 8px 10px;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Make date & time picker icons white */
+.deadline-form input[type="date"]::-webkit-calendar-picker-indicator,
+.deadline-form input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.deadline-datetime-row {
+  display: flex;
+  gap: 10px;
+}
+
+.deadline-datetime-row input {
+  flex: 1;
+}
+
+/* ---------- Form Buttons ---------- */
+
+.deadline-form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+/* Base button */
+.deadline-form-actions button {
+  border: none;
+  padding: 6px 12px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Neutral (Cancel) */
+button.neutral-btn {
+  background: #1e293b;
+}
+
+button.neutral-btn:hover {
+  background: #334155;
+  transform: scale(1.05);
+}
+
+/* Primary (Update) */
+button.primary-btn {
+  background: #2563eb;
+}
+
+button.primary-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+/* Danger (Delete) */
+button.danger-btn {
+  background: #dc2626;
+}
+
+button.danger-btn:hover {
+  background: #b91c1c;
+  transform: scale(1.05);
+}
+
+.deadline-form-actions button:disabled {
+  background: #334155;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.deadline-form-actions button.danger-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* ===================================================== */
+/* UTILITIES */
+/* ===================================================== */
+
+.hidden {
+  display: none;
+}
+
+
+
