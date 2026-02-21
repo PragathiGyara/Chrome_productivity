@@ -9,8 +9,7 @@ let words = [];
 // ------------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadWords();
-  renderWords();
+  loadWords(); // render happens inside loadWords
   attachEventListeners();
 });
 
@@ -22,8 +21,8 @@ function attachEventListeners() {
   const addBtn = document.querySelector(".add-word-btn");
   const saveBtn = document.querySelector(".save-word-btn");
 
-  addBtn.addEventListener("click", toggleForm);
-  saveBtn.addEventListener("click", saveWord);
+  if (addBtn) addBtn.addEventListener("click", toggleForm);
+  if (saveBtn) saveBtn.addEventListener("click", saveWord);
 }
 
 // ------------------------------
@@ -93,12 +92,23 @@ function createWordElement(wordObj) {
   const div = document.createElement("div");
   div.classList.add("word-item");
 
-  div.innerHTML = `
-    <div class="word-language">${wordObj.language}</div>
-    <div class="word-title">${wordObj.word}</div>
-    <div class="word-meaning">${wordObj.meaning}</div>
-    <div class="word-sentence">${wordObj.sentence || ""}</div>
-  `;
+  const language = document.createElement("div");
+  language.className = "word-language";
+  language.textContent = wordObj.language;
+
+  const title = document.createElement("div");
+  title.className = "word-title";
+  title.textContent = wordObj.word;
+
+  const meaning = document.createElement("div");
+  meaning.className = "word-meaning";
+  meaning.textContent = wordObj.meaning;
+
+  const sentence = document.createElement("div");
+  sentence.className = "word-sentence";
+  sentence.textContent = wordObj.sentence || "";
+
+  div.append(language, title, meaning, sentence);
 
   return div;
 }
