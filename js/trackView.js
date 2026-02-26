@@ -74,9 +74,21 @@ function renderTrackWorkspace() {
 
     <div class="workspace-layout">
 
-      <div class="workspace-card">Reading Material</div>
+      <div class="workspace-card">
+        <div class="section-header">
+          <h3>Reading</h3>
+          <button id="addReadingBtn">+ Add</button>
+        </div>
+        <div id="readingList"></div>
+      </div>
 
-      <div class="workspace-card">Tasks</div>
+      <div class="workspace-card">
+        <div class="section-header">
+          <h3>Tasks</h3>
+          <button id="addTaskBtn">+ Add</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
 
       <div class="workspace-card">
         <div class="deadline-header">
@@ -87,7 +99,10 @@ function renderTrackWorkspace() {
       </div>
 
       <div class="workspace-card workspace-notes">
-        Notes / Overview
+        <h3>Notes</h3>
+        <div id="notesDisplay" class="editable-notes">
+          ${track.notes || "Double-click to add notes..."}
+        </div>
       </div>
 
     </div>
@@ -95,6 +110,9 @@ function renderTrackWorkspace() {
 
   attachWorkspaceEvents();
   renderDeadlines(track); 
+  renderReading(track);
+  renderTasks(track);
+  renderNotes(track);
   const divider = document.querySelector(".workspace-divider");
   if (divider) enableSmartScrollbar(divider);
 }
@@ -118,6 +136,29 @@ function attachWorkspaceEvents() {
         if (track) {
           openTrackDeadlineForm(track);
         }
+      });
+    }
+
+    const readingBtn = document.getElementById("addReadingBtn");
+    if (readingBtn) {
+      readingBtn.onclick = () => {
+        const track = tracks.find(t => t.id === activeTrackId);
+        openReadingForm(track);
+      };
+    }
+
+    const taskBtn = document.getElementById("addTaskBtn");
+    if (taskBtn) {
+      taskBtn.onclick = () => {
+        const track = tracks.find(t => t.id === activeTrackId);
+        openTaskForm(track);
+      };
+    }
+    const notesEl = document.getElementById("notesDisplay");
+    if (notesEl) {
+      notesEl.addEventListener("dblclick", () => {
+        const track = tracks.find(t => t.id === activeTrackId);
+        enableNotesEdit(notesEl, track);
       });
     }
 
@@ -556,5 +597,187 @@ function enableSmartScrollbar(element) {
     scrollTimeout = setTimeout(() => {
       element.classList.remove("scrolling");
     }, 600);
+  });
+}
+
+
+function renderReading(track) {
+  const container = document.getElementById("readingList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  track.reading.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("deadline-item"); // reuse styling
+
+    div.innerHTML = `
+      <div>
+        <strong>${item.topic}</strong>
+        ${item.link ? `<div><a href="${item.link}" target="_blank">Open Link</a></div>` : ""}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function renderTasks(track) {
+  const container = document.getElementById("taskList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  track.tasks.forEach(task => {
+    const div = document.createElement("div");
+    div.classList.add("deadline-item");
+
+    div.innerHTML = `
+      <div>
+        <strong>${task.name}</strong>
+        <div>Prereq: ${task.prereq}</div>
+        <div>Prereq Time: ${task.prereqTime}</div>
+        <div>Task Time: ${task.taskTime}</div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function renderNotes(track) {
+  const textarea = document.getElementById("notesInput");
+  if (!textarea) return;
+
+  textarea.value = track.notes || "";
+
+  textarea.addEventListener("input", () => {
+    track.notes = textarea.value;
+    persistTracks();
+  });
+}
+
+function openReadingForm(track) {
+  const container = document.getElementById("readingList");
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+    <input type="text" id="readingTopic" placeholder="Topic" />
+    <input type="text" id="readingLink" placeholder="Link (optional)" />
+
+    <div class="deadline-form-actions">
+      <button class="neutral-btn" id="cancelReadingBtn">Cancel</button>
+      <button class="primary-btn" id="saveReadingBtn">Save</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const topicInput = form.querySelector("#readingTopic");
+  const linkInput = form.querySelector("#readingLink");
+
+  form.querySelector("#saveReadingBtn").onclick = () => {
+    const topic = topicInput.value.trim();
+    const link = linkInput.value.trim();
+
+    if (!topic) {
+      alert("Topic required.");
+      return;
+    }
+
+    track.reading.push({
+      id: Date.now(),
+      topic,
+      link
+    });
+
+    persistTracks();
+    form.remove();
+    renderReading(track);
+  };
+
+  form.querySelector("#cancelReadingBtn").onclick = () => {
+    form.remove();
+  };
+}
+
+function openTaskForm(track) {
+  const container = document.getElementById("taskList");
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+    <input type="text" id="taskName" placeholder="Task name" />
+    <input type="text" id="taskPrereq" placeholder="Prerequisite needed" />
+    <input type="text" id="taskPrereqTime" placeholder="Estimated time for prereq" />
+    <input type="text" id="taskTime" placeholder="Estimated time for task" />
+
+    <div class="deadline-form-actions">
+      <button class="neutral-btn" id="cancelTaskBtn">Cancel</button>
+      <button class="primary-btn" id="saveTaskBtn">Save</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const nameInput = form.querySelector("#taskName");
+  const prereqInput = form.querySelector("#taskPrereq");
+  const prereqTimeInput = form.querySelector("#taskPrereqTime");
+  const taskTimeInput = form.querySelector("#taskTime");
+
+  form.querySelector("#saveTaskBtn").onclick = () => {
+    const name = nameInput.value.trim();
+    const prereq = prereqInput.value.trim();
+    const prereqTime = prereqTimeInput.value.trim();
+    const taskTime = taskTimeInput.value.trim();
+
+    if (!name || !prereq || !prereqTime || !taskTime) {
+      alert("All fields required.");
+      return;
+    }
+
+    track.tasks.push({
+      id: Date.now(),
+      name,
+      prereq,
+      prereqTime,
+      taskTime
+    });
+
+    persistTracks();
+    form.remove();
+    renderTasks(track);
+  };
+
+  form.querySelector("#cancelTaskBtn").onclick = () => {
+    form.remove();
+  };
+}
+
+
+function enableNotesEdit(element, track) {
+  element.setAttribute("contenteditable", "true");
+  element.focus();
+
+  element.classList.add("editing");
+
+  function save() {
+    track.notes = element.textContent.trim();
+    persistTracks();
+    element.removeAttribute("contenteditable");
+    element.classList.remove("editing");
+  }
+
+  element.addEventListener("blur", save, { once: true });
+
+  element.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      element.blur();
+    }
   });
 }

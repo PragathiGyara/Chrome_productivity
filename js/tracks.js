@@ -362,7 +362,10 @@ function openInlineAdd() {
     id: Date.now(),
     name,
     icon: selectedIcon,
-    deadlines: []
+    deadlines: [],
+    tasks: [],
+    reading: [],
+    notes: ""
     });
 
     persistTracks();
@@ -432,14 +435,52 @@ function persistTracks() {
 function loadTracks() {
   const stored = localStorage.getItem(TRACK_STORAGE_KEY);
   tracks = stored ? JSON.parse(stored) : getDefaultTracks();
+  tracks.forEach(track => {
+    if (!track.deadlines) track.deadlines = [];
+    if (!track.tasks) track.tasks = [];
+    if (!track.reading) track.reading = [];
+    if (!track.notes) track.notes = "";
+  });
 }
 
 function getDefaultTracks() {
   return [
-    { id: 1, name: "College", icon: "📚", deadlines: [] },
-    { id: 2, name: "Projects", icon: "💻", deadlines: [] },
-    { id: 3, name: "Learning", icon: "🧠", deadlines: [] },
-    { id: 4, name: "Health", icon: "🏃", deadlines: [] }
+    { 
+      id: 1, 
+      name: "College", 
+      icon: "📚", 
+      deadlines: [], 
+      tasks: [], 
+      reading: [], 
+      notes: ""
+    },
+    { 
+      id: 2, 
+      name: "Projects", 
+      icon: "💻", 
+      deadlines: [],
+      tasks: [], 
+      reading: [], 
+      notes: ""
+    },
+    { 
+      id: 3, 
+      name: "Learning", 
+      icon: "🧠", 
+      deadlines: [],
+      tasks: [], 
+      reading: [], 
+      notes: "" 
+    },
+    { 
+      id: 4, 
+      name: "Health", 
+      icon: "🏃", 
+      deadlines: [],
+      tasks: [], 
+      reading: [], 
+      notes: ""  
+    }
   ];
 }
 

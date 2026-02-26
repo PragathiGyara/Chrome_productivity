@@ -534,8 +534,10 @@ body {
 .workspace-layout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: auto auto;
+  grid-template-rows: 1fr auto;
   gap: 20px;
+  height: 100%;
+  min-height: 0;
 }
 
 /* Top row cards (Reading, Tasks, Deadlines) */
@@ -558,12 +560,11 @@ body {
   border-radius: 10px;
   padding: 20px;
 
-  /* Scroll behavior */
-  overflow-y: auto;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 
-  /* Smooth internal scroll */
-  scrollbar-width: thin;
+  min-height: 0;     /* 🔥 VERY IMPORTANT */
+  overflow: hidden;  /* prevent growth */
 }
 
 .workspace-card::-webkit-scrollbar {
@@ -577,6 +578,15 @@ body {
 
 .workspace-card::-webkit-scrollbar-thumb:hover {
   background: #2563eb;
+}
+
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 /* ===================================================== */
@@ -620,6 +630,21 @@ body {
 
 .deadline-status.cancelled {
   background: #6b7280;
+}
+
+#deadlineList {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#readingList {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#taskList {
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* ---------- Deadline Form ---------- */
@@ -723,6 +748,16 @@ button.danger-btn:hover {
 .deadline-form-actions button.danger-btn {
   background-color: #e74c3c;
   color: white;
+}
+
+.editable-notes {
+  min-height: 150px;
+  white-space: pre-wrap;
+  cursor: text;
+}
+
+.editable-notes.editing {
+  border-bottom: 1px solid #4f46e5;
 }
 
 /* ===================================================== */
