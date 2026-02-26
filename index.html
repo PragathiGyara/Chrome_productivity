@@ -10,22 +10,28 @@
 
 <body>
   <div class="app">
-      <!-- ================= LEFT SIDEBAR ================= -->
-      <aside id="leftPanel" class="panel left">
-          <header>
-              <h3>Bookmarks</h3>
-              <button id="leftToggleBtn">☰</button>
-          </header>
-          <div id="bookmarkList"></div>
-      </aside>
-      <!-- ================= CENTER DASHBOARD ================= -->
-      <main class="center">
-          <div class="center-header">
-              <h2>My Tracks</h2>
-              <button id="trackSettingsBtn">⚙</button>
+        <!-- ================= LEFT SIDEBAR ================= -->
+        <aside id="leftPanel" class="panel left">
+            <header> <h3>Deadlines</h3> 
+                <button id="leftToggleBtn">☰</button> 
+            </header>
+            <!-- Deadline List -->
+            <div id="globalDeadlineList" class="deadline-list">
+                <!-- Deadlines will render here -->
+            </div>
+            <!-- Add Button -->
+            <button id="addDeadlineBtn" class="add-deadline-btn">
+                + New Deadline
+            </button>
+        </aside>
+        <!-- ================= CENTER DASHBOARD ================= -->
+        <main class="center">
+            <div class="center-header">
+                <h2>My Tracks</h2>
+                <button id="trackSettingsBtn">⚙</button>
           </div>
           <div id="trackGrid" class="grid">
-              <!-- Track cards will render here -->
+            <!-- Track cards will render here -->
           </div>  
       </main>
       <!-- ================= RIGHT SIDEBAR ================= -->

@@ -81,7 +81,7 @@ function renderTrackWorkspace() {
       <div class="workspace-card">
         <div class="deadline-header">
           <h3>Deadlines</h3>
-          <button id="addDeadlineBtn">+ Add</button>
+          <button id="trackAddDeadlineBtn">+ Add</button>
         </div>
         <div id="deadlineList"></div>
       </div>
@@ -111,6 +111,16 @@ function attachWorkspaceEvents() {
     enableInlineEdit(nameEl);
     });
 
+    const addBtn = document.getElementById("trackAddDeadlineBtn");
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        const track = tracks.find(t => t.id === activeTrackId);
+        if (track) {
+          openTrackDeadlineForm(track);
+        }
+      });
+    }
+
   document
     .getElementById("backBtn")
     .addEventListener("click", backToDashboard);
@@ -122,13 +132,6 @@ function attachWorkspaceEvents() {
   document
     .getElementById("nextTrackBtn")
     .addEventListener("click", goToNextTrack);
-
-  document
-    .getElementById("addDeadlineBtn")
-    .addEventListener("click", () => {
-      const track = tracks.find(t => t.id === activeTrackId);
-      openDeadlineForm(track);
-    });
 
   document.querySelectorAll(".track-chip").forEach(el => {
     el.addEventListener("click", () => {
@@ -194,7 +197,7 @@ function getDeadlineStatus(deadline) {
 // DEADLINE FORM
 // =====================================================
 
-function openDeadlineForm(track) {
+function openTrackDeadlineForm(track) {
 
   const container = document.getElementById("deadlineList");
 
@@ -309,11 +312,12 @@ function openDeadlineForm(track) {
       status: "upcoming"
     });
 
-    persistTracks();
+    persistTracks();              // saves + refreshes sidebar
+
     showToast(`Deadline "${title}" saved`);
 
-    renderDeadlines(track);
-    form.remove();
+    form.remove();                // remove form first
+    renderDeadlines(track);       // re-render only track list
   }
 
   saveBtn.addEventListener("click", saveDeadline);
@@ -406,12 +410,14 @@ function openEditDeadlineForm(track, deadline) {
     deadline.datetime = newDatetime.toISOString();
 
     persistTracks();
+    renderGlobalDeadlines();
     showToast("Deadline updated");
 
+    form.remove();
     renderDeadlines(track);
   });
 
-    deleteBtn.addEventListener("click", () => {
+  deleteBtn.addEventListener("click", () => {
 
     const confirmed = confirm(
         `Are you sure you want to delete "${deadline.title}"?`
@@ -424,8 +430,10 @@ function openEditDeadlineForm(track, deadline) {
     );
 
     persistTracks();
+    renderGlobalDeadlines();
     showToast(`Deadline "${deadline.title}" deleted`);
 
+    form.remove();
     renderDeadlines(track);
     });
 
@@ -478,15 +486,6 @@ function renderDashboardView() {
 
       renderTrackList();
     });
-}
-
-
-function refreshCurrentView() {
-  if (currentView === "dashboard") {
-    renderDashboardView();
-  } else if (currentView === "track") {
-    renderTrackWorkspace();
-  }
 }
 
 function enableInlineEdit(element) {

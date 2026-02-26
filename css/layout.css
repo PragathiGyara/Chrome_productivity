@@ -660,6 +660,12 @@ body {
   flex: 1;
 }
 
+.deadline-datetime-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ---------- Form Buttons ---------- */
 
 .deadline-form-actions {
