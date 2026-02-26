@@ -760,6 +760,16 @@ button.danger-btn:hover {
   border-bottom: 1px solid #4f46e5;
 }
 
+.reading-link {
+  color: #38bdf8;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.reading-link:hover {
+  text-decoration: underline;
+}
+
 /* ===================================================== */
 /* UTILITIES */
 /* ===================================================== */

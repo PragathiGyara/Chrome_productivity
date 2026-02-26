@@ -440,6 +440,13 @@ function loadTracks() {
     if (!track.tasks) track.tasks = [];
     if (!track.reading) track.reading = [];
     if (!track.notes) track.notes = "";
+    
+    track.reading.forEach(item => {
+      if (!item.links) {
+        item.links = item.link ? [item.link] : [];
+        delete item.link;
+      }
+    });
   });
 }
 

@@ -1,6 +1,15 @@
 // =====================================================
-// TRACK WORKSPACE VIEW
-// Handles drill-down view for individual tracks
+// TRACK WORKSPACE MODULE
+// Handles:
+// - Switching between dashboard and track view
+// - Rendering track workspace
+// - Managing Deadlines, Reading, Tasks, Notes
+// - Handling navigation between tracks
+// =====================================================
+
+
+// =====================================================
+// GLOBAL VIEW STATE
 // =====================================================
 
 let currentView = "dashboard";
@@ -109,71 +118,64 @@ function renderTrackWorkspace() {
   `;
 
   attachWorkspaceEvents();
+
   renderDeadlines(track); 
   renderReading(track);
   renderTasks(track);
   renderNotes(track);
+
   const divider = document.querySelector(".workspace-divider");
   if (divider) enableSmartScrollbar(divider);
 }
 
 
 // =====================================================
-// WORKSPACE EVENTS
+// WORKSPACE EVENT BINDING
 // =====================================================
 
 function attachWorkspaceEvents() {
 
-    const nameEl = document.getElementById("trackNameDisplay");
-    nameEl.addEventListener("click", () => {
-    enableInlineEdit(nameEl);
+  const track = tracks.find(t => t.id === activeTrackId);
+  if (!track) return;
+
+  // Navigation buttons
+  document.getElementById("backBtn")?.addEventListener("click", backToDashboard);
+  document.getElementById("prevTrackBtn")?.addEventListener("click", goToPreviousTrack);
+  document.getElementById("nextTrackBtn")?.addEventListener("click", goToNextTrack);
+
+  // Track name editing
+  const nameEl = document.getElementById("trackNameDisplay");
+  if (nameEl) {
+    nameEl.addEventListener("click", () => enableInlineEdit(nameEl));
+  }
+
+  // Deadline add button
+  document.getElementById("trackAddDeadlineBtn")?.addEventListener(
+    "click",
+    () => openTrackDeadlineForm(track)
+  );
+
+  // Reading add button
+  document.getElementById("addReadingBtn")?.addEventListener(
+    "click",
+    () => openReadingForm(track)
+  );
+
+  // Task add button
+  document.getElementById("addTaskBtn")?.addEventListener(
+    "click",
+    () => openTaskForm(track)
+  );
+
+  // Notes edit
+  const notesEl = document.getElementById("notesDisplay");
+  if (notesEl) {
+    notesEl.addEventListener("dblclick", () => {
+      enableNotesEdit(notesEl, track);
     });
+  }
 
-    const addBtn = document.getElementById("trackAddDeadlineBtn");
-    if (addBtn) {
-      addBtn.addEventListener("click", () => {
-        const track = tracks.find(t => t.id === activeTrackId);
-        if (track) {
-          openTrackDeadlineForm(track);
-        }
-      });
-    }
-
-    const readingBtn = document.getElementById("addReadingBtn");
-    if (readingBtn) {
-      readingBtn.onclick = () => {
-        const track = tracks.find(t => t.id === activeTrackId);
-        openReadingForm(track);
-      };
-    }
-
-    const taskBtn = document.getElementById("addTaskBtn");
-    if (taskBtn) {
-      taskBtn.onclick = () => {
-        const track = tracks.find(t => t.id === activeTrackId);
-        openTaskForm(track);
-      };
-    }
-    const notesEl = document.getElementById("notesDisplay");
-    if (notesEl) {
-      notesEl.addEventListener("dblclick", () => {
-        const track = tracks.find(t => t.id === activeTrackId);
-        enableNotesEdit(notesEl, track);
-      });
-    }
-
-  document
-    .getElementById("backBtn")
-    .addEventListener("click", backToDashboard);
-
-  document
-    .getElementById("prevTrackBtn")
-    .addEventListener("click", goToPreviousTrack);
-
-  document
-    .getElementById("nextTrackBtn")
-    .addEventListener("click", goToNextTrack);
-
+  // Track chips
   document.querySelectorAll(".track-chip").forEach(el => {
     el.addEventListener("click", () => {
       openTrackView(Number(el.dataset.id));
@@ -484,6 +486,328 @@ function openEditDeadlineForm(track, deadline) {
   });
 }
 
+// =====================================================
+// READING RENDERING
+// =====================================================
+
+function renderReading(track) {
+  const container = document.getElementById("readingList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  track.reading.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("deadline-item");
+
+const linksHTML =
+  item.links && item.links.length
+    ? item.links.map((link, index) => `
+        <div>
+          <a href="${link}"
+             target="_blank"
+             class="reading-link"
+             title="${link}">
+            Material ${index + 1}
+          </a>
+        </div>
+      `).join("")
+    : "";
+
+    div.innerHTML = `
+      <div>
+        <strong>${item.topic}</strong>
+        ${linksHTML}
+      </div>
+    `;
+
+    div.addEventListener("dblclick", () => {
+      openEditReadingForm(track, item);
+    });
+
+    container.appendChild(div);
+  });
+}
+
+// =====================================================
+// READING FORM
+// =====================================================
+
+function openReadingForm(track) {
+  const container = document.getElementById("readingList");
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+    <input type="text" id="readingTopic" placeholder="Topic" />
+    <div id="readingLinksContainer"></div>
+
+    <div class="deadline-form-actions">
+      <button class="neutral-btn" id="cancelReadingBtn">Cancel</button>
+      <button class="primary-btn" id="saveReadingBtn">Save</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const topicInput = form.querySelector("#readingTopic");
+  const linksContainer = form.querySelector("#readingLinksContainer");
+
+  // Add first link field
+  addLinkInput(linksContainer);
+
+  form.querySelector("#saveReadingBtn").onclick = () => {
+    const topic = topicInput.value.trim();
+    if (!topic) {
+      alert("Topic required.");
+      return;
+    }
+
+    const links = Array.from(
+      linksContainer.querySelectorAll("input")
+    )
+      .map(input => input.value.trim())
+      .filter(val => val !== "");
+
+    track.reading.push({
+      id: Date.now(),
+      topic,
+      links
+    });
+
+    persistTracks();
+    form.remove();
+    renderReading(track);
+  };
+
+  form.querySelector("#cancelReadingBtn").onclick = () => {
+    form.remove();
+  };
+}
+
+
+function addLinkInput(container, value = "") {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Link (optional)";
+  input.value = value;
+
+  container.appendChild(input);
+
+  input.addEventListener("input", () => {
+    const inputs = container.querySelectorAll("input");
+    const lastInput = inputs[inputs.length - 1];
+
+    // If typing in last input, create new empty one
+    if (input === lastInput && input.value.trim() !== "") {
+      addLinkInput(container);
+    }
+  });
+}
+
+// =====================================================
+// READING FORM
+// =====================================================
+
+function openEditReadingForm(track, item) {
+  const container = document.getElementById("readingList");
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+    <input type="text" id="editReadingTopic" value="${item.topic}" />
+    <div id="editReadingLinksContainer"></div>
+
+    <div class="deadline-form-actions">
+      <button class="neutral-btn" id="cancelEditReadingBtn">Cancel</button>
+      <button class="primary-btn" id="updateReadingBtn">Update</button>
+      <button class="danger-btn" id="deleteReadingBtn">Delete</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const topicInput = form.querySelector("#editReadingTopic");
+  const linksContainer = form.querySelector("#editReadingLinksContainer");
+
+  // Populate existing links
+  if (item.links && item.links.length) {
+    item.links.forEach(link => {
+      addLinkInput(linksContainer, link);
+    });
+  }
+
+  // Always ensure one empty input exists
+  addLinkInput(linksContainer);
+
+  // UPDATE
+  form.querySelector("#updateReadingBtn").onclick = () => {
+    const newTopic = topicInput.value.trim();
+    if (!newTopic) {
+      alert("Topic required.");
+      return;
+    }
+
+    const links = Array.from(
+      linksContainer.querySelectorAll("input")
+    )
+      .map(input => input.value.trim())
+      .filter(val => val !== "");
+
+    item.topic = newTopic;
+    item.links = links;
+
+    persistTracks();
+    form.remove();
+    renderReading(track);
+  };
+
+  // DELETE
+  form.querySelector("#deleteReadingBtn").onclick = () => {
+    track.reading = track.reading.filter(r => r.id !== item.id);
+
+    persistTracks();
+    form.remove();
+    renderReading(track);
+  };
+
+  // CANCEL
+  form.querySelector("#cancelEditReadingBtn").onclick = () => {
+    form.remove();
+  };
+}
+
+// =====================================================
+// TASKS RENDERING
+// =====================================================
+
+function renderTasks(track) {
+  const container = document.getElementById("taskList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  track.tasks.forEach(task => {
+    const div = document.createElement("div");
+    div.classList.add("deadline-item");
+
+    div.innerHTML = `
+      <div>
+        <strong>${task.name}</strong>
+        <div>Prereq: ${task.prereq}</div>
+        <div>Prereq Time: ${task.prereqTime}</div>
+        <div>Task Time: ${task.taskTime}</div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// =====================================================
+// TASKS FORM
+// =====================================================
+
+function openTaskForm(track) {
+  const container = document.getElementById("taskList");
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+    <input type="text" id="taskName" placeholder="Task name" />
+    <input type="text" id="taskPrereq" placeholder="Prerequisite needed" />
+    <input type="text" id="taskPrereqTime" placeholder="Estimated time for prereq" />
+    <input type="text" id="taskTime" placeholder="Estimated time for task" />
+
+    <div class="deadline-form-actions">
+      <button class="neutral-btn" id="cancelTaskBtn">Cancel</button>
+      <button class="primary-btn" id="saveTaskBtn">Save</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const nameInput = form.querySelector("#taskName");
+  const prereqInput = form.querySelector("#taskPrereq");
+  const prereqTimeInput = form.querySelector("#taskPrereqTime");
+  const taskTimeInput = form.querySelector("#taskTime");
+
+  form.querySelector("#saveTaskBtn").onclick = () => {
+    const name = nameInput.value.trim();
+    const prereq = prereqInput.value.trim();
+    const prereqTime = prereqTimeInput.value.trim();
+    const taskTime = taskTimeInput.value.trim();
+
+    if (!name || !prereq || !prereqTime || !taskTime) {
+      alert("All fields required.");
+      return;
+    }
+
+    track.tasks.push({
+      id: Date.now(),
+      name,
+      prereq,
+      prereqTime,
+      taskTime
+    });
+
+    persistTracks();
+    form.remove();
+    renderTasks(track);
+  };
+
+  form.querySelector("#cancelTaskBtn").onclick = () => {
+    form.remove();
+  };
+}
+
+// =====================================================
+// NOTES RENDERING
+// =====================================================
+
+function renderNotes(track) {
+  const textarea = document.getElementById("notesInput");
+  if (!textarea) return;
+
+  textarea.value = track.notes || "";
+
+  textarea.addEventListener("input", () => {
+    track.notes = textarea.value;
+    persistTracks();
+  });
+}
+
+// =====================================================
+// EDIT NOTES
+// =====================================================
+
+function enableNotesEdit(element, track) {
+  element.setAttribute("contenteditable", "true");
+  element.focus();
+
+  element.classList.add("editing");
+
+  function save() {
+    track.notes = element.textContent.trim();
+    persistTracks();
+    element.removeAttribute("contenteditable");
+    element.classList.remove("editing");
+  }
+
+  element.addEventListener("blur", save, { once: true });
+
+  element.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      element.blur();
+    }
+  });
+}
 
 // =====================================================
 // TRACK NAVIGATION
@@ -600,184 +924,3 @@ function enableSmartScrollbar(element) {
   });
 }
 
-
-function renderReading(track) {
-  const container = document.getElementById("readingList");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  track.reading.forEach(item => {
-    const div = document.createElement("div");
-    div.classList.add("deadline-item"); // reuse styling
-
-    div.innerHTML = `
-      <div>
-        <strong>${item.topic}</strong>
-        ${item.link ? `<div><a href="${item.link}" target="_blank">Open Link</a></div>` : ""}
-      </div>
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-function renderTasks(track) {
-  const container = document.getElementById("taskList");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  track.tasks.forEach(task => {
-    const div = document.createElement("div");
-    div.classList.add("deadline-item");
-
-    div.innerHTML = `
-      <div>
-        <strong>${task.name}</strong>
-        <div>Prereq: ${task.prereq}</div>
-        <div>Prereq Time: ${task.prereqTime}</div>
-        <div>Task Time: ${task.taskTime}</div>
-      </div>
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-function renderNotes(track) {
-  const textarea = document.getElementById("notesInput");
-  if (!textarea) return;
-
-  textarea.value = track.notes || "";
-
-  textarea.addEventListener("input", () => {
-    track.notes = textarea.value;
-    persistTracks();
-  });
-}
-
-function openReadingForm(track) {
-  const container = document.getElementById("readingList");
-  if (container.querySelector(".deadline-form")) return;
-
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
-
-  form.innerHTML = `
-    <input type="text" id="readingTopic" placeholder="Topic" />
-    <input type="text" id="readingLink" placeholder="Link (optional)" />
-
-    <div class="deadline-form-actions">
-      <button class="neutral-btn" id="cancelReadingBtn">Cancel</button>
-      <button class="primary-btn" id="saveReadingBtn">Save</button>
-    </div>
-  `;
-
-  container.prepend(form);
-
-  const topicInput = form.querySelector("#readingTopic");
-  const linkInput = form.querySelector("#readingLink");
-
-  form.querySelector("#saveReadingBtn").onclick = () => {
-    const topic = topicInput.value.trim();
-    const link = linkInput.value.trim();
-
-    if (!topic) {
-      alert("Topic required.");
-      return;
-    }
-
-    track.reading.push({
-      id: Date.now(),
-      topic,
-      link
-    });
-
-    persistTracks();
-    form.remove();
-    renderReading(track);
-  };
-
-  form.querySelector("#cancelReadingBtn").onclick = () => {
-    form.remove();
-  };
-}
-
-function openTaskForm(track) {
-  const container = document.getElementById("taskList");
-  if (container.querySelector(".deadline-form")) return;
-
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
-
-  form.innerHTML = `
-    <input type="text" id="taskName" placeholder="Task name" />
-    <input type="text" id="taskPrereq" placeholder="Prerequisite needed" />
-    <input type="text" id="taskPrereqTime" placeholder="Estimated time for prereq" />
-    <input type="text" id="taskTime" placeholder="Estimated time for task" />
-
-    <div class="deadline-form-actions">
-      <button class="neutral-btn" id="cancelTaskBtn">Cancel</button>
-      <button class="primary-btn" id="saveTaskBtn">Save</button>
-    </div>
-  `;
-
-  container.prepend(form);
-
-  const nameInput = form.querySelector("#taskName");
-  const prereqInput = form.querySelector("#taskPrereq");
-  const prereqTimeInput = form.querySelector("#taskPrereqTime");
-  const taskTimeInput = form.querySelector("#taskTime");
-
-  form.querySelector("#saveTaskBtn").onclick = () => {
-    const name = nameInput.value.trim();
-    const prereq = prereqInput.value.trim();
-    const prereqTime = prereqTimeInput.value.trim();
-    const taskTime = taskTimeInput.value.trim();
-
-    if (!name || !prereq || !prereqTime || !taskTime) {
-      alert("All fields required.");
-      return;
-    }
-
-    track.tasks.push({
-      id: Date.now(),
-      name,
-      prereq,
-      prereqTime,
-      taskTime
-    });
-
-    persistTracks();
-    form.remove();
-    renderTasks(track);
-  };
-
-  form.querySelector("#cancelTaskBtn").onclick = () => {
-    form.remove();
-  };
-}
-
-
-function enableNotesEdit(element, track) {
-  element.setAttribute("contenteditable", "true");
-  element.focus();
-
-  element.classList.add("editing");
-
-  function save() {
-    track.notes = element.textContent.trim();
-    persistTracks();
-    element.removeAttribute("contenteditable");
-    element.classList.remove("editing");
-  }
-
-  element.addEventListener("blur", save, { once: true });
-
-  element.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      element.blur();
-    }
-  });
-}
