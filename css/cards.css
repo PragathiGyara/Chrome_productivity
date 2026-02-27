@@ -1,51 +1,275 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  background: #020617;
-  border-radius: 14px;
-  padding: 20px;
-  min-height: 120px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.card {
-  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-.card {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.card.drag-enabled {
-  cursor: grab;
-  opacity: 0.9;
-}
-
-.card.dragging {
-  opacity: 0.4;
-}
+/* =====================================================
+   GRID LAYOUT
+===================================================== */
 
 #trackGrid {
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
+
+/* =====================================================
+   STATUS COLOR SYSTEM (Single Source of Truth)
+===================================================== */
+
+:root {
+  --status-remaining: #2563eb;
+  --status-completed: #16a34a;
+  --status-missed:    #dc2626;
+}
+
+/* =====================================================
+   TRACK CARD BASE
+===================================================== */
+
+.card {
+  width: 320px;
+  height: 320px;
+  padding: 26px;
+
+  background: #111827;
+  border-radius: 20px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  cursor: pointer;
+
+  transition:
+    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease,
+    box-shadow 300ms ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+
+/* =====================================================
+   DRAG STATES
+===================================================== */
 
 .card.dragging {
   opacity: 0.7;
   transform: scale(1.05);
   transition: none;
   z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
-.card.dragging {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+
+/* =====================================================
+   CARD CONTENT
+===================================================== */
+
+.card-header {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.card-footer {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+
+/* =====================================================
+   PROGRESS RING WRAPPER
+===================================================== */
+
+.progress-ring-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* =====================================================
+   SVG RING
+===================================================== */
+
+.progress-ring {
+  width: 170px;
+  height: 170px;
+
+  /* Default rotation */
+  transform: rotate(-90deg);
+
+  transition: transform 400ms ease;
+}
+
+/* Subtle rotation on card hover */
+.card:hover .progress-ring {
+  transform: rotate(-75deg);
+}
+
+/* Base circle styling */
+.progress-ring circle {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+
+  transition:
+    stroke-dasharray 500ms ease,
+    stroke-dashoffset 500ms ease,
+    stroke-width 150ms ease;
+}
+
+/* When hovering any segment, fade others */
+.progress-ring:hover .segment {
+  opacity: 0.25;
+  transition: opacity 200ms ease;
+}
+
+/* Keep hovered segment fully visible */
+.segment:hover {
+  opacity: 1 !important;
+}
+
+.segment:hover {
+  stroke-width: 16;
+}
+
+
+/* =====================================================
+   RING COLORS (MATCH DEADLINE STATUS SYSTEM)
+===================================================== */
+
+.ring-completed { stroke: var(--status-completed); }
+.ring-remaining { stroke: var(--status-remaining); }
+.ring-missed    { stroke: var(--status-missed); }
+
+
+/* =====================================================
+   RING CENTER CONTENT
+===================================================== */
+
+.ring-center {
+  position: absolute;
+  text-align: center;
+}
+
+.ring-total {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.ring-label {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+
+/* =====================================================
+   INTERACTIVE SEGMENTS
+===================================================== */
+
+.segment {
+  cursor: pointer;
+}
+
+.segment:hover {
+  stroke-width: 16;
+}
+
+
+/* =====================================================
+   DYNAMIC SEGMENT TOOLTIP
+===================================================== */
+
+.ring-tooltip-dynamic {
+  position: absolute;
+  bottom: -85px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+
+  background: #0f172a;
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  font-size: 14px;
+  line-height: 1.4;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+}
+
+.ring-tooltip-dynamic.visible {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+
+/* ================================
+   Tooltip Structure
+================================ */
+
+.tooltip-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Colored dot */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Heading colors */
+.tooltip-heading.remaining .status-dot { background: var(--status-remaining); }
+.tooltip-heading.completed .status-dot { background: var(--status-completed); }
+.tooltip-heading.missed .status-dot    { background: var(--status-missed); }
+
+
+/* =====================================
+   Tooltip List Layout
+===================================== */
+
+.tooltip-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 15px;
+}
+
+.tooltip-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;              /* more vertical breathing room */
+}
+
+.item-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;                   /* space between icon and label */
+  opacity: 0.9;
+}
+
+.item-value {
+  min-width: 28px;             /* ensures alignment */
+  text-align: right;
+  font-weight: 700;
+  letter-spacing: 0.5px;       /* subtle premium spacing */
+  opacity: 0.85;
+}
+
+.item-icon {
+  font-size: 14px;
+  opacity: 0.65;
 }

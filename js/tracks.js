@@ -2,6 +2,8 @@
 // TRACK MANAGEMENT MODULE
 // Handles:
 // - Rendering center track grid
+// - Track overview visual ring
+// - Drag & drop reordering (with FLIP animation)
 // - Inline track editing (name + icon)
 // - Inline track creation
 // - Track deletion with confirmation modal
@@ -118,49 +120,238 @@ function attachTrackEvents() {
   });
 }
 
+// --------------------------
+// Track Overview
+// --------------------------
+
+function computeTrackOverview(track) {
+
+  const now = new Date();
+
+  const tasks = track.tasks || [];
+  const reading = track.reading || [];
+  const deadlines = track.deadlines || [];
+
+  const completedTasks = tasks.filter(t => t.completed).length;
+  const remainingTasks = tasks.length - completedTasks;
+
+  const missedDeadlines = deadlines.filter(d =>
+    new Date(d.datetime) < now && d.status !== "completed"
+  ).length;
+
+  const upcomingDeadlines = deadlines.filter(d =>
+    new Date(d.datetime) >= now
+  ).length;
+
+  return {
+    completedTasks,
+    remainingTasks,
+    readingCount: reading.length,
+    upcomingDeadlines,
+    missedDeadlines,
+    total:
+      tasks.length +
+      reading.length +
+      deadlines.length
+  };
+}
 
 // --------------------------
 // Render Center Grid
 // --------------------------
 
 function renderTracks() {
+
   const grid = document.getElementById("trackGrid");
   grid.innerHTML = "";
 
   tracks.forEach((track, index) => {
+
     const div = document.createElement("div");
     div.classList.add("card");
-    div.innerHTML = `${track.icon} ${track.name}`;
+
+    const stats = computeTrackOverview(track);
+    const total = stats.total || 0;
+
+    const radius = 40;
+    const circumference = 2 * Math.PI * radius;
+
+    // Proper segment totals
+    const completedValue = stats.completedTasks;
+    const remainingValue =
+      stats.remainingTasks +
+      stats.readingCount +
+      stats.upcomingDeadlines;
+
+    const missedValue = stats.missedDeadlines;
+
+    const completedLength =
+      total > 0 ? (completedValue / total) * circumference : 0;
+
+    const remainingLength =
+      total > 0 ? (remainingValue / total) * circumference : 0;
+
+    const missedLength =
+      total > 0 ? (missedValue / total) * circumference : 0;
+
+    div.innerHTML = `
+      <div class="card-header">
+        <span class="track-title">${track.icon} ${track.name}</span>
+      </div>
+
+      <div class="progress-ring-wrapper">
+
+        <svg viewBox="0 0 100 100" class="progress-ring">
+
+          <circle class="ring-bg" cx="50" cy="50" r="${radius}" />
+
+          <circle
+            class="ring-completed segment"
+            data-type="completed"
+            cx="50" cy="50" r="${radius}"
+            stroke-dasharray="${completedLength} ${circumference}"
+          />
+
+          <circle
+            class="ring-remaining segment"
+            data-type="remaining"
+            cx="50" cy="50" r="${radius}"
+            stroke-dasharray="${remainingLength} ${circumference}"
+            stroke-dashoffset="-${completedLength}"
+          />
+
+          <circle
+            class="ring-missed segment"
+            data-type="missed"
+            cx="50" cy="50" r="${radius}"
+            stroke-dasharray="${missedLength} ${circumference}"
+            stroke-dashoffset="-${completedLength + remainingLength}"
+          />
+
+        </svg>
+
+        <div class="ring-center">
+          <div class="ring-total">${total}</div>
+          <div class="ring-label">items</div>
+        </div>
+
+        <div class="ring-tooltip-dynamic"></div>
+
+      </div>
+
+      <div class="card-footer">
+        No deadlines
+      </div>
+    `;
 
     div.dataset.id = track.id;
     div.dataset.index = index;
 
-    // -------------------------
-    // NORMAL CLICK (open track)
-    // -------------------------
-    div.addEventListener("click", (e) => {
-      if (isDragging) return; // prevent click after drag
+    // Click
+    div.addEventListener("click", () => {
+      if (isDragging) return;
       openTrackView(track.id);
     });
 
-    // -------------------------
-    // DOUBLE CLICK → Enable drag mode
-    // -------------------------
-    div.addEventListener("dblclick", () => {
-      enableDragMode();
-    });
-
-    // -------------------------
-    // DRAG EVENTS
-    // -------------------------
+    // Drag
     div.setAttribute("draggable", true);
-
     div.addEventListener("dragstart", handleDragStart);
     div.addEventListener("dragover", handleDragOver);
     div.addEventListener("drop", handleDrop);
     div.addEventListener("dragend", handleDragEnd);
 
     grid.appendChild(div);
+
+    // ================================
+    // SEGMENT HOVER TOOLTIP LOGIC
+    // ================================
+
+    const tooltip = div.querySelector(".ring-tooltip-dynamic");
+    const segments = div.querySelectorAll(".segment");
+
+    segments.forEach(segment => {
+
+      segment.addEventListener("mouseenter", () => {
+
+        const type = segment.dataset.type;
+
+        if (type === "remaining") {
+          tooltip.innerHTML = `
+            <div class="tooltip-heading remaining">
+              <span class="status-dot"></span>
+              Remaining
+            </div>
+            <ul class="tooltip-list">
+              <li>
+                <span class="item-label">
+                  <span class="item-icon">⏳</span>
+                  Deadlines
+                </span>
+                <span class="item-value">${stats.upcomingDeadlines}</span>
+              </li>
+              <li>
+                <span class="item-label">
+                  <span class="item-icon">✔</span>
+                  Tasks
+                </span>
+                <span class="item-value">${stats.remainingTasks}</span>
+              </li>
+              <li>
+                <span class="item-label">
+                  <span class="item-icon">📖</span>
+                  Reading
+                </span>
+                <span class="item-value">${stats.readingCount}</span>
+              </li>
+            </ul>
+          `;
+        }
+
+        if (type === "completed") {
+          tooltip.innerHTML = `
+            <div class="tooltip-heading completed">
+              <span class="status-dot"></span>
+              Completed
+            </div>
+            <ul class="tooltip-list">
+              <li>
+                <span class="item-label">
+                  <span class="item-icon">✔</span>
+                  Tasks
+                </span>
+                <span class="item-value">${stats.completedTasks}</span>
+              </li>
+            </ul>
+          `;
+        }
+
+        if (type === "missed") {
+          tooltip.innerHTML = `
+            <div class="tooltip-heading missed">
+              <span class="status-dot"></span>
+              Missed
+            </div>
+            <ul class="tooltip-list">
+              <li>
+                <span class="item-label">
+                  <span class="item-icon">⏳</span>
+                  Deadlines
+                </span>
+                <span class="item-value">${stats.missedDeadlines}</span>
+              </li>
+            </ul>
+          `;
+        }
+
+        tooltip.classList.add("visible");
+      });
+
+      segment.addEventListener("mouseleave", () => {
+        tooltip.classList.remove("visible");
+      });
+
+    });
+
   });
 }
 
@@ -292,13 +483,13 @@ function updateTrackOrderFromDOM() {
   const grid = document.getElementById("trackGrid");
   const cards = Array.from(grid.children);
 
-  // 1️⃣ FIRST — get initial positions
+  // FIRST — get initial positions
   const firstRects = new Map();
   cards.forEach(card => {
     firstRects.set(card.dataset.id, card.getBoundingClientRect());
   });
 
-  // 2️⃣ Update internal tracks order
+  // Update internal tracks order
   const newOrder = [];
   cards.forEach(card => {
     const id = Number(card.dataset.id);
@@ -307,7 +498,7 @@ function updateTrackOrderFromDOM() {
   });
   tracks = newOrder;
 
-  // 3️⃣ LAST — get new positions after DOM already changed
+  // LAST — get new positions after DOM already changed
   requestAnimationFrame(() => {
     cards.forEach(card => {
       const lastRect = card.getBoundingClientRect();
@@ -316,10 +507,10 @@ function updateTrackOrderFromDOM() {
       const dx = firstRect.left - lastRect.left;
       const dy = firstRect.top - lastRect.top;
 
-      // 4️⃣ INVERT
+      // INVERT
       card.style.transform = `translate(${dx}px, ${dy}px)`;
 
-      // 5️⃣ PLAY
+      // PLAY
       requestAnimationFrame(() => {
         card.style.transform = "";
       });
