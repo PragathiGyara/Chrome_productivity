@@ -4,8 +4,8 @@
 
 #trackGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 /* =====================================================
@@ -23,7 +23,7 @@
 ===================================================== */
 
 .card {
-  width: 100%;
+  width: 320px;
   height: 320px;
   padding: 26px;
 
@@ -40,7 +40,6 @@
     transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity 200ms ease,
     box-shadow 300ms ease;
-  will-change: width, transform;
 }
 
 .card:hover {
