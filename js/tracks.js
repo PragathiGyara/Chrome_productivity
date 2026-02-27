@@ -141,19 +141,85 @@ function computeTrackOverview(track) {
 
   const upcomingDeadlines = deadlines.filter(d =>
     new Date(d.datetime) >= now
-  ).length;
+  );
+
+  // Sort upcoming deadlines by date
+  const sortedUpcoming = [...upcomingDeadlines].sort(
+    (a, b) => new Date(a.datetime) - new Date(b.datetime)
+  );
+
+  let nextDeadline = null;
+  let nextDeadlineCount = 0;
+
+  if (sortedUpcoming.length > 0) {
+    nextDeadline = new Date(sortedUpcoming[0].datetime);
+
+    nextDeadlineCount = sortedUpcoming.filter(d =>
+      new Date(d.datetime).getTime() === nextDeadline.getTime()
+    ).length;
+  }
 
   return {
     completedTasks,
     remainingTasks,
     readingCount: reading.length,
-    upcomingDeadlines,
+    upcomingDeadlines: upcomingDeadlines.length,
     missedDeadlines,
     total:
       tasks.length +
       reading.length +
-      deadlines.length
+      deadlines.length,
+    nextDeadline,
+    nextDeadlineCount
   };
+}
+
+function formatDateTime(date) {
+
+  const now = new Date();
+
+  const isToday =
+    date.toDateString() === now.toDateString();
+
+  const tomorrow = new Date();
+  tomorrow.setDate(now.getDate() + 1);
+
+  const isTomorrow =
+    date.toDateString() === tomorrow.toDateString();
+
+  const timePart = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  if (isToday) {
+    return `Today, ${timePart} (${getRelativeTime(date)})`;
+  }
+
+  if (isTomorrow) {
+    return `Tomorrow, ${timePart}`;
+  }
+
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getRelativeTime(date) {
+
+  const diff = date - new Date();
+
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+
+  if (minutes < 60) {
+    return `in ${minutes}m`;
+  }
+
+  return `in ${hours}h`;
 }
 
 // --------------------------
@@ -167,10 +233,24 @@ function renderTracks() {
 
   tracks.forEach((track, index) => {
 
+    const stats = computeTrackOverview(track);
+
+    const now = new Date();
+
+    let isUrgent = false;
+
+    if (stats.nextDeadline) {
+      const diff = stats.nextDeadline - now;
+      isUrgent = diff > 0 && diff <= 24 * 60 * 60 * 1000;
+    }
+
     const div = document.createElement("div");
     div.classList.add("card");
 
-    const stats = computeTrackOverview(track);
+    if (isUrgent) {
+      div.classList.add("urgent-deadline");
+    }
+
     const total = stats.total || 0;
 
     const radius = 40;
@@ -240,7 +320,11 @@ function renderTracks() {
       </div>
 
       <div class="card-footer">
-        No deadlines
+        ${
+          stats.nextDeadline
+            ? `Next deadline: ${formatDateTime(stats.nextDeadline)} (${stats.nextDeadlineCount})`
+            : "No upcoming deadlines"
+        }
       </div>
     `;
 
