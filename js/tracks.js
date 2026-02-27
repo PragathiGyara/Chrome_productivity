@@ -25,6 +25,9 @@ const TRACK_ICONS = [
   "📅","🚀","🔥","🎨","⚙"
 ];
 
+let isDragging = false;
+
+let draggedTrackId = null;
 
 // --------------------------
 // In-Memory State
@@ -124,13 +127,39 @@ function renderTracks() {
   const grid = document.getElementById("trackGrid");
   grid.innerHTML = "";
 
-  tracks.forEach(track => {
+  tracks.forEach((track, index) => {
     const div = document.createElement("div");
     div.classList.add("card");
     div.innerHTML = `${track.icon} ${track.name}`;
-    div.addEventListener("click", () => {
-    openTrackView(track.id);
+
+    div.dataset.id = track.id;
+    div.dataset.index = index;
+
+    // -------------------------
+    // NORMAL CLICK (open track)
+    // -------------------------
+    div.addEventListener("click", (e) => {
+      if (isDragging) return; // prevent click after drag
+      openTrackView(track.id);
     });
+
+    // -------------------------
+    // DOUBLE CLICK → Enable drag mode
+    // -------------------------
+    div.addEventListener("dblclick", () => {
+      enableDragMode();
+    });
+
+    // -------------------------
+    // DRAG EVENTS
+    // -------------------------
+    div.setAttribute("draggable", true);
+
+    div.addEventListener("dragstart", handleDragStart);
+    div.addEventListener("dragover", handleDragOver);
+    div.addEventListener("drop", handleDrop);
+    div.addEventListener("dragend", handleDragEnd);
+
     grid.appendChild(div);
   });
 }
@@ -204,6 +233,101 @@ function renderTrackList() {
   });
 }
 
+// --------------------------
+// Drag and Drop Tracks
+// --------------------------
+
+function enableDragMode() {
+  dragModeEnabled = true;
+
+  document.querySelectorAll(".card").forEach(card => {
+    card.classList.add("drag-enabled");
+  });
+
+  showToast("Drag mode enabled");
+}
+
+function handleDragStart(e) {
+  isDragging = true;
+  this.classList.add("dragging");
+}
+
+function handleDragOver(e) {
+  e.preventDefault(); // required for drop
+
+  const draggingElement = document.querySelector(".dragging");
+  if (!draggingElement || this === draggingElement) return;
+
+  const grid = document.getElementById("trackGrid");
+  const children = [...grid.children];
+
+  const draggedIndex = children.indexOf(draggingElement);
+  const targetIndex = children.indexOf(this);
+
+  if (draggedIndex < targetIndex) {
+    grid.insertBefore(draggingElement, this.nextSibling);
+  } else {
+    grid.insertBefore(draggingElement, this);
+  }
+}
+
+function handleDrop(e) {
+  e.stopPropagation();
+}
+
+function handleDragEnd() {
+  this.classList.remove("dragging");
+
+  updateTrackOrderFromDOM();
+
+  // small delay so click doesn't fire immediately
+  setTimeout(() => {
+    isDragging = false;
+  }, 50);
+
+  showToast("Track order updated");
+}
+
+function updateTrackOrderFromDOM() {
+  const grid = document.getElementById("trackGrid");
+  const cards = Array.from(grid.children);
+
+  // 1️⃣ FIRST — get initial positions
+  const firstRects = new Map();
+  cards.forEach(card => {
+    firstRects.set(card.dataset.id, card.getBoundingClientRect());
+  });
+
+  // 2️⃣ Update internal tracks order
+  const newOrder = [];
+  cards.forEach(card => {
+    const id = Number(card.dataset.id);
+    const track = tracks.find(t => t.id === id);
+    if (track) newOrder.push(track);
+  });
+  tracks = newOrder;
+
+  // 3️⃣ LAST — get new positions after DOM already changed
+  requestAnimationFrame(() => {
+    cards.forEach(card => {
+      const lastRect = card.getBoundingClientRect();
+      const firstRect = firstRects.get(card.dataset.id);
+
+      const dx = firstRect.left - lastRect.left;
+      const dy = firstRect.top - lastRect.top;
+
+      // 4️⃣ INVERT
+      card.style.transform = `translate(${dx}px, ${dy}px)`;
+
+      // 5️⃣ PLAY
+      requestAnimationFrame(() => {
+        card.style.transform = "";
+      });
+    });
+  });
+
+  persistTracks();
+}
 
 // --------------------------
 // Inline Edit Logic
@@ -458,7 +582,7 @@ function getDefaultTracks() {
       icon: "📚", 
       deadlines: [], 
       tasks: [], 
-      reading: [], 
+      reading: [],
       notes: ""
     },
     { 
