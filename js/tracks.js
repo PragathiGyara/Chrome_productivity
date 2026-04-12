@@ -132,18 +132,19 @@ function computeTrackOverview(track) {
   const reading = track.reading || [];
   const deadlines = track.deadlines || [];
 
-  const completedTasks = tasks.filter(t => t.completed).length;
+  const completedTasks = tasks.filter(t => t.finished).length;
   const remainingTasks = tasks.length - completedTasks;
 
   const missedDeadlines = deadlines.filter(d =>
-    new Date(d.datetime) < now && d.status !== "completed"
+    new Date(d.datetime) < now &&
+    d.status !== "finished"
   ).length;
 
   const upcomingDeadlines = deadlines.filter(d =>
-    new Date(d.datetime) >= now
+    new Date(d.datetime) >= now &&
+    d.status !== "finished"
   );
 
-  // Sort upcoming deadlines by date
   const sortedUpcoming = [...upcomingDeadlines].sort(
     (a, b) => new Date(a.datetime) - new Date(b.datetime)
   );
@@ -450,26 +451,32 @@ function renderGlobalDeadlines() {
   container.innerHTML = "";
 
   const allDeadlines = tracks.flatMap(track =>
-    (track.deadlines || []).map(dl => ({
-      ...dl,
-      trackId: track.id,
-      trackName: track.name
-    }))
+    (track.deadlines || [])
+      .filter(dl => dl.status !== "finished")  
+      .map(dl => ({
+        deadline: dl,
+        track: track
+      }))
   );
 
   allDeadlines
-    .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-    .forEach(dl => {
+    .sort((a, b) => new Date(a.deadline.datetime) - new Date(b.deadline.datetime))
+    .forEach(({ deadline, track }) => {
+
       const div = document.createElement("div");
       div.classList.add("deadline-item");
 
       div.innerHTML = `
         <div>
-          <strong>${dl.title}</strong>
-          <div>${new Date(dl.datetime).toLocaleString()}</div>
-          <small>${dl.trackName}</small>
+          <strong>${deadline.title}</strong>
+          <div>${new Date(deadline.datetime).toLocaleString()}</div>
+          <small>${track.name}</small>
         </div>
       `;
+
+      div.addEventListener("click", () => {
+        openEditDeadlineForm(track, deadline,"global");
+      });
 
       container.appendChild(div);
     });

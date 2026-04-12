@@ -201,12 +201,20 @@ function renderDeadlines(track) {
   container.innerHTML = "";
 
   track.deadlines
-    .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+    .sort((a, b) => {
+      if (a.status === "finished" && b.status !== "finished") return 1;
+      if (a.status !== "finished" && b.status === "finished") return -1;
+
+      return new Date(a.datetime) - new Date(b.datetime);
+    })
     .forEach(dl => {
 
       const computedStatus = getDeadlineStatus(dl);
 
       const div = document.createElement("div");
+      if (dl.status === "finished") {
+        div.classList.add("deadline-finished");
+      }
       div.classList.add("deadline-item");
 
       div.innerHTML = `
@@ -221,7 +229,7 @@ function renderDeadlines(track) {
       `;
     
       div.addEventListener("dblclick", () => {
-        openEditDeadlineForm(track, dl);
+        openEditDeadlineForm(track, dl,"track");
         });
 
       container.appendChild(div);
@@ -354,8 +362,7 @@ function openTrackDeadlineForm(track) {
     track.deadlines.push({
       id: Date.now(),
       title,
-      datetime: datetime.toISOString(),
-      status: "upcoming"
+      datetime: datetime.toISOString()
     });
 
     persistTracks();              // saves + refreshes sidebar
@@ -389,9 +396,21 @@ function openTrackDeadlineForm(track) {
 // EDIT DEADLINE FORM
 // =====================================================
 
-function openEditDeadlineForm(track, deadline) {
+function findTrackByDeadline(deadlineId) {
+  return tracks.find(t =>
+    (t.deadlines || []).some(d => d.id === deadlineId)
+  );
+}
 
-  const container = document.getElementById("deadlineList");
+function openEditDeadlineForm(track, deadline, source="track") {
+
+  let container;
+
+  if (source === "global") {
+    container = document.getElementById("globalDeadlineList");
+  } else {
+    container = document.getElementById("deadlineList");
+  }
 
   // Prevent multiple edit forms
   if (container.querySelector(".deadline-form")) return;
@@ -408,6 +427,16 @@ function openEditDeadlineForm(track, deadline) {
   const min = String(existingDate.getMinutes()).padStart(2, "0");
 
   form.innerHTML = `
+
+    <!-- 🔥 STATUS ACTIONS -->
+    ${deadline.status !== "finished" ? `
+      <div class="deadline-status-actions">
+        <button type="button" class="status-btn complete-btn" id="markFinishedBtn">
+          ✓ Mark Finished
+        </button>
+      </div>
+    ` : ""}
+
     <input type="text" id="editTitle" value="${deadline.title}" />
 
     <div class="deadline-datetime-row">
@@ -416,11 +445,10 @@ function openEditDeadlineForm(track, deadline) {
     </div>
 
     <div class="deadline-form-actions">
-    <button type="button" class="neutral-btn" id="cancelEditBtn">Cancel</button>
-    <button type="button" class="primary-btn" id="updateDeadlineBtn">Update</button>
-    <button type="button" class="danger-btn" id="deleteDeadlineBtn">Delete</button>
+      <button type="button" class="neutral-btn" id="cancelEditBtn">Cancel</button>
+      <button type="button" class="primary-btn" id="updateDeadlineBtn">Update</button>
+      <button type="button" class="danger-btn" id="deleteDeadlineBtn">Delete</button>
     </div>
-
   `;
 
   container.prepend(form);
@@ -431,7 +459,57 @@ function openEditDeadlineForm(track, deadline) {
   const updateBtn = form.querySelector("#updateDeadlineBtn");
   const cancelBtn = form.querySelector("#cancelEditBtn");
   const deleteBtn = form.querySelector("#deleteDeadlineBtn");
+  const finishBtn = form.querySelector("#markFinishedBtn");
 
+  updateBtn.disabled = true;
+
+  const originalTitle = deadline.title;
+  const originalDatetime = deadline.datetime;
+
+  function checkForChanges() {
+    const newTitle = titleInput.value.trim();
+    const newDate = dateInput.value;
+    const newTime = timeInput.value;
+
+    const newDatetime = newDate && newTime
+      ? new Date(`${newDate}T${newTime}`).toISOString()
+      : null;
+
+    const isChanged =
+      newTitle !== originalTitle ||
+      newDatetime !== originalDatetime;
+
+    updateBtn.disabled = !isChanged;
+  }
+  titleInput.addEventListener("input", checkForChanges);
+  dateInput.addEventListener("input", checkForChanges);
+  timeInput.addEventListener("input", checkForChanges);
+
+  if (finishBtn) {
+    finishBtn.addEventListener("click", () => {
+
+      // 🔥 FIND CORRECT TRACK
+      const correctTrack = findTrackByDeadline(deadline.id);
+
+      if (!correctTrack) return;
+
+      deadline.status = "finished";
+
+      persistTracks();
+
+      showToast(`"${deadline.title}" marked as finished`);
+
+      form.remove();
+
+      // 🔥 ONLY UPDATE CORRECT TRACK
+      renderDeadlines(correctTrack);
+
+      renderGlobalDeadlines();
+
+      // Optional but safe
+      refreshCurrentView();
+    });
+  }
 
   updateBtn.addEventListener("click", () => {
 
@@ -455,12 +533,21 @@ function openEditDeadlineForm(track, deadline) {
     deadline.title = newTitle;
     deadline.datetime = newDatetime.toISOString();
 
+    if (deadline.status === "finished") {
+      delete deadline.status;
+    }
+
     persistTracks();
+
     renderGlobalDeadlines();
+  const correctTrack = findTrackByDeadline(deadline.id);
+
+  renderDeadlines(correctTrack);
+    refreshCurrentView();  
+
     showToast("Deadline updated");
 
     form.remove();
-    renderDeadlines(track);
   });
 
   deleteBtn.addEventListener("click", () => {
@@ -480,7 +567,9 @@ function openEditDeadlineForm(track, deadline) {
     showToast(`Deadline "${deadline.title}" deleted`);
 
     form.remove();
-    renderDeadlines(track);
+  const correctTrack = findTrackByDeadline(deadline.id);
+
+  renderDeadlines(correctTrack);
     });
 
 
@@ -1067,6 +1156,7 @@ function openEditTaskForm(track, task) {
   const taskTimeInput = form.querySelector("#editTaskTime");
 
   const updateBtn = form.querySelector("#updateTaskBtn");
+  updateBtn.disabled = true;
   const cancelBtn = form.querySelector("#cancelTaskEditBtn");
   const deleteBtn = form.querySelector("#deleteTaskBtn");
 

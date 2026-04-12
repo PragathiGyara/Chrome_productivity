@@ -600,6 +600,20 @@ body {
   margin-bottom: 10px;
 }
 
+.deadline-finished {
+  opacity: 0.45;
+  background-color: #020617; /* same bg but faded look */
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.deadline-finished .deadline-status {
+  opacity: 0.7;
+}
+
+.deadline-finished:hover {
+  opacity: 0.7;
+}
+
 .deadline-item {
   padding: 10px;
   border-bottom: 1px solid #1e293b;
@@ -658,6 +672,41 @@ body {
   border: 1px solid #1e293b;
   border-radius: 8px;
   background: #0b1220;
+}
+/* ---------- Status Actions (Top Buttons) ---------- */
+
+.deadline-status-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.status-btn {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.status-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Finished (Green) */
+.complete-btn {
+  background-color: #16a34a;
+  color: white;
+}
+
+/* Postpone (Orange) */
+.postpone-btn {
+  background-color: #f59e0b;
+  color: white;
 }
 
 .deadline-form input,
