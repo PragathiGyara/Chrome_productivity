@@ -14,6 +14,7 @@
 
 let currentView = "dashboard";
 let activeTrackId = null;
+let showFinishedTasks = false;
 
 
 // =====================================================
@@ -94,7 +95,9 @@ function renderTrackWorkspace() {
       <div class="workspace-card">
         <div class="section-header">
           <h3>Tasks</h3>
-          <button id="addTaskBtn">+ Add</button>
+          <div>
+            <button id="addTaskBtn">+ Add</button>          
+          </div>
         </div>
         <div id="taskList"></div>
       </div>
@@ -608,7 +611,7 @@ function addLinkInput(container, value = "") {
 }
 
 // =====================================================
-// READING FORM
+// EDIT READING FORM
 // =====================================================
 
 function openEditReadingForm(track, item) {
@@ -685,31 +688,265 @@ function openEditReadingForm(track, item) {
 // TASKS RENDERING
 // =====================================================
 
+function formatHours(hours) {
+
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+
+  return `${h}h ${m}m`;
+}
+
+function attachProgressSlider(slider, span, task, type, track) {
+
+  let previousValue = slider.value;
+
+  slider.addEventListener("mousedown", () => {
+    previousValue = slider.value;
+  });
+
+  slider.addEventListener("input", (e) => {
+
+    let newValue = Number(e.target.value);
+
+    const max = type === "prereq" ? task.prereqTime : task.taskTime;
+
+    // snap slider to max if close
+    if (max - newValue < slider.step) {
+      newValue = max;
+    }
+
+    // clean floating precision
+    newValue = Number(newValue.toFixed(3));
+
+    slider.value = newValue;
+
+    if (type === "prereq") {
+
+      task.prereqSpent = newValue;
+
+      const percent =
+        task.prereqTime === 0
+          ? 100
+          : Math.round((task.prereqSpent / task.prereqTime) * 100);
+
+      span.innerText = `${percent}%`;
+
+      const hours = span.parentElement.querySelector(".progress-hours");
+      hours.innerText =
+        `${formatHours(task.prereqSpent)} / ${formatHours(task.prereqTime)}`;
+
+    }
+
+    if (type === "task") {
+
+      task.taskSpent = newValue;
+
+      const percent =
+        task.taskTime === 0
+          ? 100
+          : Math.round((task.taskSpent / task.taskTime) * 100);
+
+      span.innerText = `${percent}%`;
+
+      const hours = span.parentElement.querySelector(".progress-hours");
+      hours.innerText =
+        `${formatHours(task.taskSpent)} / ${formatHours(task.taskTime)}`;
+
+    }
+
+  });
+
+  slider.addEventListener("change", () => {
+
+    persistTracks();
+
+    const EPSILON = 0.05;
+
+    let completed = false;
+
+    if (type === "prereq") {
+      completed = task.prereqSpent >= task.prereqTime - EPSILON;
+    }
+
+    if (type === "task") {
+      completed = task.taskSpent >= task.taskTime - EPSILON;
+    }
+
+    if (completed && !task._completionChecked) {
+
+      task._completionChecked = true;
+
+      showTaskDecisionUI(
+        track,
+        task,
+        () => {
+          // FINISH
+          task.finished = true;
+          persistTracks();
+          renderTasks(track);
+          showTaskCelebration(task.name);
+        },
+        () => {
+          // CANCEL → revert slider
+          slider.value = previousValue;
+
+          if (type === "prereq") {
+            task.prereqSpent = Number(previousValue);
+          }
+
+          if (type === "task") {
+            task.taskSpent = Number(previousValue);
+          }
+
+          const total = type === "prereq" ? task.prereqTime : task.taskTime;
+          span.innerText = `${Math.round((previousValue / total) * 100)}%`;
+
+          task._completionChecked = false;
+
+          persistTracks();
+        },
+        () => {
+          // EXTEND
+          openEditTaskForm(track, task);
+        }
+      );
+
+    }
+
+  });
+
+}
+
 function renderTasks(track) {
+
   const container = document.getElementById("taskList");
   if (!container) return;
 
   container.innerHTML = "";
 
-  track.tasks.forEach(task => {
+  const activeTasks = track.tasks.filter(t => !t.finished);
+  const finishedTasks = track.tasks.filter(t => t.finished);
+
+  const allTasks = [...activeTasks, ...finishedTasks];
+
+  allTasks.forEach(task => {
+
     const div = document.createElement("div");
     div.classList.add("deadline-item");
 
+    if (task.finished) {
+      div.classList.add("task-complete");
+    }
+
     div.innerHTML = `
-      <div>
-        <strong>${task.name}</strong>
-        <div>Prereq: ${task.prereq}</div>
-        <div>Prereq Time: ${task.prereqTime}</div>
-        <div>Task Time: ${task.taskTime}</div>
+      <div class="task-main">
+
+        <strong>${task.finished ? "✔ " : ""}${task.name}</strong>
+
+        <div class="task-desc hidden-desc">
+          ${task.description || ""}
+        </div>
+
+        <div>Prerequisite: ${task.prereq}</div>
+
+        <div class="task-progress-block">
+          <label>Prereq Progress</label>
+
+          <input 
+            type="range"
+            min="0"
+            max="${task.prereqTime}"
+            value="${task.prereqSpent ?? 0}"
+            step="0.01"
+            class="prereq-progress"
+            ${task.finished ? "disabled" : ""}
+          >
+
+          <span class="progress-percent">
+            ${task.prereqTime === 0 ? "100%" :
+            Math.round(((task.prereqSpent || 0) / task.prereqTime) * 100)}%
+          </span>
+
+          <div class="progress-hours">
+            ${formatHours(task.prereqSpent || 0)} /
+            ${formatHours(task.prereqTime)}
+          </div>
+
+        </div>
+
+        <div class="task-progress-block">
+          <label>Task Progress</label>
+
+          <input 
+            type="range"
+            min="0"
+            max="${task.taskTime}"
+            value="${task.taskSpent ?? 0}"
+            step="0.01"
+            class="task-progress"
+            ${task.finished ? "disabled" : ""}
+          >
+
+          <span class="progress-percent">
+            ${task.taskTime === 0 ? "100%" :
+            Math.round(((task.taskSpent || 0) / task.taskTime) * 100)}%
+          </span>
+
+          <div class="progress-hours">
+            ${formatHours(task.taskSpent || 0)} /
+            ${formatHours(task.taskTime)}
+          </div>
+
+        </div>
+
       </div>
     `;
 
+    const prereqSlider = div.querySelector(".prereq-progress");
+    const taskSlider = div.querySelector(".task-progress");
+
+    const prereqSpan = prereqSlider.nextElementSibling;
+    const taskSpan = taskSlider.nextElementSibling;
+
+    if (!task.finished) {
+
+      attachProgressSlider(
+        prereqSlider,
+        prereqSpan,
+        task,
+        "prereq",
+        track
+      );
+
+      attachProgressSlider(
+        taskSlider,
+        taskSpan,
+        task,
+        "task",
+        track
+      );
+
+    }
+
+    div.addEventListener("dblclick", () => {
+      if (task.finished) {
+        showToast("Completed tasks cannot be edited");
+        return;
+      }
+      openEditTaskForm(track, task);
+    });
+
     container.appendChild(div);
+
   });
+
 }
 
 // =====================================================
-// TASKS FORM
+// TASK FORM
 // =====================================================
 
 function openTaskForm(track) {
@@ -720,11 +957,14 @@ function openTaskForm(track) {
   form.classList.add("deadline-form");
 
   form.innerHTML = `
-    <input type="text" id="taskName" placeholder="Task name" />
-    <input type="text" id="taskPrereq" placeholder="Prerequisite needed" />
-    <input type="text" id="taskPrereqTime" placeholder="Estimated time for prereq" />
-    <input type="text" id="taskTime" placeholder="Estimated time for task" />
+    <input type="text" id="taskName" placeholder="Task name">
 
+    <textarea id="taskDescription" placeholder="Task description"></textarea>
+
+    <input type="text" id="taskPrereq" placeholder="Prerequisite needed">
+
+    <input type="number" step="0.25" min="0" id="taskPrereqTime" placeholder="Prerequisite time (in hours)">
+    <input type="number" step="0.25" min="0" id="taskTime" placeholder="Task time (in hours)">
     <div class="deadline-form-actions">
       <button class="neutral-btn" id="cancelTaskBtn">Cancel</button>
       <button class="primary-btn" id="saveTaskBtn">Save</button>
@@ -734,31 +974,39 @@ function openTaskForm(track) {
   container.prepend(form);
 
   const nameInput = form.querySelector("#taskName");
+  const descriptionInput = form.querySelector("#taskDescription");
   const prereqInput = form.querySelector("#taskPrereq");
   const prereqTimeInput = form.querySelector("#taskPrereqTime");
   const taskTimeInput = form.querySelector("#taskTime");
 
   form.querySelector("#saveTaskBtn").onclick = () => {
-    const name = nameInput.value.trim();
-    const prereq = prereqInput.value.trim();
-    const prereqTime = prereqTimeInput.value.trim();
-    const taskTime = taskTimeInput.value.trim();
 
-    if (!name || !prereq || !prereqTime || !taskTime) {
-      alert("All fields required.");
+    const name = nameInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const prereq = prereqInput.value.trim();
+    const prereqTime = Number(prereqTimeInput.value.trim());
+    const taskTime = Number(taskTimeInput.value.trim());
+
+    if (!name || isNaN(prereqTime) || isNaN(taskTime)) {
+      alert("Invalid time values.");
       return;
     }
 
     track.tasks.push({
       id: Date.now(),
       name,
+      description,
       prereq,
       prereqTime,
-      taskTime
+      taskTime,
+      prereqSpent: 0,
+      taskSpent: 0
     });
 
     persistTracks();
+
     form.remove();
+
     renderTasks(track);
   };
 
@@ -766,6 +1014,235 @@ function openTaskForm(track) {
     form.remove();
   };
 }
+
+// =====================================================
+// EDIT TASK FORM
+// =====================================================
+
+function openEditTaskForm(track, task) {
+
+  const container = document.getElementById("taskList");
+
+  // Prevent multiple edit forms
+  if (container.querySelector(".deadline-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("deadline-form");
+
+  form.innerHTML = `
+
+    <input type="text" id="editTaskName" value="${task.name}" />
+
+    <textarea id="editTaskDescription">${task.description || ""}</textarea>
+
+    <input type="text" id="editTaskPrereq" value="${task.prereq}" />
+
+    <input type="number" id="editTaskPrereqTime" value="${task.prereqTime}" />
+
+    <input type="number" id="editTaskTime" value="${task.taskTime}" />
+
+    <div class="deadline-form-actions">
+
+      <button type="button" class="neutral-btn" id="cancelTaskEditBtn">
+        Cancel
+      </button>
+
+      <button type="button" class="primary-btn" id="updateTaskBtn">
+        Update
+      </button>
+
+      <button type="button" class="danger-btn" id="deleteTaskBtn">
+        Delete
+      </button>
+
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const nameInput = form.querySelector("#editTaskName");
+  const descInput = form.querySelector("#editTaskDescription");
+  const prereqInput = form.querySelector("#editTaskPrereq");
+  const prereqTimeInput = form.querySelector("#editTaskPrereqTime");
+  const taskTimeInput = form.querySelector("#editTaskTime");
+
+  const updateBtn = form.querySelector("#updateTaskBtn");
+  const cancelBtn = form.querySelector("#cancelTaskEditBtn");
+  const deleteBtn = form.querySelector("#deleteTaskBtn");
+
+
+  // =====================================================
+  // UPDATE TASK
+  // =====================================================
+
+  updateBtn.addEventListener("click", () => {
+
+    const newName = nameInput.value.trim();
+    const newDesc = descInput.value.trim();
+    const newPrereq = prereqInput.value.trim();
+    const newPrereqTime = Number(prereqTimeInput.value);
+    const newTaskTime = Number(taskTimeInput.value);
+
+    if (!newName || !newPrereq || !newPrereqTime || !newTaskTime) {
+      alert("All fields required.");
+      return;
+    }
+
+    task.name = newName;
+    task.description = newDesc;
+    task.prereq = newPrereq;
+    task.prereqTime = newPrereqTime;
+    task.taskTime = newTaskTime;
+
+    task._completionChecked = false;
+
+    persistTracks();
+    showToast("Task updated");
+
+    form.remove();
+    renderTasks(track);
+  });
+
+
+  // =====================================================
+  // DELETE TASK
+  // =====================================================
+
+  deleteBtn.addEventListener("click", () => {
+
+    const confirmed = confirm(
+      `Are you sure you want to delete "${task.name}"?`
+    );
+
+    if (!confirmed) return;
+
+    track.tasks = track.tasks.filter(
+      t => t.id !== task.id
+    );
+
+    persistTracks();
+    showToast(`Task "${task.name}" deleted`);
+
+    form.remove();
+    renderTasks(track);
+  });
+
+
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
+  cancelBtn.addEventListener("click", () => {
+    form.remove();
+  });
+
+}
+
+function checkTaskCompletion(track, task, slider, previousValue, type, span) {
+
+  const completed =
+    task.prereqSpent >= task.prereqTime &&
+    task.taskSpent >= task.taskTime;
+
+  if (completed && !task._completionChecked) {
+
+    task._completionChecked = true;
+
+    showTaskDecisionUI(
+
+      track,
+
+      task,
+
+      () => {
+
+        task.finished = true;
+
+        persistTracks();
+
+        renderTasks(track);
+
+        showTaskCelebration(task.name);
+
+      },
+
+      () => {
+
+        slider.value = previousValue;
+
+        if (type === "prereq") {
+          task.prereqSpent = Number(previousValue);
+        }
+
+        if (type === "task") {
+          task.taskSpent = Number(previousValue);
+        }
+
+        span.innerText = `${previousValue}/${type === "prereq" ? task.prereqTime : task.taskTime}`;
+
+        task._completionChecked = false;
+
+        persistTracks();
+
+      },
+
+      () => {
+
+        openEditTaskForm(track, task);
+
+      }
+
+    );
+
+  }
+
+}
+
+function showTaskDecisionUI(track, task, finishFn, cancelFn, extendFn) {
+
+  const container = document.getElementById("taskList");
+
+  const box = document.createElement("div");
+  box.className = "deadline-form task-decision-ui";
+
+  box.innerHTML = `
+    <div style="font-weight:600">
+      Time reached for "${task.name}"
+    </div>
+
+    <div class="deadline-form-actions">
+
+      <button class="primary-btn">Mark Finished</button>
+
+      <button class="neutral-btn">Add More Time</button>
+
+      <button class="neutral-btn">Cancel</button>
+
+    </div>
+  `;
+
+  container.prepend(box);
+
+  const [finishBtn, extendBtn, cancelBtn] =
+    box.querySelectorAll("button");
+
+  finishBtn.onclick = () => {
+    box.remove();
+    finishFn();
+  };
+
+  extendBtn.onclick = () => {
+    box.remove();
+    extendFn();
+  };
+
+  cancelBtn.onclick = () => {
+    box.remove();
+    cancelFn();
+  };
+
+}
+
 
 // =====================================================
 // NOTES RENDERING
