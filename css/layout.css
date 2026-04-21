@@ -43,6 +43,9 @@ body {
 .app.left-collapsed.right-collapsed {
   grid-template-columns: 50px 1fr 50px;
 }
+.app.left-collapsed #viewToggle {
+  display: none;
+}
 
 
 /* ===================================================== */
@@ -164,6 +167,78 @@ body {
   transform: rotate(180deg);
 }
 
+/* ================= LEFT PANEL TOGGLE ================= */
+
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-toggle {
+  display: flex;
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.toggle-option {
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.toggle-option.active {
+  background: #2563eb;
+  color: white;
+}
+
+.toggle-option:hover {
+  color: white;
+}
+
+/* ================= TODO LIST ================= */
+
+.todo-summary {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.todo-item {
+  margin-bottom: 8px;
+}
+
+.todo-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.todo-card:hover {
+  background: #1e293b;
+}
+
+.todo-text {
+  flex: 1;
+}
+
+.todo-card.done {
+  opacity: 0.5;
+}
+
+.todo-card.done .todo-text {
+  text-decoration: line-through;
+}
 
 /* ===================================================== */
 /* CENTER DASHBOARD */

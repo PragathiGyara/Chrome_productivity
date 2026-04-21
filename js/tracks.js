@@ -31,6 +31,10 @@ let isDragging = false;
 
 let draggedTrackId = null;
 
+const TODO_STORAGE_KEY = "dailyTodos";
+
+let currentLeftView = "deadlines"; // "deadlines" | "todos"
+
 // --------------------------
 // In-Memory State
 // --------------------------
@@ -48,12 +52,9 @@ let toastTimeout = null;
 document.addEventListener("DOMContentLoaded", () => {
   loadTracks();
   renderTracks();
-  renderGlobalDeadlines();
+  updateLeftPanel();
+  setupLeftPanelToggle();
   attachTrackEvents();
-  const addBtn = document.getElementById("addDeadlineBtn");
-  if (addBtn) {
-    addBtn.addEventListener("click", openSidebarDeadlineForm);
-  }
 });
 
 
@@ -117,6 +118,24 @@ function attachTrackEvents() {
       deleteModal.classList.add("hidden");
       trackPendingDeletion = null;
     }
+  });
+}
+
+function setupLeftPanelToggle() {
+  const toggle = document.getElementById("viewToggle");
+
+  toggle.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("toggle-option")) return;
+
+    currentLeftView = e.target.dataset.view;
+
+    // Update UI state
+    toggle.querySelectorAll(".toggle-option")
+      .forEach(el => el.classList.remove("active"));
+
+    e.target.classList.add("active");
+
+    updateLeftPanel();
   });
 }
 
@@ -437,6 +456,79 @@ function renderTracks() {
 
     });
 
+  });
+}
+
+// --------------------------
+// Left Panel
+// --------------------------
+
+function updateLeftPanel() {
+  const title = document.getElementById("leftPanelTitle");
+  const btn = document.getElementById("addDeadlineBtn");
+
+  if (!title || !btn) {
+    console.error("Left panel elements not found");
+    return;
+  }
+
+  if (currentLeftView === "deadlines") {
+    title.textContent = "Deadlines";
+    renderGlobalDeadlines();
+
+    btn.textContent = "+ New Deadline";
+    btn.onclick = openSidebarDeadlineForm;
+
+  } else {
+    title.textContent = "Today";
+    renderTodayTodos();
+
+    btn.textContent = "+ Add Task";
+    btn.onclick = openSidebarTodoForm;
+  }
+}
+
+// --------------------------
+// Render TO DO
+// --------------------------
+
+
+function renderTodayTodos() {
+  const container = document.getElementById("globalDeadlineList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const { todos, today } = getTodayTodos();
+
+  // Optional summary
+  const summary = document.createElement("div");
+  summary.classList.add("todo-summary");
+
+  const completed = today.items.filter(i => i.done).length;
+  summary.textContent = `${completed}/${today.items.length} done`;
+
+  container.appendChild(summary);
+
+  // Items
+  today.items.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("todo-item");
+
+    div.innerHTML = `
+      <div class="todo-card ${item.done ? "done" : ""}">
+        <input type="checkbox" ${item.done ? "checked" : ""} />
+        <span class="todo-text">${item.text}</span>
+      </div>
+    `;
+
+    div.querySelector("input").addEventListener("change", (e) => {
+      item.done = e.target.checked;
+      persistTodos(todos);
+      renderTodayTodos();
+    });
+
+    container.appendChild(div);
   });
 }
 
@@ -897,6 +989,34 @@ function getDefaultTracks() {
   ];
 }
 
+function loadTodos() {
+  const stored = localStorage.getItem(TODO_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function persistTodos(todos) {
+  localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+}
+
+function getTodayKey() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function getTodayTodos() {
+  const todos = loadTodos();
+  const todayKey = getTodayKey();
+
+  let today = todos.find(t => t.date === todayKey);
+
+  if (!today) {
+    today = { date: todayKey, items: [] };
+    todos.push(today);
+    persistTodos(todos);
+  }
+
+  return { todos, today };
+}
+
 // --------------------------
 // Toast Notification
 // --------------------------
@@ -1029,6 +1149,50 @@ function openSidebarDeadlineForm() {
   });
 
   cancelBtn.addEventListener("click", () => {
+    form.remove();
+  });
+}
+
+function openSidebarTodoForm() {
+  const container = document.getElementById("globalDeadlineList");
+  if (!container) return;
+
+  if (container.querySelector(".todo-form")) return;
+
+  const form = document.createElement("div");
+  form.classList.add("todo-form");
+
+  form.innerHTML = `
+    <input type="text" id="todoInput" placeholder="What needs to be done today?" />
+
+    <div class="deadline-form-actions">
+      <button id="saveTodoBtn" class="primary-btn">Add</button>
+      <button id="cancelTodoBtn" class="neutral-btn">Cancel</button>
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const input = form.querySelector("#todoInput");
+
+  form.querySelector("#saveTodoBtn").addEventListener("click", () => {
+    const text = input.value.trim();
+    if (!text) return;
+
+    const { todos, today } = getTodayTodos();
+
+    today.items.push({
+      id: Date.now(),
+      text,
+      done: false
+    });
+
+    persistTodos(todos);
+    renderTodayTodos();
+    form.remove();
+  });
+
+  form.querySelector("#cancelTodoBtn").addEventListener("click", () => {
     form.remove();
   });
 }
