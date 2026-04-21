@@ -152,7 +152,46 @@
   border-radius: 4px;
 }
 
+.word-header {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.word-number {
+  font-size: 12px;
+  color: #64748b;
+}
+.word-item.learned {
+  opacity: 0.5;
+}
+.word-item {
+  position: relative;
+}
 
+.word-date {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 11px;          /* slightly bigger */
+  color: #9ca3af;           /* more visible than before */
+  font-weight: 500;         /* adds clarity */
+}
+
+.mark-learned-btn {
+  margin-top: 6px;
+  background: #1e293b;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s ease;
+}
+
+.mark-learned-btn:hover {
+  background: #2563eb;
+}
 
 
 

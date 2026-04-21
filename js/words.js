@@ -57,7 +57,8 @@ function saveWord() {
     word,
     meaning,
     sentence,
-    display
+    display,
+    status: "new"
   };
 
   words.unshift(newWord); // Add to top
@@ -71,48 +72,138 @@ function saveWord() {
 // Render Words
 // ------------------------------
 
+function updateStats(words) {
+  const total = words.length;
+  const learned = words.filter(w => w.status === "learned").length;
+  const active = total - learned;
+
+  document.getElementById("totalWords").innerText = total;
+  document.getElementById("learnedWords").innerText = learned;
+  document.getElementById("learningWords").innerText = active; // rename label later if needed
+}
+
 function renderWords() {
   const container = document.getElementById("wordList");
   container.innerHTML = "";
 
-  words
-    .filter(w => w.display)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .forEach(word => {
-      const wordElement = createWordElement(word);
-      container.appendChild(wordElement);
-    });
-}
+  updateStats(words);
 
+  const activeWords = words
+    .filter(w => w.display && w.status !== "learned")
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const learnedWords = words
+    .filter(w => w.display && w.status === "learned");
+  // ❗ NO SORT HERE
+
+  const finalList = [...activeWords, ...learnedWords];
+
+  finalList.forEach((word, index) => {
+    container.appendChild(createWordElement(word, index + 1));
+  });
+}
 // ------------------------------
 // Create Word Element
 // ------------------------------
 
-function createWordElement(wordObj) {
+function createWordElement(wordObj, number) {
   const div = document.createElement("div");
   div.classList.add("word-item");
 
+  // Fade if learned
+  if (wordObj.status === "learned") {
+    div.classList.add("learned");
+  }
+
+  // Header
+  const header = document.createElement("div");
+  header.className = "word-header";
+
+  if (number !== null) {
+    const num = document.createElement("span");
+    num.className = "word-number";
+    num.textContent = `${number}.`;
+    header.appendChild(num);
+  }
+
+  const title = document.createElement("span");
+  title.className = "word-title";
+  title.textContent = wordObj.word;
+
+  header.appendChild(title);
+
+  // Language
   const language = document.createElement("div");
   language.className = "word-language";
   language.textContent = wordObj.language;
 
-  const title = document.createElement("div");
-  title.className = "word-title";
-  title.textContent = wordObj.word;
-
+  // Meaning
   const meaning = document.createElement("div");
   meaning.className = "word-meaning";
   meaning.textContent = wordObj.meaning;
 
+  // Sentence
   const sentence = document.createElement("div");
   sentence.className = "word-sentence";
   sentence.textContent = wordObj.sentence || "";
 
-  div.append(language, title, meaning, sentence);
+  // Date (NEW)
+  const date = document.createElement("div");
+  date.className = "word-date";
+  date.textContent = new Date(wordObj.date).toLocaleDateString();
+
+  // Button
+  const btn = document.createElement("button");
+  btn.className = "mark-learned-btn";
+
+  btn.textContent =
+    wordObj.status === "learned" ? "↺ Revise" : "Mark Learned ✓";
+
+  btn.addEventListener("click", () => {
+    markAsLearned(wordObj.id);
+  });
+
+  div.append(header, language, meaning, sentence, btn, date);
 
   return div;
 }
 
+function markAsLearned(id) {
+  let updatedWord = null;
+
+  words = words.filter(w => {
+    if (w.id === id) {
+      updatedWord = w;
+      return false; // remove it
+    }
+    return true;
+  });
+
+  if (!updatedWord) return;
+
+  if (updatedWord.status === "learned") {
+    // 🔁 Revise → bring to top
+    updatedWord = {
+      ...updatedWord,
+      status: "active",
+      date: new Date().toISOString()
+    };
+
+    words.unshift(updatedWord); // top
+  } else {
+    // ✅ Mark learned → send to bottom
+    updatedWord = {
+      ...updatedWord,
+      status: "learned",
+      date: new Date().toISOString()
+    };
+
+    words.push(updatedWord); // 🔥 bottom
+  }
+
+  persistWords();
+  renderWords();
+}
 // ------------------------------
 // Local Storage
 // ------------------------------
@@ -123,7 +214,11 @@ function persistWords() {
 
 function loadWords() {
   chrome.storage.local.get([STORAGE_KEY], (result) => {
-    words = result[STORAGE_KEY] || [];
+    words = (result[STORAGE_KEY] || []).map(w => ({
+      ...w,
+      status: w.status || "active"
+    }));
+
     renderWords();
   });
 }
@@ -152,7 +247,8 @@ function addWordToVault(wordData) {
     word: wordData.word,
     meaning: wordData.meaning,
     sentence: wordData.sentence || "",
-    display: true
+    display: true,
+    status: "new"
   };
 
   words.unshift(newWord);

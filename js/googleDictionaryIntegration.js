@@ -156,7 +156,8 @@ function saveInjectedWord() {
       word,
       meaning,
       sentence,
-      display: true
+      display: true,
+      status: "active" // "new" | "active" | "learned"
     };
 
     words.unshift(newWord);
