@@ -35,6 +35,9 @@ const TODO_STORAGE_KEY = "dailyTodos";
 
 let currentLeftView = "deadlines"; // "deadlines" | "todos"
 
+const BASE_LANGUAGES = ["English", "Hindi", "Telugu", "Marathi"];
+let currentWOTDIndex = 0;
+
 // --------------------------
 // In-Memory State
 // --------------------------
@@ -55,6 +58,27 @@ document.addEventListener("DOMContentLoaded", () => {
   updateLeftPanel();
   setupLeftPanelToggle();
   attachTrackEvents();
+  renderWordOfTheDay();
+  document.getElementById("wotdNext").addEventListener("click", () => {
+    currentWOTDIndex++;
+    reloadWOTD();
+  });
+
+  document.getElementById("wotdPrev").addEventListener("click", () => {
+    currentWOTDIndex--;
+    reloadWOTD();
+  });
+  document.getElementById("wotdSentenceToggle")
+  .addEventListener("change", (e) => {
+
+    const sentenceEl = document.getElementById("wotdSentence");
+
+    if (e.target.checked) {
+      sentenceEl.classList.remove("hidden");
+    } else {
+      sentenceEl.classList.add("hidden");
+    }
+  });
 });
 
 
@@ -1197,3 +1221,85 @@ function openSidebarTodoForm() {
   });
 }
 
+
+// --------------------------
+// Word of the Day
+// --------------------------
+
+function getAvailableLanguages(words) {
+  const dynamic = [...new Set(words.map(w => w.language))];
+  return [...new Set([...BASE_LANGUAGES, ...dynamic])];
+}
+
+function renderWordOfTheDay() {
+  chrome.storage.local.get(["vocabularyWords"], (result) => {
+    const words = result["vocabularyWords"] || [];
+
+    if (!words.length) {
+      showEmptyState();
+      return;
+    }
+
+    updateWOTD(words);
+  });
+}
+
+function updateWOTD(words) {
+  const languages = getAvailableLanguages(words);
+
+  if (!languages.length) {
+    showEmptyState();
+    return;
+  }
+
+  const language = languages[currentWOTDIndex % languages.length];
+
+  const filtered = words.filter(
+    w => w.language === language && w.status !== "learned"
+  );
+
+  document.getElementById("centerWOTDLanguage").innerText = language;
+
+  const wordEl = document.getElementById("centerWOTDWord");
+  const meaningEl = document.getElementById("centerWOTDMeaning");
+
+  if (!filtered.length) {
+    wordEl.innerText = "All caught up 🎉";
+    meaningEl.innerText = "Add more words to continue";
+    return;
+  }
+
+  const index = new Date().getDate() % filtered.length;
+  const word = filtered[index];
+
+  wordEl.innerText = word.word;
+  meaningEl.innerText = word.meaning;
+
+  const toggleContainer = document.getElementById("wotdToggleContainer");
+  const sentenceEl = document.getElementById("wotdSentence");
+  const toggle = document.getElementById("wotdSentenceToggle");
+
+  // Reset state
+  toggle.checked = false;
+  sentenceEl.classList.add("hidden");
+  sentenceEl.innerText = "";
+
+  if (!word.sentence) {
+    toggleContainer.classList.add("hidden");
+  } else {
+    toggleContainer.classList.remove("hidden");
+    sentenceEl.innerText = word.sentence;
+  }
+}
+
+function showEmptyState() {
+  document.getElementById("centerWOTDWord").innerText = "No words yet";
+  document.getElementById("centerWOTDMeaning").innerText = "Start adding words ✨";
+}
+
+function reloadWOTD() {
+  chrome.storage.local.get(["vocabularyWords"], (result) => {
+    const words = result["vocabularyWords"] || [];
+    updateWOTD(words);
+  });
+}
