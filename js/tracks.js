@@ -43,7 +43,7 @@ let currentWOTDIndex = 0;
 // --------------------------
 
 let tracks = [];
-let isEditingTrack = false;
+let activeTrackEditId = null;
 let trackPendingDeletion = null;
 let toastTimeout = null;
 
@@ -845,28 +845,71 @@ function updateTrackOrderFromDOM() {
 // TRACK MODAL EDITING
 // =====================================================
 
-function enableTrackModalEdit(row, track) {
-  if (isEditingTrack) return;
+function validateTrackName(name, currentTrackId = null) {
 
-  isEditingTrack = true;
+  const trimmed = name.trim();
+
+  if (!trimmed) {
+    return "Track name cannot be empty.";
+  }
+
+  if (trimmed.length > 40) {
+    return "Track name is too long.";
+  }
+
+  const duplicate = tracks.find(track =>
+    track.id !== currentTrackId &&
+    track.name.toLowerCase() === trimmed.toLowerCase()
+  );
+
+  if (duplicate) {
+    return "Track name already exists.";
+  }
+
+  return null;
+}
+
+function enableTrackModalEdit(row, track) {
+
+  if (activeTrackEditId !== null) return;
+
+  activeTrackEditId = track.id;
 
   let selectedIcon = track.icon;
 
-  const iconGrid = TRACK_ICONS.map(icon =>
-    `<span class="icon-option ${icon === track.icon ? "selected-icon" : ""}" data-icon="${icon}">
+  const originalHTML = row.innerHTML;
+
+  const iconGrid = TRACK_ICONS.map(icon => `
+    <span
+      class="icon-option ${
+        icon === track.icon ? "selected-icon" : ""
+      }"
+      data-icon="${icon}"
+    >
       ${icon}
-    </span>`
-  ).join("");
+    </span>
+  `).join("");
 
   row.innerHTML = `
+
     <div class="edit-container">
 
       <div class="edit-preview">
-        <span class="preview-icon">${selectedIcon}</span>
-        <span class="preview-name">${track.name}</span>
+
+        <span class="preview-icon">
+          ${selectedIcon}
+        </span>
+
+        <span class="preview-name">
+          ${track.name}
+        </span>
+
       </div>
 
-      <input class="edit-name" value="${track.name}" />
+      <input
+        class="edit-name"
+        value="${track.name}"
+      />
 
       <div class="icon-picker">
         ${iconGrid}
@@ -875,53 +918,117 @@ function enableTrackModalEdit(row, track) {
     </div>
 
     <div class="track-actions">
-      <button class="save-edit-btn">✔</button>
-      <button class="cancel-edit-btn">✖</button>
+
+      <button class="save-edit-btn">
+        ✔
+      </button>
+
+      <button class="cancel-edit-btn">
+        ✖
+      </button>
+
     </div>
   `;
 
   const nameInput = row.querySelector(".edit-name");
-  const previewIcon = row.querySelector(".preview-icon");
-  const previewName = row.querySelector(".preview-name");
 
-  // Live preview name update
+  const previewIcon =
+    row.querySelector(".preview-icon");
+
+  const previewName =
+    row.querySelector(".preview-name");
+
+  // =========================================
+  // LIVE NAME PREVIEW
+  // =========================================
+
   nameInput.addEventListener("input", () => {
-    previewName.textContent = nameInput.value || "Untitled";
+
+    previewName.textContent =
+      nameInput.value.trim() || "Untitled";
+
   });
 
-  // Icon selection
-  row.querySelectorAll(".icon-option").forEach(el => {
-    el.addEventListener("click", () => {
-      row.querySelectorAll(".icon-option")
-        .forEach(i => i.classList.remove("selected-icon"));
+  // =========================================
+  // ICON SELECTION
+  // =========================================
 
-      el.classList.add("selected-icon");
-      selectedIcon = el.dataset.icon;
-      previewIcon.textContent = selectedIcon;
+  row.querySelectorAll(".icon-option")
+    .forEach(el => {
+
+      el.addEventListener("click", () => {
+
+        row.querySelectorAll(".icon-option")
+          .forEach(i =>
+            i.classList.remove("selected-icon")
+          );
+
+        el.classList.add("selected-icon");
+
+        selectedIcon = el.dataset.icon;
+
+        previewIcon.textContent = selectedIcon;
+
+      });
+
     });
-  });
 
-  // Save
-  row.querySelector(".save-edit-btn").addEventListener("click", () => {
-    const newName = nameInput.value.trim();
-    if (!newName) return;
+  // =========================================
+  // SAVE
+  // =========================================
 
-    track.name = newName;
-    track.icon = selectedIcon;
+  row.querySelector(".save-edit-btn")
+    .addEventListener("click", () => {
 
-    persistTracks();
-    renderTracks();
-    renderTrackList();
-    showToast("Track updated");
+      const newName = nameInput.value.trim();
 
-    isEditingTrack = false;
-  });
+      const error =
+        validateTrackName(newName, track.id);
 
-  // Cancel
-  row.querySelector(".cancel-edit-btn").addEventListener("click", () => {
-    isEditingTrack = false;
-    renderTrackList();
-  });
+      if (error) {
+        alert(error);
+        return;
+      }
+
+      track.name = newName;
+      track.icon = selectedIcon;
+
+      persistTracks();
+
+      refreshCurrentView();
+
+      renderTrackList();
+
+      showToast("Track updated");
+
+      activeTrackEditId = null;
+
+    });
+
+  // =========================================
+  // CANCEL
+  // =========================================
+
+  row.querySelector(".cancel-edit-btn")
+    .addEventListener("click", () => {
+
+      row.innerHTML = originalHTML;
+
+      activeTrackEditId = null;
+
+      // Reattach listeners manually
+      row.querySelector(".edit-track-btn")
+        ?.addEventListener("click", () =>
+          enableTrackModalEdit(row, track)
+        );
+
+      row.querySelector(".delete-track-btn")
+        ?.addEventListener("click", () =>
+          openDeleteConfirmModal(track)
+        );
+
+    });
+
 }
 
 
@@ -930,9 +1037,9 @@ function enableTrackModalEdit(row, track) {
 // --------------------------
 
 function openInlineAdd() {
-  if (isEditingTrack) return;
+  if (activeTrackEditId) return;
 
-  isEditingTrack = true;
+  activeTrackEditId = "new-track";
 
   const list = document.getElementById("trackList");
 
@@ -1009,11 +1116,11 @@ function openInlineAdd() {
     renderTrackList();
     showToast(`Track "${name}" added`);
 
-    isEditingTrack = false;
+    activeTrackEditId = null;
   });
 
   row.querySelector(".cancel-edit-btn").addEventListener("click", () => {
-    isEditingTrack = false;
+    activeTrackEditId = null;
     row.remove();
   });
 }
@@ -1024,15 +1131,24 @@ function openInlineAdd() {
 // --------------------------
 
 function attemptCloseModal() {
-  const modal = document.getElementById("trackSettingsModal");
 
-  if (isEditingTrack) {
-    if (!confirm("You have unsaved changes. Discard them?")) {
+  const modal =
+    document.getElementById("trackSettingsModal");
+
+  if (activeTrackEditId !== null) {
+
+    const confirmed = confirm(
+      "Discard current edit?"
+    );
+
+    if (!confirmed) {
       return;
     }
+
   }
 
-  isEditingTrack = false;
+  activeTrackEditId = null;
+
   modal.classList.add("hidden");
 }
 
@@ -1052,9 +1168,12 @@ function openDeleteConfirmModal(track) {
 }
 
 function deleteTrack(id) {
-  tracks = tracks.filter(track => track.id !== id);
+  tracks = tracks.filter(
+    track => track.id !== id
+  );
+
   persistTracks();
-  renderTracks();
+  refreshCurrentView();
   renderTrackList();
 }
 
