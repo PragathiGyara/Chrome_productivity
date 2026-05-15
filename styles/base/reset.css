@@ -1,0 +1,37 @@
+/* =====================================================
+   GLOBAL RESET
+===================================================== */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+/* =====================================================
+   BODY
+===================================================== */
+
+body {
+
+  margin: 0;
+
+  background: var(--bg-main);
+
+  color: var(--text-main);
+
+  font-family: system-ui, sans-serif;
+
+  font-size: 16px;
+
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+/* =====================================================
+   GLOBAL UTILITIES
+===================================================== */
+
+.hidden {
+  display: none;
+}

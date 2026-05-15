@@ -1,0 +1,148 @@
+/* =====================================================
+   DEADLINE LIST
+===================================================== */
+
+#deadlineList {
+
+  overflow-y: auto;
+
+  min-height: 0;
+}
+
+
+/* =====================================================
+   DEADLINE HEADER
+===================================================== */
+
+.deadline-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 10px;
+}
+
+
+/* =====================================================
+   DEADLINE ITEM
+===================================================== */
+
+.deadline-item {
+
+  padding: 10px;
+
+  border-bottom: 1px solid var(--border-color);
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+
+/* =====================================================
+   FINISHED DEADLINE
+===================================================== */
+
+.deadline-finished {
+
+  opacity: 0.45;
+
+  background-color: var(--bg-panel);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.deadline-finished:hover {
+
+  opacity: 0.7;
+}
+
+
+/* =====================================================
+   DEADLINE STATUS
+===================================================== */
+
+.deadline-status {
+
+  font-size: 12px;
+
+  padding: 4px 8px;
+
+  border-radius: 6px;
+
+  text-transform: capitalize;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   STATUS VARIANTS
+===================================================== */
+
+.deadline-status.upcoming {
+
+  background: var(--primary);
+}
+
+.deadline-status.finished {
+
+  background: var(--success);
+}
+
+.deadline-status.missed {
+
+  background: var(--danger);
+}
+
+.deadline-status.cancelled {
+
+  background: #6b7280;
+}
+
+
+/* =====================================================
+   FINISHED STATUS
+===================================================== */
+
+.deadline-finished .deadline-status {
+
+  opacity: 0.7;
+}
+
+
+/* =====================================================
+   HIDDEN DESCRIPTION
+===================================================== */
+
+.hidden-desc {
+
+  opacity: 0;
+
+  max-height: 0;
+
+  overflow: hidden;
+
+  transition:
+    opacity 0.2s ease,
+    max-height 0.2s ease;
+}
+
+
+/* Reveal on hover */
+
+.deadline-item:hover .hidden-desc {
+
+  opacity: 0.85;
+
+  max-height: 100px;
+
+  margin-top: 4px;
+}

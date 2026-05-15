@@ -1,0 +1,209 @@
+/* =====================================================
+   WORD OF THE DAY CONTAINER
+===================================================== */
+
+.center-wotd {
+
+  flex-shrink: 0;
+
+  background: var(--bg-panel);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 10px;
+
+  padding: 14px 18px;
+
+  margin-bottom: 15px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+
+.wotd-main {
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.wotd-title {
+
+  font-size: 13px;
+
+  color: var(--text-muted);
+
+  margin-bottom: 8px;
+}
+
+
+/* =====================================================
+   WORD
+===================================================== */
+
+.wotd-word {
+
+  text-align: center;
+
+  font-size: 22px;
+
+  font-weight: 600;
+
+  margin-bottom: 6px;
+}
+
+
+/* =====================================================
+   MEANING
+===================================================== */
+
+.wotd-meaning {
+
+  text-align: center;
+
+  font-size: 16px;
+
+  color: #e2e8f0;
+
+  margin-bottom: 10px;
+}
+
+
+/* =====================================================
+   SENTENCE
+===================================================== */
+
+.wotd-sentence {
+
+  margin-top: 10px;
+
+  font-size: 13px;
+
+  font-style: italic;
+
+  color: var(--text-soft);
+}
+
+
+/* =====================================================
+   TOGGLE CONTAINER
+===================================================== */
+
+.wotd-toggle {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 6px;
+}
+
+
+/* =====================================================
+   TOGGLE LABEL
+===================================================== */
+
+.toggle-label {
+
+  font-size: 11px;
+
+  color: var(--text-muted);
+}
+
+
+/* =====================================================
+   TOGGLE SWITCH
+===================================================== */
+
+.toggle-switch {
+
+  position: relative;
+
+  width: 34px;
+
+  height: 18px;
+}
+
+
+/* Hide native checkbox */
+
+.toggle-switch input {
+
+  display: none;
+}
+
+
+/* =====================================================
+   SLIDER
+===================================================== */
+
+.slider {
+
+  position: absolute;
+
+  inset: 0;
+
+  background: #334155;
+
+  border-radius: 20px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+/* Toggle circle */
+
+.slider::before {
+
+  content: "";
+
+  position: absolute;
+
+  width: 14px;
+
+  height: 14px;
+
+  left: 2px;
+
+  top: 2px;
+
+  background: white;
+
+  border-radius: 50%;
+
+  transition: 0.2s;
+}
+
+
+/* Checked state */
+
+.toggle-switch input:checked + .slider {
+
+  background: var(--primary);
+}
+
+.toggle-switch input:checked + .slider::before {
+
+  transform: translateX(16px);
+}

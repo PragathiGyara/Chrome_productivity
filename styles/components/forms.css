@@ -1,0 +1,251 @@
+/* =====================================================
+   SHARED FORM LAYOUT
+===================================================== */
+
+.word-form,
+.deadline-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   DEADLINE FORM
+===================================================== */
+
+.deadline-form {
+
+  margin-bottom: 15px;
+
+  padding: 10px;
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 8px;
+
+  background: #0b1220;
+}
+
+
+/* =====================================================
+   WORD FORM
+===================================================== */
+
+.word-form {
+
+  padding: 10px;
+
+  background: var(--bg-main);
+
+  border-radius: 10px;
+}
+
+
+/* =====================================================
+   SHARED INPUTS
+===================================================== */
+
+.word-form input,
+.word-form textarea,
+.word-form select,
+.deadline-form input,
+.deadline-form textarea,
+.deadline-form select {
+
+  background: var(--bg-panel);
+
+  border: 1px solid var(--border-color);
+
+  color: white;
+
+  padding: 8px 10px;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  font-family: system-ui, sans-serif;
+}
+
+
+/* =====================================================
+   TEXTAREAS
+===================================================== */
+
+.word-form textarea,
+.deadline-form textarea {
+
+  resize: vertical;
+}
+
+
+/* Deadline textarea specific */
+
+.deadline-form textarea {
+
+  min-height: 70px;
+}
+
+
+/* Word form textarea specific */
+
+.word-form textarea {
+
+  min-height: 60px;
+}
+
+
+/* =====================================================
+   INPUT FOCUS
+===================================================== */
+
+.word-form input:focus,
+.word-form textarea:focus,
+.word-form select:focus,
+.deadline-form input:focus,
+.deadline-form textarea:focus,
+.deadline-form select:focus {
+
+  outline: 2px solid rgba(37,99,235,0.45);
+
+  border-color: transparent;
+}
+
+
+/* =====================================================
+   DATETIME ROWS
+===================================================== */
+
+.deadline-datetime-row {
+
+  display: flex;
+
+  gap: 10px;
+}
+
+.deadline-datetime-row input {
+
+  flex: 1;
+}
+
+
+.deadline-datetime-column {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+/* =====================================================
+   DATE/TIME PICKER ICONS
+===================================================== */
+
+.deadline-form input[type="date"]::-webkit-calendar-picker-indicator,
+.deadline-form input[type="time"]::-webkit-calendar-picker-indicator {
+
+  filter: invert(1);
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   FORM ACTION ROWS
+===================================================== */
+
+.deadline-form-actions,
+.add-track-modal-actions,
+.confirm-actions {
+
+  display: flex;
+
+  align-items: center;
+}
+
+
+/* Deadline buttons */
+
+.deadline-form-actions {
+
+  justify-content: space-between;
+
+  margin-top: 5px;
+}
+
+
+/* Add track modal */
+
+.add-track-modal-actions {
+
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+
+/* Confirmation modal */
+
+.confirm-actions {
+
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   STATUS ACTIONS
+===================================================== */
+
+.deadline-status-actions {
+
+  display: flex;
+
+  gap: 8px;
+
+  margin-bottom: 8px;
+}
+
+
+/* =====================================================
+   DISPLAY TOGGLE
+===================================================== */
+
+.display-toggle {
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   ADD TRACK INPUT
+===================================================== */
+
+#newTrackName {
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: var(--bg-main);
+
+  color: white;
+
+  font-size: 16px;
+}
+
+#newTrackName:focus {
+
+  outline: 2px solid rgba(37,99,235,0.5);
+}

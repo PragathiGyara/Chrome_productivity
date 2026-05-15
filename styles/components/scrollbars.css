@@ -1,0 +1,169 @@
+/* =====================================================
+   SHARED SCROLL CONTAINER STYLING
+===================================================== */
+
+.panel,
+.center {
+
+  scrollbar-width: none;
+}
+
+
+/* =====================================================
+   WEBKIT SCROLLBARS
+===================================================== */
+
+.panel::-webkit-scrollbar,
+.center::-webkit-scrollbar {
+
+  width: 6px;
+
+  height: 0px;
+}
+
+
+/* =====================================================
+   SCROLLBAR THUMB
+===================================================== */
+
+.panel::-webkit-scrollbar-thumb,
+.center::-webkit-scrollbar-thumb {
+
+  background: rgba(30, 41, 59, 0);
+
+  border-radius: 4px;
+
+  transition: background 0.25s ease;
+}
+
+
+/* =====================================================
+   ACTIVE SCROLLING STATE
+===================================================== */
+
+.panel.scrolling::-webkit-scrollbar-thumb,
+.center.scrolling::-webkit-scrollbar-thumb {
+
+  background: rgba(30, 41, 59, 0.7);
+}
+
+
+/* =====================================================
+   FIREFOX SUPPORT
+===================================================== */
+
+.panel,
+.center {
+
+  scrollbar-width: thin;
+
+  scrollbar-color: transparent transparent;
+}
+
+.panel.scrolling,
+.center.scrolling {
+
+  scrollbar-color:
+    rgba(30, 41, 59, 0.7)
+    transparent;
+}
+
+
+/* =====================================================
+   HORIZONTAL SCROLL AREAS
+===================================================== */
+
+.workspace-divider {
+
+  scrollbar-width: none;
+}
+
+.workspace-divider.scrolling {
+
+  scrollbar-width: thin;
+}
+
+
+/* Webkit */
+
+.workspace-divider::-webkit-scrollbar {
+
+  height: 4px;
+
+  width: 0px;
+}
+
+.workspace-divider::-webkit-scrollbar-thumb {
+
+  background: rgba(30, 41, 59, 0);
+
+  border-radius: 4px;
+
+  transition: background 0.25s ease;
+}
+
+.workspace-divider.scrolling::-webkit-scrollbar-thumb {
+
+  background: rgba(30, 41, 59, 0.7);
+}
+
+
+/* =====================================================
+   WORKSPACE CARD SCROLLBARS
+===================================================== */
+
+.workspace-card::-webkit-scrollbar {
+
+  width: 6px;
+}
+
+.workspace-card::-webkit-scrollbar-thumb {
+
+  background: var(--border-color);
+
+  border-radius: 10px;
+}
+
+.workspace-card::-webkit-scrollbar-thumb:hover {
+
+  background: var(--primary);
+}
+
+
+/* =====================================================
+   RIGHT PANEL SPECIAL SCROLLBAR
+===================================================== */
+
+.panel.right {
+
+  scrollbar-width: none;
+}
+
+.panel.right:hover {
+
+  scrollbar-width: thin;
+}
+
+
+/* Chrome / Edge / Safari */
+
+.panel.right::-webkit-scrollbar {
+
+  width: 0px;
+
+  height: 0px;
+}
+
+.panel.right:hover::-webkit-scrollbar {
+
+  width: 6px;
+
+  height: 6px;
+}
+
+.panel.right:hover::-webkit-scrollbar-thumb {
+
+  background: rgba(148, 163, 184, 0.4);
+
+  border-radius: 4px;
+}

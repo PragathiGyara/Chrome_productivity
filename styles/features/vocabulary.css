@@ -1,0 +1,207 @@
+/* =====================================================
+   WORD LIST
+===================================================== */
+
+.word-list {
+
+  flex: 1;
+
+  overflow-y: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   WORD ITEM
+===================================================== */
+
+.word-item {
+
+  position: relative;
+
+  background: var(--bg-main);
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.word-item:hover {
+
+  background: var(--bg-hover);
+}
+
+
+/* =====================================================
+   LEARNED STATE
+===================================================== */
+
+.word-item.learned {
+
+  opacity: 0.5;
+}
+
+
+/* =====================================================
+   WORD HEADER
+===================================================== */
+
+.word-header {
+
+  display: flex;
+
+  gap: 6px;
+
+  align-items: center;
+}
+
+
+/* =====================================================
+   WORD NUMBER
+===================================================== */
+
+.word-number {
+
+  font-size: 12px;
+
+  color: #64748b;
+}
+
+
+/* =====================================================
+   LANGUAGE LABEL
+===================================================== */
+
+.word-language {
+
+  font-size: 12px;
+
+  opacity: 0.7;
+}
+
+
+/* =====================================================
+   WORD TITLE
+===================================================== */
+
+.word-title {
+
+  font-weight: 600;
+
+  margin-top: 4px;
+}
+
+
+/* =====================================================
+   WORD MEANING
+===================================================== */
+
+.word-meaning {
+
+  font-size: 14px;
+
+  margin-top: 4px;
+}
+
+
+/* =====================================================
+   WORD SENTENCE
+===================================================== */
+
+.word-sentence {
+
+  display: none;
+
+  margin-top: 8px;
+
+  margin-bottom: 6px;
+
+  font-style: italic;
+
+  font-size: 13px;
+
+  opacity: 0.8;
+}
+
+
+/* Reveal sentence on hover */
+
+.word-item:hover .word-sentence {
+
+  display: block;
+}
+
+
+/* =====================================================
+   WORD DATE
+===================================================== */
+
+.word-date {
+
+  position: absolute;
+
+  top: 8px;
+
+  right: 10px;
+
+  font-size: 11px;
+
+  color: #9ca3af;
+
+  font-weight: 500;
+}
+
+
+/* =====================================================
+   WORD FOOTER
+===================================================== */
+
+.word-footer {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 10px;
+
+  min-height: 24px;
+}
+
+
+/* =====================================================
+   WORD ACTIONS
+===================================================== */
+
+.word-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition: opacity 0.18s ease;
+}
+
+
+/* Reveal actions on hover */
+
+.word-item:hover .word-actions {
+
+  opacity: 1;
+
+  pointer-events: auto;
+}

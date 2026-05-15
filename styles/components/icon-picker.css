@@ -1,0 +1,81 @@
+/* =====================================================
+   ICON PICKER CONTAINER
+===================================================== */
+
+.icon-picker {
+
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 6px;
+}
+
+
+/* =====================================================
+   ICON OPTION
+===================================================== */
+
+.icon-option {
+
+  cursor: pointer;
+
+  font-size: 18px;
+
+  padding: 6px;
+
+  text-align: center;
+
+  border-radius: 6px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.icon-option:hover {
+
+  background: var(--bg-hover);
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   SELECTED ICON
+===================================================== */
+
+.selected-icon {
+
+  background: var(--primary);
+}
+
+
+/* =====================================================
+   EDIT PREVIEW
+===================================================== */
+
+.edit-preview {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  font-weight: 600;
+
+  font-size: 16px;
+
+  margin-bottom: 6px;
+}
+
+
+/* =====================================================
+   PREVIEW ICON
+===================================================== */
+
+.preview-icon {
+
+  font-size: 20px;
+}

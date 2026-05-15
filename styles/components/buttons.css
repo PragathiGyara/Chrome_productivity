@@ -1,0 +1,437 @@
+/* =====================================================
+   BASE ICON BUTTONS
+===================================================== */
+
+.icon-btn {
+
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+
+  color: white;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.icon-btn:hover {
+
+  transform: scale(1.1);
+}
+
+
+/* =====================================================
+   CENTER HEADER BUTTONS
+===================================================== */
+
+.center-header button {
+
+  background: none;
+
+  border: none;
+
+  color: white;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
+.center-header button:hover {
+
+  transform: rotate(20deg);
+}
+
+
+/* =====================================================
+   WORKSPACE NAVIGATION BUTTONS
+===================================================== */
+
+.track-navigation button,
+.workspace-header button {
+
+  background: none;
+
+  border: none;
+
+  color: #38bdf8;
+
+  cursor: pointer;
+
+  font-size: 18px;
+
+  transition: transform 0.2s ease;
+}
+
+.track-navigation button:hover,
+.workspace-header button:hover {
+
+  transform: scale(1.1);
+}
+
+
+/* =====================================================
+   NAV BUTTON
+===================================================== */
+
+.nav-btn {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: 16px;
+
+  padding: 6px 12px;
+
+  border-radius: 8px;
+
+  background: var(--bg-hover);
+
+  color: white;
+
+  border: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.nav-btn:hover {
+
+  background: var(--primary);
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   FORM ACTION BUTTONS
+===================================================== */
+
+.primary-btn,
+.neutral-btn,
+.danger-btn {
+
+  border: none;
+
+  padding: 6px 12px;
+
+  color: white;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+===================================================== */
+
+.primary-btn {
+
+  background: var(--primary);
+}
+
+.primary-btn:hover {
+
+  background: var(--primary-hover);
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   NEUTRAL BUTTON
+===================================================== */
+
+.neutral-btn {
+
+  background: var(--bg-hover);
+}
+
+.neutral-btn:hover {
+
+  background: #334155;
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   DANGER BUTTON
+===================================================== */
+
+.danger-btn {
+
+  background: var(--danger);
+}
+
+.danger-btn:hover {
+
+  background: #b91c1c;
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   DISABLED BUTTONS
+===================================================== */
+
+.primary-btn:disabled,
+.neutral-btn:disabled,
+.danger-btn:disabled {
+
+  background: #334155;
+
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+
+/* =====================================================
+   STATUS ACTION BUTTONS
+===================================================== */
+
+.status-btn {
+
+  flex: 1;
+
+  padding: 6px;
+
+  border-radius: 6px;
+
+  border: none;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  font-size: 13px;
+
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease;
+}
+
+.status-btn:hover {
+
+  transform: scale(1.05);
+
+  opacity: 0.9;
+}
+
+
+/* =====================================================
+   STATUS VARIANTS
+===================================================== */
+
+.complete-btn {
+
+  background-color: var(--success);
+
+  color: white;
+}
+
+.postpone-btn {
+
+  background-color: var(--warning);
+
+  color: white;
+}
+
+
+/* =====================================================
+   ADD WORD / SAVE WORD
+===================================================== */
+
+.add-word-btn,
+.save-word-btn {
+
+  background: var(--primary);
+
+  color: white;
+
+  border: none;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.add-word-btn:hover,
+.save-word-btn:hover {
+
+  background: var(--primary-hover);
+}
+
+
+/* =====================================================
+   WORD ACTION BUTTONS
+===================================================== */
+
+.mark-learned-btn {
+
+  background: var(--bg-hover);
+
+  border: none;
+
+  padding: 5px 8px;
+
+  border-radius: 6px;
+
+  color: var(--text-main);
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.mark-learned-btn:hover {
+
+  background: var(--primary);
+}
+
+
+.delete-word-btn {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+
+  font-size: 12px;
+
+  color: #f87171;
+
+  opacity: 0.8;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.delete-word-btn:hover {
+
+  opacity: 1;
+
+  transform: scale(1.05);
+}
+
+
+/* =====================================================
+   TRACK ACTION BUTTONS
+===================================================== */
+
+.edit-track-btn,
+.delete-track-btn {
+
+  background: none;
+
+  border: none;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
+.edit-track-btn {
+
+  color: #38bdf8;
+}
+
+.delete-track-btn {
+
+  color: #ef4444;
+}
+
+.edit-track-btn:hover,
+.delete-track-btn:hover {
+
+  transform: scale(1.2);
+}
+
+
+/* =====================================================
+   ICON PICKER BUTTON
+===================================================== */
+
+.add-icon-btn {
+
+  background: none;
+
+  border: none;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  color: #38bdf8;
+
+  transition: transform 0.2s ease;
+}
+
+.add-icon-btn:hover {
+
+  transform: scale(1.2);
+}
+
+
+/* =====================================================
+   WOTD NAVIGATION
+===================================================== */
+
+.wotd-nav {
+
+  background: none;
+
+  border: none;
+
+  color: var(--text-muted);
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  padding: 6px;
+
+  transition: 0.2s ease;
+}
+
+.wotd-nav:hover {
+
+  color: white;
+
+  transform: scale(1.2);
+}

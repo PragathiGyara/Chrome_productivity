@@ -1,0 +1,95 @@
+/* =====================================================
+   APP GRID LAYOUT
+===================================================== */
+
+.app {
+
+  display: grid;
+
+  grid-template-columns: 260px 1fr 300px;
+
+  height: 100%;
+
+  overflow: hidden;
+
+  transition: grid-template-columns 0.3s ease;
+}
+
+
+/* =====================================================
+   COLLAPSED STATES
+===================================================== */
+
+.app.right-collapsed {
+  grid-template-columns: 260px 1fr 50px;
+}
+
+.app.left-collapsed {
+  grid-template-columns: 50px 1fr 300px;
+}
+
+.app.left-collapsed.right-collapsed {
+  grid-template-columns: 50px 1fr 50px;
+}
+
+
+/* Hide center toggle when collapsed */
+
+.app.left-collapsed #viewToggle {
+  display: none;
+}
+
+
+/* =====================================================
+   MAIN PANEL STRUCTURE
+===================================================== */
+
+.panel {
+
+  background: var(--bg-panel);
+
+  padding: 10px;
+
+  overflow: auto;
+
+  transition: opacity 0.2s ease;
+}
+
+.center {
+
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100%;
+
+  padding: 20px;
+}
+
+
+/* =====================================================
+   PANEL BORDERS
+===================================================== */
+
+.panel.left {
+  border-right: 1px solid var(--border-color);
+}
+
+.panel.right {
+  border-left: 1px solid var(--border-color);
+}
+
+
+/* =====================================================
+   SHARED SCROLL CONTAINERS
+===================================================== */
+
+.panel,
+.center {
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+}

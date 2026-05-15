@@ -1,0 +1,284 @@
+/* =====================================================
+   TRACK GRID
+===================================================== */
+
+#trackGrid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(260px, 1fr));
+
+  gap: 20px;
+
+  overflow-y: auto;
+
+  min-height: 0;
+}
+
+
+/* =====================================================
+   BASE TRACK CARD
+===================================================== */
+
+.card {
+
+  width: 320px;
+
+  height: 320px;
+
+  padding: 26px;
+
+  background: var(--bg-card);
+
+  border-radius: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  cursor: pointer;
+
+  transition:
+    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease,
+    box-shadow 300ms ease;
+}
+
+.card:hover {
+
+  transform: translateY(-6px);
+
+  box-shadow: var(--shadow-lg);
+}
+
+
+/* =====================================================
+   DRAGGING STATE
+===================================================== */
+
+.card.dragging {
+
+  opacity: 0.7;
+
+  transform: scale(1.05);
+
+  transition: none;
+
+  z-index: 1000;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+
+/* =====================================================
+   CARD CONTENT
+===================================================== */
+
+.card-header {
+
+  font-weight: 600;
+
+  font-size: 18px;
+}
+
+
+.card-footer {
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  opacity: 0.9;
+
+  margin-top: 6px;
+
+  letter-spacing: 0.3px;
+}
+
+
+/* =====================================================
+   URGENT DEADLINE CARD
+===================================================== */
+
+.card.urgent-deadline .card-footer {
+
+  color: #ef4444;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   WORKSPACE CARD
+===================================================== */
+
+.workspace-card {
+
+  background: var(--bg-panel);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 10px;
+
+  padding: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/* =====================================================
+   TODO CARD
+===================================================== */
+
+.todo-card {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  background: var(--bg-main);
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  transition: all 0.2s ease;
+
+  cursor: pointer;
+}
+
+.todo-card:hover {
+
+  background: var(--bg-hover);
+}
+
+
+/* =====================================================
+   COMPLETED TODO
+===================================================== */
+
+.todo-card.done {
+
+  opacity: 0.5;
+}
+
+.todo-card.done .todo-text {
+
+  text-decoration: line-through;
+}
+
+
+/* =====================================================
+   ADD TRACK CARD
+===================================================== */
+
+.add-track-card {
+
+  border: 2px dashed rgba(255,255,255,0.12);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0.01)
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease,
+    background 250ms ease;
+}
+
+.add-track-card:hover {
+
+  transform: translateY(-4px);
+
+  border-color: rgba(37,99,235,0.6);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(37,99,235,0.08),
+      rgba(37,99,235,0.03)
+    );
+}
+
+
+/* =====================================================
+   ADD TRACK CONTENT
+===================================================== */
+
+.add-track-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.add-track-plus {
+
+  width: 64px;
+
+  height: 64px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: rgba(255,255,255,0.05);
+
+  font-size: 36px;
+
+  font-weight: 300;
+
+  color: rgba(255,255,255,0.85);
+
+  transition:
+    transform 250ms ease,
+    background 250ms ease;
+}
+
+.add-track-card:hover .add-track-plus {
+
+  transform: scale(1.08);
+
+  background: rgba(37,99,235,0.18);
+}
+
+
+.add-track-text {
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  opacity: 0.82;
+}
