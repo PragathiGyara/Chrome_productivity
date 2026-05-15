@@ -96,6 +96,54 @@ function attachTrackEvents() {
   const confirmBtn = document.getElementById("confirmDeleteBtn");
   const cancelBtn = document.getElementById("cancelDeleteBtn");
 
+  const addTrackModal =
+  document.getElementById("addTrackModal");
+  const saveNewTrackBtn =
+    document.getElementById("saveNewTrackBtn");
+  const cancelNewTrackBtn =
+    document.getElementById("cancelNewTrackBtn");
+  const closeAddTrackModalBtn =
+    document.getElementById("closeAddTrackModalBtn");
+
+  saveNewTrackBtn?.addEventListener("click", () => {
+    const input =
+      document.getElementById("newTrackName");
+    const name = input.value.trim();
+    if (!name) {
+      alert("Track name required.");
+      return;
+    }
+    tracks.push({
+      id: Date.now(),
+      name,
+      icon: selectedNewTrackIcon,
+      deadlines: [],
+      tasks: [],
+      reading: [],
+      notes: ""
+    });
+    persistTracks();
+    renderTracks();
+    addTrackModal.classList.add("hidden");
+    showToast(`Track "${name}" added`);
+  });
+  function closeAddTrackModal() {
+    addTrackModal.classList.add("hidden");
+  }
+  cancelNewTrackBtn?.addEventListener(
+    "click",
+    closeAddTrackModal
+  );
+  closeAddTrackModalBtn?.addEventListener(
+    "click",
+    closeAddTrackModal
+  );
+  addTrackModal?.addEventListener("click", (e) => {
+    if (e.target === addTrackModal) {
+      closeAddTrackModal();
+    }
+  });
+
   // Open settings modal
   settingsBtn.addEventListener("click", () => {
     modal.classList.remove("hidden");
@@ -481,6 +529,87 @@ function renderTracks() {
     });
 
   });
+  // =====================================
+  // Add Track Card
+  // =====================================
+
+  const addCard = document.createElement("div");
+
+  addCard.classList.add(
+    "card",
+    "add-track-card"
+  );
+
+  addCard.innerHTML = `
+    <div class="add-track-content">
+
+      <div class="add-track-plus">
+        +
+      </div>
+
+      <div class="add-track-text">
+        Add Track
+      </div>
+
+    </div>
+  `;
+
+  addCard.addEventListener("click", () => {
+    openAddTrackModal();
+  });
+
+  grid.appendChild(addCard);
+}
+
+function openAddTrackModal() {
+
+  const modal =
+    document.getElementById("addTrackModal");
+
+  const iconPicker =
+    document.getElementById("newTrackIconPicker");
+
+  const nameInput =
+    document.getElementById("newTrackName");
+
+  modal.classList.remove("hidden");
+
+  iconPicker.innerHTML = "";
+
+  nameInput.value = "";
+
+  selectedNewTrackIcon = "📌";
+
+  TRACK_ICONS.forEach(icon => {
+
+    const span = document.createElement("span");
+
+    span.classList.add("icon-option");
+
+    if (icon === selectedNewTrackIcon) {
+      span.classList.add("selected-icon");
+    }
+
+    span.dataset.icon = icon;
+    span.textContent = icon;
+
+    span.addEventListener("click", () => {
+
+      iconPicker
+        .querySelectorAll(".icon-option")
+        .forEach(el =>
+          el.classList.remove("selected-icon")
+        );
+
+      span.classList.add("selected-icon");
+
+      selectedNewTrackIcon = icon;
+    });
+
+    iconPicker.appendChild(span);
+  });
+
+  nameInput.focus();
 }
 
 // --------------------------

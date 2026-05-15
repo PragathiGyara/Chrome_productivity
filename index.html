@@ -179,6 +179,46 @@
 
     </div>
     </div>
+    <!-- =====================================
+        Add Track Modal
+    ===================================== -->
+
+    <div id="addTrackModal" class="modal hidden">
+    <div class="modal-content add-track-modal-content">
+        <div class="modal-header">
+        <h2>Create New Track</h2>
+        <button id="closeAddTrackModalBtn">
+            ✕
+        </button>
+        </div>
+        <div class="add-track-form">
+        <input
+            type="text"
+            id="newTrackName"
+            placeholder="Track name"
+        />
+        <div
+            id="newTrackIconPicker"
+            class="icon-picker"
+        ></div>
+        <div class="add-track-modal-actions">
+            <button
+            id="saveNewTrackBtn"
+            class="primary-btn"
+            >
+            Create Track
+            </button>
+
+            <button
+            id="cancelNewTrackBtn"
+            class="neutral-btn"
+            >
+            Cancel
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
 </body>
 </html>
 

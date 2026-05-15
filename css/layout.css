@@ -497,6 +497,143 @@ body {
   transform: scale(1.2);
 }
 
+/* =====================================
+   Add Track Card
+===================================== */
+
+.add-track-card {
+
+  border: 2px dashed rgba(255,255,255,0.12);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0.01)
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease,
+    background 250ms ease;
+}
+
+.add-track-card:hover {
+
+  transform: translateY(-4px);
+
+  border-color: rgba(37,99,235,0.6);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(37,99,235,0.08),
+      rgba(37,99,235,0.03)
+    );
+}
+
+.add-track-content {
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.add-track-plus {
+
+  width: 64px;
+  height: 64px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.05);
+
+  font-size: 36px;
+  font-weight: 300;
+
+  color: rgba(255,255,255,0.85);
+
+  transition:
+    transform 250ms ease,
+    background 250ms ease;
+}
+
+.add-track-card:hover .add-track-plus {
+
+  transform: scale(1.08);
+
+  background: rgba(37,99,235,0.18);
+}
+
+.add-track-text {
+
+  font-size: 16px;
+  font-weight: 500;
+
+  opacity: 0.82;
+}
+
+/* =====================================
+   Add Track Modal
+===================================== */
+
+.add-track-modal-content {
+
+  width: 420px;
+  max-width: 90vw;
+}
+
+.add-track-form {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+
+  margin-top: 20px;
+}
+
+#newTrackName {
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #0f172a;
+
+  color: white;
+
+  font-size: 16px;
+}
+
+#newTrackName:focus {
+
+  outline: 2px solid rgba(37,99,235,0.5);
+}
+
+.add-track-modal-actions {
+
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
 
 /* ===================================================== */
 /* INLINE EDIT + ICON PICKER */

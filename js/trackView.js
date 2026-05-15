@@ -15,6 +15,7 @@
 let currentView = "dashboard";
 let activeTrackId = null;
 let showFinishedTasks = false;
+let selectedNewTrackIcon = "📌";
 
 
 // =====================================================
