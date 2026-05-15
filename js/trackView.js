@@ -55,15 +55,21 @@ function renderTrackWorkspace() {
         </button>
     </div>
     <h2 class="track-title">
-    <span class="editable-track-name">
-        ${track.icon} 
-        <span 
-        id="trackNameDisplay" 
-        class="editable-track-name"
+      <span class="workspace-track-header">
+        <span
+          id="workspaceTrackIcon"
+          class="workspace-track-icon"
+          title="Change icon"
         >
-        ${track.name}
+          ${track.icon}
         </span>
-    </span>
+        <span
+          id="trackNameDisplay"
+          class="editable-track-name"
+        >
+          ${track.name}
+        </span>
+      </span>
     </h2>
     <div class="nav-right">
         <button id="nextTrackBtn" class="nav-btn">
@@ -151,6 +157,14 @@ function attachWorkspaceEvents() {
   const nameEl = document.getElementById("trackNameDisplay");
   if (nameEl) {
     nameEl.addEventListener("click", () => enableWorkspaceTrackNameEdit(nameEl));
+  }
+  const iconEl =
+  document.getElementById("workspaceTrackIcon");
+  if (iconEl) {
+    iconEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openWorkspaceIconPicker(iconEl, track);
+    });
   }
 
   // Deadline add button
@@ -1608,6 +1622,91 @@ function enableWorkspaceTrackNameEdit(element) {
       element.blur();
     }
   });
+}
+function openWorkspaceIconPicker(iconElement, track) {
+
+  // Prevent duplicate picker
+  const existing =
+    document.querySelector(".workspace-icon-picker");
+
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  const picker = document.createElement("div");
+
+  picker.className = "workspace-icon-picker";
+
+  TRACK_ICONS.forEach(icon => {
+
+    const option = document.createElement("span");
+
+    option.className = "workspace-icon-option";
+
+    if (icon === track.icon) {
+      option.classList.add("selected-icon");
+    }
+
+    option.textContent = icon;
+
+    option.addEventListener("click", () => {
+
+      track.icon = icon;
+
+      persistTracks();
+
+      refreshCurrentView();
+
+      showToast("Track icon updated");
+
+    });
+
+    picker.appendChild(option);
+
+  });
+
+  document.body.appendChild(picker);
+
+  // =========================================
+  // POSITIONING
+  // =========================================
+
+  const rect =
+    iconElement.getBoundingClientRect();
+
+  picker.style.top =
+    `${rect.bottom + window.scrollY + 8}px`;
+
+  picker.style.left =
+    `${rect.left + window.scrollX}px`;
+
+  // =========================================
+  // OUTSIDE CLICK CLOSE
+  // =========================================
+
+  function closePicker(e) {
+
+    if (!picker.contains(e.target)) {
+
+      picker.remove();
+
+      document.removeEventListener(
+        "click",
+        closePicker
+      );
+
+    }
+
+  }
+
+  setTimeout(() => {
+    document.addEventListener(
+      "click",
+      closePicker
+    );
+  }, 0);
+
 }
 
 function refreshCurrentView() {
