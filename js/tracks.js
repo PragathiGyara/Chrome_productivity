@@ -1227,8 +1227,7 @@ function openSidebarTodoForm() {
 // --------------------------
 
 function getAvailableLanguages(words) {
-  const dynamic = [...new Set(words.map(w => w.language))];
-  return [...new Set([...BASE_LANGUAGES, ...dynamic])];
+  return [...new Set(words.map(w => w.language))];
 }
 
 function renderWordOfTheDay() {
@@ -1246,14 +1245,21 @@ function renderWordOfTheDay() {
 
 function updateWOTD(words) {
   const languages = getAvailableLanguages(words);
+  if (!languages.length) {
+    showEmptyState();
+    return;
+  }
 
   if (!languages.length) {
     showEmptyState();
     return;
   }
 
-  const language = languages[currentWOTDIndex % languages.length];
+  currentWOTDIndex =
+    ((currentWOTDIndex % languages.length) + languages.length)
+    % languages.length;
 
+  const language = languages[currentWOTDIndex];
   const filtered = words.filter(
     w => w.language === language && w.status !== "learned"
   );
