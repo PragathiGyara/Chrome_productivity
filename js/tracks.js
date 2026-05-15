@@ -53,32 +53,17 @@ let toastTimeout = null;
 // --------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
+
   loadTracks();
-  renderTracks();
+
+  renderDashboardView();
+
   updateLeftPanel();
+
   setupLeftPanelToggle();
+
   attachTrackEvents();
-  renderWordOfTheDay();
-  document.getElementById("wotdNext").addEventListener("click", () => {
-    currentWOTDIndex++;
-    reloadWOTD();
-  });
 
-  document.getElementById("wotdPrev").addEventListener("click", () => {
-    currentWOTDIndex--;
-    reloadWOTD();
-  });
-  document.getElementById("wotdSentenceToggle")
-  .addEventListener("change", (e) => {
-
-    const sentenceEl = document.getElementById("wotdSentence");
-
-    if (e.target.checked) {
-      sentenceEl.classList.remove("hidden");
-    } else {
-      sentenceEl.classList.add("hidden");
-    }
-  });
 });
 
 
@@ -1360,6 +1345,9 @@ function getAvailableLanguages(words) {
 }
 
 function renderWordOfTheDay() {
+  if (!document.getElementById("centerWOTDWord")) {
+    return;
+  }
   chrome.storage.local.get(["vocabularyWords"], (result) => {
     const words = result["vocabularyWords"] || [];
 
