@@ -4,6 +4,8 @@ const STORAGE_KEY = "vocabularyWords";
 
 let words = [];
 
+let pendingWordDeletion = null;
+
 // ------------------------------
 // Initialization
 // ------------------------------
@@ -23,6 +25,33 @@ function attachEventListeners() {
 
   if (addBtn) addBtn.addEventListener("click", toggleForm);
   if (saveBtn) saveBtn.addEventListener("click", saveWord);
+  const confirmDeleteBtn =
+  document.getElementById("confirmDeleteWordBtn");
+
+  const cancelDeleteBtn =
+    document.getElementById("cancelDeleteWordBtn");
+
+  const deleteModal =
+    document.getElementById("deleteWordModal");
+  
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", () => {
+
+      if (pendingWordDeletion) {
+        deleteWord(pendingWordDeletion.id);
+        pendingWordDeletion = null;
+      }
+
+      deleteModal.classList.add("hidden");
+    });
+  }
+
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", () => {
+      pendingWordDeletion = null;
+      deleteModal.classList.add("hidden");
+    });
+  }
 }
 
 // ------------------------------
@@ -152,19 +181,36 @@ function createWordElement(wordObj, number) {
   date.className = "word-date";
   date.textContent = new Date(wordObj.date).toLocaleDateString();
 
-  // Button
+  // Button Container
+  const actions = document.createElement("div");
+  actions.className = "word-actions";
+
+  // Learned button
   const btn = document.createElement("button");
   btn.className = "mark-learned-btn";
 
   btn.textContent =
-    wordObj.status === "learned" ? "↺ Revise" : "Mark Learned ✓";
+    wordObj.status === "learned" ? "↺ Revise" : "✓ Learned";
 
   btn.addEventListener("click", () => {
     markAsLearned(wordObj.id);
   });
 
-  div.append(header, language, meaning, sentence, btn, date);
+  // Delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-word-btn";
+  deleteBtn.innerHTML = "🗑 <span>Delete</span>";
 
+  deleteBtn.addEventListener("click", () => {
+    openDeleteWordModal(wordObj);
+  });
+
+  actions.append(btn, deleteBtn);
+
+  const footer = document.createElement("div");
+  footer.className = "word-footer";
+  footer.appendChild(actions);
+  div.append(header, language, meaning, sentence, footer, date);
   return div;
 }
 
@@ -200,6 +246,23 @@ function markAsLearned(id) {
 
     words.push(updatedWord); // 🔥 bottom
   }
+
+  persistWords();
+  renderWords();
+}
+function openDeleteWordModal(wordObj) {
+  pendingWordDeletion = wordObj;
+
+  const modal = document.getElementById("deleteWordModal");
+  const text = document.getElementById("deleteWordText");
+
+  text.textContent =
+    `Are you sure you want to delete "${wordObj.word}"?`;
+
+  modal.classList.remove("hidden");
+}
+function deleteWord(id) {
+  words = words.filter(w => w.id !== id);
 
   persistWords();
   renderWords();
