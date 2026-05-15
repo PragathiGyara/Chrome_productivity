@@ -736,7 +736,7 @@ function renderTrackList() {
     `;
 
     row.querySelector(".edit-track-btn")
-      .addEventListener("click", () => enableInlineEdit(row, track));
+      .addEventListener("click", () => enableTrackModalEdit(row, track));
 
     row.querySelector(".delete-track-btn")
       .addEventListener("click", () => openDeleteConfirmModal(track));
@@ -841,11 +841,11 @@ function updateTrackOrderFromDOM() {
   persistTracks();
 }
 
-// --------------------------
-// Inline Edit Logic
-// --------------------------
+// =====================================================
+// TRACK MODAL EDITING
+// =====================================================
 
-function enableInlineEdit(row, track) {
+function enableTrackModalEdit(row, track) {
   if (isEditingTrack) return;
 
   isEditingTrack = true;

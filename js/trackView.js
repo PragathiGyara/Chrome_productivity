@@ -150,7 +150,7 @@ function attachWorkspaceEvents() {
   // Track name editing
   const nameEl = document.getElementById("trackNameDisplay");
   if (nameEl) {
-    nameEl.addEventListener("click", () => enableInlineEdit(nameEl));
+    nameEl.addEventListener("click", () => enableWorkspaceTrackNameEdit(nameEl));
   }
 
   // Deadline add button
@@ -1558,7 +1558,11 @@ function attachDashboardEvents() {
 
 }
 
-function enableInlineEdit(element) {
+// =====================================================
+// WORKSPACE TRACK TITLE EDITING
+// =====================================================
+
+function enableWorkspaceTrackNameEdit(element) {
   element.setAttribute("contenteditable", "true");
   element.focus();
 
