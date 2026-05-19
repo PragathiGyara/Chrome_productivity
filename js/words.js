@@ -93,6 +93,7 @@ function saveWord() {
   words.unshift(newWord); // Add to top
   persistWords();
   renderWords();
+  renderWordOfTheDay();
   clearForm();
   toggleForm();
 }
@@ -249,6 +250,7 @@ function markAsLearned(id) {
 
   persistWords();
   renderWords();
+  renderWordOfTheDay();
 }
 function openDeleteWordModal(wordObj) {
   pendingWordDeletion = wordObj;
@@ -266,6 +268,7 @@ function deleteWord(id) {
 
   persistWords();
   renderWords();
+  renderWordOfTheDay();
 }
 // ------------------------------
 // Local Storage
@@ -283,6 +286,7 @@ function loadWords() {
     }));
 
     renderWords();
+    renderWordOfTheDay();
   });
 }
 
@@ -317,4 +321,5 @@ function addWordToVault(wordData) {
   words.unshift(newWord);
   persistWords();
   renderWords();
+  renderWordOfTheDay();
 }

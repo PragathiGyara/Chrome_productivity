@@ -18,25 +18,14 @@
 
 let currentOpenTrackId = null;
 
-const TRACK_STORAGE_KEY = "dashboardTracks";
-
-const TRACK_ICONS = [
-  "📌",
-  "📚","💻","🧠","🏃","🎯",
-  "💡","📝","📖","🔬","💰",
-  "📅","🚀","🔥","🎨","⚙"
-];
-
 let isDragging = false;
 
 let draggedTrackId = null;
 
-const TODO_STORAGE_KEY = "dailyTodos";
-
 let currentLeftView = "deadlines"; // "deadlines" | "todos"
 
 const BASE_LANGUAGES = ["English", "Hindi", "Telugu", "Marathi"];
-let currentWOTDIndex = 0;
+
 
 // --------------------------
 // In-Memory State
@@ -45,7 +34,6 @@ let currentWOTDIndex = 0;
 let tracks = [];
 let activeTrackEditId = null;
 let trackPendingDeletion = null;
-let toastTimeout = null;
 
 
 // --------------------------
@@ -109,11 +97,11 @@ function attachTrackEvents() {
     });
     persistTracks();
     renderTracks();
-    addTrackModal.classList.add("hidden");
+    closeModal("addTrackModal");
     showToast(`Track "${name}" added`);
   });
   function closeAddTrackModal() {
-    addTrackModal.classList.add("hidden");
+    closeModal("addTrackModal");
   }
   cancelNewTrackBtn?.addEventListener(
     "click",
@@ -131,7 +119,7 @@ function attachTrackEvents() {
 
   // Open settings modal
   settingsBtn.addEventListener("click", () => {
-    modal.classList.remove("hidden");
+    openModal("trackSettingsModal");
     renderTrackList();
   });
 
@@ -161,18 +149,18 @@ function attachTrackEvents() {
       showToast(`Track "${trackPendingDeletion.name}" deleted`);
       trackPendingDeletion = null;
     }
-    deleteModal.classList.add("hidden");
+    closeModal("deleteConfirmModal");
   });
 
   cancelBtn.addEventListener("click", () => {
     trackPendingDeletion = null;
-    deleteModal.classList.add("hidden");
+    closeModal("deleteConfirmModal");
   });
 
   // Optional: close delete modal on backdrop click
   deleteModal.addEventListener("click", (e) => {
     if (e.target === deleteModal) {
-      deleteModal.classList.add("hidden");
+      closeModal("deleteConfirmModal");
       trackPendingDeletion = null;
     }
   });
@@ -1149,7 +1137,7 @@ function attemptCloseModal() {
 
   activeTrackEditId = null;
 
-  modal.classList.add("hidden");
+  closeModal("trackSettingsModal");
 }
 
 
@@ -1164,7 +1152,7 @@ function openDeleteConfirmModal(track) {
   const text = document.getElementById("deleteConfirmText");
 
   text.textContent = `Are you sure you want to delete "${track.name}"?`;
-  modal.classList.remove("hidden");
+  openModal("deleteConfirmModal");
 }
 
 function deleteTrack(id) {
@@ -1454,94 +1442,3 @@ function openSidebarTodoForm() {
   });
 }
 
-
-// --------------------------
-// Word of the Day
-// --------------------------
-
-function getAvailableLanguages(words) {
-  return [...new Set(words.map(w => w.language))];
-}
-
-function renderWordOfTheDay() {
-  if (!document.getElementById("centerWOTDWord")) {
-    return;
-  }
-  chrome.storage.local.get(["vocabularyWords"], (result) => {
-    const words = result["vocabularyWords"] || [];
-
-    if (!words.length) {
-      showEmptyState();
-      return;
-    }
-
-    updateWOTD(words);
-  });
-}
-
-function updateWOTD(words) {
-  const languages = getAvailableLanguages(words);
-  if (!languages.length) {
-    showEmptyState();
-    return;
-  }
-
-  if (!languages.length) {
-    showEmptyState();
-    return;
-  }
-
-  currentWOTDIndex =
-    ((currentWOTDIndex % languages.length) + languages.length)
-    % languages.length;
-
-  const language = languages[currentWOTDIndex];
-  const filtered = words.filter(
-    w => w.language === language && w.status !== "learned"
-  );
-
-  document.getElementById("centerWOTDLanguage").innerText = language;
-
-  const wordEl = document.getElementById("centerWOTDWord");
-  const meaningEl = document.getElementById("centerWOTDMeaning");
-
-  if (!filtered.length) {
-    wordEl.innerText = "All caught up 🎉";
-    meaningEl.innerText = "Add more words to continue";
-    return;
-  }
-
-  const index = new Date().getDate() % filtered.length;
-  const word = filtered[index];
-
-  wordEl.innerText = word.word;
-  meaningEl.innerText = word.meaning;
-
-  const toggleContainer = document.getElementById("wotdToggleContainer");
-  const sentenceEl = document.getElementById("wotdSentence");
-  const toggle = document.getElementById("wotdSentenceToggle");
-
-  // Reset state
-  toggle.checked = false;
-  sentenceEl.classList.add("hidden");
-  sentenceEl.innerText = "";
-
-  if (!word.sentence) {
-    toggleContainer.classList.add("hidden");
-  } else {
-    toggleContainer.classList.remove("hidden");
-    sentenceEl.innerText = word.sentence;
-  }
-}
-
-function showEmptyState() {
-  document.getElementById("centerWOTDWord").innerText = "No words yet";
-  document.getElementById("centerWOTDMeaning").innerText = "Start adding words ✨";
-}
-
-function reloadWOTD() {
-  chrome.storage.local.get(["vocabularyWords"], (result) => {
-    const words = result["vocabularyWords"] || [];
-    updateWOTD(words);
-  });
-}

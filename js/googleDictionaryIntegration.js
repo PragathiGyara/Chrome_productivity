@@ -5,7 +5,7 @@
 /**
  * Storage Key (keep consistent with words.js)
  */
-const STORAGE_KEY = "vocabularyWords";
+const VAULT_STORAGE_KEY = "vocabularyWords";
 
 
 // ======================================================
@@ -136,8 +136,8 @@ function saveInjectedWord() {
 
   word = capitalizeFirstLetter(word);
 
-  chrome.storage.local.get([STORAGE_KEY], (result) => {
-    let words = result[STORAGE_KEY] || [];
+  chrome.storage.local.get([VAULT_STORAGE_KEY], (result) => {
+    let words = result[VAULT_STORAGE_KEY] || [];
 
     // Case-insensitive duplicate check
     const exists = words.some(
@@ -162,7 +162,7 @@ function saveInjectedWord() {
 
     words.unshift(newWord);
 
-    chrome.storage.local.set({ [STORAGE_KEY]: words }, () => {
+    chrome.storage.local.set({ [VAULT_STORAGE_KEY]: words }, () => {
       document.getElementById("vaultPopupForm")?.remove();
       showToast("Added to Vocabulary Vault ✓");
     });
