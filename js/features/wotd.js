@@ -215,6 +215,11 @@ function goToCurrentWOTDInVault() {
   const app =
     document.querySelector(".app");
 
+  currentWordFilter =
+  currentWOTDWord.language;
+
+  renderWords();
+
   // Open right panel if collapsed
   if (
     app.classList.contains(

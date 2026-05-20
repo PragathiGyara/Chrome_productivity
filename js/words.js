@@ -4,6 +4,8 @@ const STORAGE_KEY = "vocabularyWords";
 
 let words = [];
 
+let currentWordFilter = "All";
+
 let pendingWordDeletion = null;
 
 // ------------------------------
@@ -51,6 +53,24 @@ function attachEventListeners() {
       pendingWordDeletion = null;
       deleteModal.classList.add("hidden");
     });
+  }
+  const languageFilter =
+    document.getElementById(
+      "vaultLanguageFilter"
+    );
+
+  if (languageFilter) {
+
+    languageFilter.addEventListener(
+      "change",
+      (e) => {
+
+        currentWordFilter =
+          e.target.value;
+
+        renderWords();
+      }
+    );
   }
 }
 
@@ -113,16 +133,20 @@ function updateStats(words) {
 }
 
 function renderWords() {
+  renderLanguageFilter();
   const container = document.getElementById("wordList");
   container.innerHTML = "";
 
-  updateStats(words);
+  const filteredWords =
+  getFilteredWords();
 
-  const activeWords = words
+  updateStats(filteredWords);
+
+  const activeWords = filteredWords
     .filter(w => w.display && w.status !== "learned")
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const learnedWords = words
+  const learnedWords = filteredWords
     .filter(w => w.display && w.status === "learned");
   // ❗ NO SORT HERE
 
@@ -303,6 +327,67 @@ function clearForm() {
   document.getElementById("displayInput").checked = true;
 }
 
+// ------------------------------
+// Filter
+// ------------------------------
+
+function getAvailableVaultLanguages() {
+
+  return [
+    "All",
+    ...new Set(
+      words.map(word => word.language)
+    )
+  ];
+}
+
+function renderLanguageFilter() {
+
+  const filter =
+    document.getElementById(
+      "vaultLanguageFilter"
+    );
+
+  if (!filter) return;
+
+  const languages =
+    getAvailableVaultLanguages();
+
+  filter.innerHTML = "";
+
+  languages.forEach(language => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = language;
+
+    option.textContent =
+      language === "All"
+        ? "All Languages"
+        : language;
+
+    if (language === currentWordFilter) {
+
+      option.selected = true;
+    }
+
+    filter.appendChild(option);
+
+  });
+}
+
+function getFilteredWords() {
+
+  if (currentWordFilter === "All") {
+    return words;
+  }
+
+  return words.filter(
+    word =>
+      word.language === currentWordFilter
+  );
+}
 
 // ------------------------------
 // Public API: Add Word Programmatically
