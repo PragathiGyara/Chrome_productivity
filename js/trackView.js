@@ -1096,7 +1096,7 @@ function openTaskForm(track) {
       return;
     }
 
-    track.tasks.push({
+    track.tasks.unshift({
       id: Date.now(),
       name,
       description,
