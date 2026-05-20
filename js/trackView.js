@@ -94,7 +94,15 @@ function renderTrackWorkspace() {
 
       <div class="workspace-card">
         <div class="section-header">
-          <h3>Reading</h3>
+          <div class="reading-section-title">
+            <h3>Reading</h3>
+
+            <div class="reading-stats">
+              ${
+                track.reading.filter(r => r.completed).length
+              } / ${track.reading.length} completed
+            </div>
+          </div>
           <button id="addReadingBtn">+ Add</button>
         </div>
         <div id="readingList"></div>
@@ -603,36 +611,92 @@ function renderReading(track) {
   if (!container) return;
 
   container.innerHTML = "";
+  const sortedReading = [...track.reading].sort((a, b) => {
+    return Number(a.completed) - Number(b.completed);
+  });
 
-  track.reading.forEach((item, index) => {
+  sortedReading.forEach((item, index) => {
     const div = document.createElement("div");
-    div.draggable = true;
+    div.draggable = !item.completed;
     div.dataset.id = item.id;
     div.classList.add("deadline-item");
 
-const linksHTML =
-  item.links && item.links.length
-    ? item.links.map((link, index) => `
-        <div>
-          <a href="${link}"
-             target="_blank"
-             class="reading-link"
-             title="${link}">
-            Material ${index + 1}
-          </a>
-        </div>
-      `).join("")
-    : "";
+    if (item.completed) {
+      div.classList.add("reading-complete");
+    }
+
+    const linksHTML =
+      item.links && item.links.length
+        ? item.links.map((link, index) => `
+            <div>
+              <a href="${link}"
+                target="_blank"
+                class="reading-link"
+                title="${link}">
+                Material ${index + 1}
+              </a>
+            </div>
+          `).join("")
+        : "";
 
     div.innerHTML = `
-      <div>
-        <div class="reading-header">
-          <span class="drag-handle">⋮⋮</span>
-          <strong>${index + 1}. ${item.topic}</strong>
+      <div class="reading-item-content">
+
+        <div class="reading-top-row">
+
+          <div class="reading-header">
+
+            ${
+              !item.completed
+                ? `<span class="drag-handle">⋮⋮</span>`
+                : `<span class="reading-check">✔</span>`
+            }
+
+            <strong>
+              ${index + 1}. ${item.topic}
+            </strong>
+
+          </div>
+
+          ${
+            !item.completed
+              ? `
+                <button class="reading-complete-btn">
+                  ✓
+                </button>
+              `
+              : ""
+          }
+
         </div>
+
         ${linksHTML}
+
       </div>
     `;
+
+    const completeBtn =
+      div.querySelector(".reading-complete-btn");
+
+    if (completeBtn) {
+
+      completeBtn.addEventListener("click", (e) => {
+
+        e.stopPropagation();
+
+        item.completed = true;
+
+        persistTracks();
+
+        renderReading(track);
+
+        refreshCurrentView();
+
+        showToast(`Completed "${item.topic}"`);
+
+      });
+
+    }
 
     div.addEventListener("dblclick", () => {
       openEditReadingForm(track, item);
@@ -740,7 +804,8 @@ function openReadingForm(track) {
     track.reading.push({
       id: Date.now(),
       topic,
-      links
+      links,
+      completed: false
     });
 
     persistTracks();
@@ -826,6 +891,7 @@ function openEditReadingForm(track, item) {
 
     item.topic = newTopic;
     item.links = links;
+    item.completed = false;
 
     persistTracks();
     form.remove();
