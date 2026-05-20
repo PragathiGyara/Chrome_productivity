@@ -53,6 +53,7 @@
                 All Languages
             </option>
           </select>
+          <br>
           <div class="vault-stats">
             <span>Total: <b id="totalWords">0</b></span>
             <span>Learning: <b id="learningWords">0</b></span>
@@ -66,22 +67,55 @@
           <button class="add-word-btn">
             + Add Word
           </button>
-          <div id="wordForm" class="word-form hidden">
-              <select id="languageInput">
-                  <option value="English">English</option>
-                  <option value="Hindi">Hindi</option>
-              </select>
-              <input id="wordInput" placeholder="Word" />
-              <textarea id="meaningInput" placeholder="Meaning"></textarea>
-              <textarea id="sentenceInput" placeholder="Sample sentence"></textarea>
-              <label class="display-toggle">
-                  <input type="checkbox" id="displayInput" checked />
-                  Display on screen
-              </label>
-              <button class="save-word-btn">
-                  Save
-              </button>
-          </div>
+            <div id="wordForm" class="word-form hidden">
+                <div class="language-input-row">
+                    <select id="languageInput">
+                        <option value="English">
+                            English
+                        </option>
+                        <option value="Urdu">
+                            Urdu
+                        </option>
+                    </select>
+                    <button
+                    id="addLanguageBtn"
+                    type="button"
+                    >
+                        + Add
+                    </button>
+                </div>
+
+                <input
+                id="wordInput"
+                placeholder="Word"
+                />
+
+                <textarea
+                id="meaningInput"
+                placeholder="Meaning"
+                ></textarea>
+
+                <textarea
+                id="sentenceInput"
+                placeholder="Sample sentence"
+                ></textarea>
+
+                <div class="word-form-actions">
+
+                    <button class="save-word-btn">
+                        Save
+                    </button>
+
+                    <button
+                    class="cancel-word-btn"
+                    type="button"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
       </aside>
   </div>
   <div id="overlay-root">
@@ -144,6 +178,30 @@
         </button>
         </div>
 
+    </div>
+    </div>
+
+    <!-- ================= DISCARD WORD MODAL ================= -->
+    <div id="discardWordModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Discard Word Entry</h3>
+        <p>
+            Are you sure you want to discard this entry?
+        </p>
+        <div class="confirm-actions">
+            <button
+            id="cancelDiscardWordBtn"
+            class="neutral-btn"
+            >
+            Continue Editing
+            </button>
+            <button
+            id="confirmDiscardWordBtn"
+            class="danger-btn"
+            >
+            Discard
+            </button>
+        </div>
     </div>
     </div>
     <!-- =====================================

@@ -6,7 +6,13 @@ let words = [];
 
 let currentWordFilter = "All";
 
+let customLanguages = [
+  "English",
+  "Urdu"
+];
+
 let pendingWordDeletion = null;
+let pendingWordCancel = false;
 
 // ------------------------------
 // Initialization
@@ -72,6 +78,78 @@ function attachEventListeners() {
       }
     );
   }
+  const cancelBtn =
+    document.querySelector(
+      ".cancel-word-btn"
+    );
+
+  if (cancelBtn) {
+
+    cancelBtn.addEventListener(
+      "click",
+      cancelWordForm
+    );
+  }
+  const addLanguageBtn =
+    document.getElementById(
+      "addLanguageBtn"
+    );
+
+  if (addLanguageBtn) {
+
+    addLanguageBtn.addEventListener(
+      "click",
+      addNewLanguage
+    );
+  }
+  const confirmDiscardBtn =
+    document.getElementById(
+      "confirmDiscardWordBtn"
+    );
+
+  const cancelDiscardBtn =
+    document.getElementById(
+      "cancelDiscardWordBtn"
+    );
+
+  const discardModal =
+    document.getElementById(
+      "discardWordModal"
+    );
+
+  if (confirmDiscardBtn) {
+
+    confirmDiscardBtn.addEventListener(
+      "click",
+      () => {
+
+        pendingWordCancel = false;
+
+        clearForm();
+
+        toggleForm();
+
+        discardModal.classList.add(
+          "hidden"
+        );
+      }
+    );
+  }
+
+  if (cancelDiscardBtn) {
+
+    cancelDiscardBtn.addEventListener(
+      "click",
+      () => {
+
+        pendingWordCancel = false;
+
+        discardModal.classList.add(
+          "hidden"
+        );
+      }
+    );
+  }
 }
 
 // ------------------------------
@@ -92,7 +170,6 @@ function saveWord() {
   const word = document.getElementById("wordInput").value.trim();
   const meaning = document.getElementById("meaningInput").value.trim();
   const sentence = document.getElementById("sentenceInput").value.trim();
-  const display = document.getElementById("displayInput").checked;
 
   if (!word || !meaning) {
     alert("Word and meaning are required.");
@@ -106,7 +183,7 @@ function saveWord() {
     word,
     meaning,
     sentence,
-    display,
+    display: true,
     status: "new"
   };
 
@@ -116,6 +193,136 @@ function saveWord() {
   renderWordOfTheDay();
   clearForm();
   toggleForm();
+}
+
+// ------------------------------
+// Cancel Word
+// ------------------------------
+
+function cancelWordForm() {
+
+  const word =
+    document.getElementById(
+      "wordInput"
+    ).value.trim();
+
+  const meaning =
+    document.getElementById(
+      "meaningInput"
+    ).value.trim();
+
+  const hasCoreContent =
+    word || meaning;
+
+  if (!hasCoreContent) {
+
+    clearForm();
+
+    toggleForm();
+
+    return;
+  }
+
+  pendingWordCancel = true;
+
+  document
+    .getElementById(
+      "discardWordModal"
+    )
+    .classList.remove("hidden");
+}
+
+// ------------------------------
+// Add language
+// ------------------------------
+
+function addNewLanguage() {
+
+  const language =
+    prompt("Enter new language:");
+
+  if (!language) return;
+
+  const formatted =
+    language.trim();
+
+  if (!formatted) return;
+
+  const alreadyExists =
+    customLanguages.some(
+      lang =>
+        lang.toLowerCase() ===
+        formatted.toLowerCase()
+    );
+
+  if (alreadyExists) {
+
+    showToast(
+      "Language already exists"
+    );
+
+    return;
+  }
+
+  customLanguages.push(formatted);
+
+  renderLanguageDropdown();
+
+  document.getElementById(
+    "languageInput"
+  ).value = formatted;
+
+  showToast(
+    `"${formatted}" added`
+  );
+}
+
+
+// ------------------------------
+// Render Language Dropdown
+// ------------------------------
+
+function renderLanguageDropdown() {
+
+  const select =
+    document.getElementById(
+      "languageInput"
+    );
+
+  if (!select) return;
+
+  const currentValue =
+    select.value;
+
+  select.innerHTML = "";
+
+  const languages =
+    [
+      ...new Set([
+        ...customLanguages,
+        ...words.map(
+          word => word.language
+        )
+      ])
+    ];
+
+  languages.forEach(language => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = language;
+
+    option.textContent = language;
+
+    if (language === currentValue) {
+
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+
+  });
 }
 
 // ------------------------------
@@ -134,6 +341,7 @@ function updateStats(words) {
 
 function renderWords() {
   renderLanguageFilter();
+  renderLanguageDropdown();
   const container = document.getElementById("wordList");
   container.innerHTML = "";
 
@@ -156,6 +364,9 @@ function renderWords() {
     container.appendChild(createWordElement(word, index + 1));
   });
 }
+
+
+
 // ------------------------------
 // Create Word Element
 // ------------------------------
@@ -321,10 +532,22 @@ function loadWords() {
 // ------------------------------
 
 function clearForm() {
-  document.getElementById("wordInput").value = "";
-  document.getElementById("meaningInput").value = "";
-  document.getElementById("sentenceInput").value = "";
-  document.getElementById("displayInput").checked = true;
+
+  document.getElementById(
+    "languageInput"
+  ).value = "English";
+
+  document.getElementById(
+    "wordInput"
+  ).value = "";
+
+  document.getElementById(
+    "meaningInput"
+  ).value = "";
+
+  document.getElementById(
+    "sentenceInput"
+  ).value = "";
 }
 
 // ------------------------------
@@ -333,11 +556,15 @@ function clearForm() {
 
 function getAvailableVaultLanguages() {
 
+  const wordLanguages =
+    words.map(word => word.language);
+
   return [
     "All",
-    ...new Set(
-      words.map(word => word.language)
-    )
+    ...new Set([
+      ...customLanguages,
+      ...wordLanguages
+    ])
   ];
 }
 

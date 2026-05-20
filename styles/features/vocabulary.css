@@ -243,3 +243,140 @@
     transform: scale(1);
   }
 }
+
+/* =====================================================
+   LANGUAGE FILTER
+===================================================== */
+
+.vault-language-filter {
+
+  margin-top: 10px;
+
+  margin-bottom: 10px;
+
+  background: var(--bg-main);
+
+  color: var(--text-main);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 8px;
+
+  padding: 8px 10px;
+
+  font-size: 13px;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+/* =====================================================
+   LANGUAGE FILTER HOVER
+===================================================== */
+
+.vault-language-filter:hover {
+
+  background: var(--bg-hover);
+}
+
+
+/* =====================================================
+   LANGUAGE FILTER FOCUS
+===================================================== */
+
+.vault-language-filter:focus {
+
+  border-color: var(--primary);
+}
+
+/* =====================================================
+   LANGUAGE INPUT ROW
+===================================================== */
+
+.language-input-row {
+
+  display: flex;
+
+  gap: 8px;
+}
+
+
+/* =====================================================
+   ADD LANGUAGE BUTTON
+===================================================== */
+
+#addLanguageBtn {
+
+  flex-shrink: 0;
+
+  background: var(--bg-hover);
+
+  border: 1px solid var(--border-color);
+
+  color: var(--text-main);
+
+  border-radius: 8px;
+
+  padding: 0 12px;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+
+#addLanguageBtn:hover {
+
+  background: #334155;
+}
+
+/* =====================================================
+   WORD FORM ACTIONS
+===================================================== */
+
+.word-form-actions {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 12px;
+}
+
+
+/* =====================================================
+   CANCEL WORD BUTTON
+===================================================== */
+
+.cancel-word-btn {
+
+  flex: 1;
+
+  background: transparent;
+
+  border: 1px solid var(--border-color);
+
+  color: var(--text-muted);
+
+  border-radius: 8px;
+
+  padding: 10px 12px;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+
+.cancel-word-btn:hover {
+
+  background: var(--bg-hover);
+
+  color: var(--text-main);
+}
