@@ -46,6 +46,10 @@
 
 .panel {
 
+  display: flex;
+
+  flex-direction: column;
+
   background: var(--bg-panel);
 
   padding: 10px;
@@ -88,8 +92,6 @@
 .center {
 
   min-height: 0;
-
-  overflow-y: auto;
 
   overflow-x: hidden;
 }

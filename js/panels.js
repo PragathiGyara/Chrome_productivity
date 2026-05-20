@@ -83,10 +83,10 @@ function enableSmartScrollbar(
 
 function setupSmartScrollbars() {
 
-  document
-    .querySelectorAll(
-      ".panel, .center"
-    )
+    document
+      .querySelectorAll(
+        ".panel, .center, .word-list"
+      )
     .forEach(el => {
 
       enableSmartScrollbar(el);

@@ -129,17 +129,16 @@
   background: var(--primary);
 }
 
-
 /* =====================================================
-   RIGHT PANEL SPECIAL SCROLLBAR
+   WORD LIST SCROLLBAR
 ===================================================== */
 
-.panel.right {
+.word-list {
 
   scrollbar-width: none;
 }
 
-.panel.right:hover {
+.word-list:hover {
 
   scrollbar-width: thin;
 }
@@ -147,21 +146,21 @@
 
 /* Chrome / Edge / Safari */
 
-.panel.right::-webkit-scrollbar {
+.word-list::-webkit-scrollbar {
 
   width: 0px;
 
   height: 0px;
 }
 
-.panel.right:hover::-webkit-scrollbar {
+.word-list:hover::-webkit-scrollbar {
 
   width: 6px;
 
   height: 6px;
 }
 
-.panel.right:hover::-webkit-scrollbar-thumb {
+.word-list:hover::-webkit-scrollbar-thumb {
 
   background: rgba(148, 163, 184, 0.4);
 
