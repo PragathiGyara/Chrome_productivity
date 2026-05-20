@@ -140,6 +140,8 @@ function createWordElement(wordObj, number) {
   const div = document.createElement("div");
   div.classList.add("word-item");
 
+  div.dataset.wordId = wordObj.id;
+
   // Fade if learned
   if (wordObj.status === "learned") {
     div.classList.add("learned");

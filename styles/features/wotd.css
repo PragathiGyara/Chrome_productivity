@@ -207,3 +207,50 @@
 
   transform: translateX(16px);
 }
+
+/* =====================================================
+   WOTD ACTIONS
+===================================================== */
+
+.wotd-actions {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-top: 14px;
+}
+
+
+/* =====================================================
+   WOTD ACTION BUTTON
+===================================================== */
+
+.wotd-action-btn {
+
+  background: var(--bg-hover);
+
+  border: 1px solid var(--border-color);
+
+  color: var(--text-main);
+
+  padding: 6px 12px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+
+.wotd-action-btn:hover {
+
+  background: #334155;
+
+  transform: translateY(-1px);
+}

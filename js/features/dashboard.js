@@ -54,6 +54,21 @@ function renderDashboardView() {
               id="wotdSentence"
               class="wotd-sentence hidden"
             ></div>
+            <div class="wotd-actions">
+                <button
+                id="wotdLearnBtn"
+                class="wotd-action-btn"
+                >
+                ✓ Learned
+                </button>
+
+                <button
+                id="wotdVaultBtn"
+                class="wotd-action-btn"
+                >
+                📖 Vault
+                </button>
+            </div>
 
         </div>
 
@@ -146,7 +161,28 @@ function attachDashboardEvents() {
       }
 
     });
+   document
+    .getElementById("wotdLearnBtn")
+    ?.addEventListener("click", () => {
 
+        if (!currentWOTDWord) return;
+
+        const learnedWord =
+        currentWOTDWord.word;
+
+        markAsLearned(currentWOTDWord.id);
+
+        showToast(
+        `"${learnedWord}" marked as learned`
+        );
+    });
+    document
+    .getElementById("wotdVaultBtn")
+    ?.addEventListener("click", () => {
+
+        goToCurrentWOTDInVault();
+
+    });
 }
 
 

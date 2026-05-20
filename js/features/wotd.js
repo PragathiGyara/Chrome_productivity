@@ -3,6 +3,7 @@
 // =====================================================
 
 let currentLanguageIndex = 0;
+let currentWOTDWord = null;
 
 
 /* =====================================================
@@ -12,7 +13,9 @@ let currentLanguageIndex = 0;
 function getDisplayWords() {
 
   return words.filter(
-    word => word.display
+    word =>
+      word.display &&
+      word.status !== "learned"
   );
 }
 
@@ -140,7 +143,8 @@ function renderWordOfTheDay() {
 
   const word =
     getDailyWord(currentLanguage);
-
+    
+  currentWOTDWord = word;  
   if (!word) return;
 
   languageEl.textContent =
@@ -195,4 +199,58 @@ function prevWOTDLanguage() {
   currentLanguageIndex--;
 
   renderWordOfTheDay();
+}
+
+
+/* =====================================================
+   NAVIGATION TO VAULT
+===================================================== */
+
+
+
+function goToCurrentWOTDInVault() {
+
+  if (!currentWOTDWord) return;
+
+  const app =
+    document.querySelector(".app");
+
+  // Open right panel if collapsed
+  if (
+    app.classList.contains(
+      "right-collapsed"
+    )
+  ) {
+
+    app.classList.remove(
+      "right-collapsed"
+    );
+  }
+
+  setTimeout(() => {
+    const wordEl =
+        document.querySelector(
+        `[data-word-id="${currentWOTDWord.id}"]`
+        );
+
+    if (!wordEl) return;
+
+    wordEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    wordEl.classList.add(
+        "wotd-highlight"
+    );
+
+    setTimeout(() => {
+
+        wordEl.classList.remove(
+        "wotd-highlight"
+        );
+
+    }, 2000);
+
+    }, 250);
 }
