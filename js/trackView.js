@@ -16,6 +16,7 @@ let currentView = "dashboard";
 let activeTrackId = null;
 let showFinishedTasks = false;
 let selectedNewTrackIcon = "📌";
+let draggedReadingId = null;
 
 
 // =====================================================
@@ -603,8 +604,10 @@ function renderReading(track) {
 
   container.innerHTML = "";
 
-  track.reading.forEach(item => {
+  track.reading.forEach((item, index) => {
     const div = document.createElement("div");
+    div.draggable = true;
+    div.dataset.id = item.id;
     div.classList.add("deadline-item");
 
 const linksHTML =
@@ -623,13 +626,69 @@ const linksHTML =
 
     div.innerHTML = `
       <div>
-        <strong>${item.topic}</strong>
+        <div class="reading-header">
+          <span class="drag-handle">⋮⋮</span>
+          <strong>${index + 1}. ${item.topic}</strong>
+        </div>
         ${linksHTML}
       </div>
     `;
 
     div.addEventListener("dblclick", () => {
       openEditReadingForm(track, item);
+    });
+    // =====================================
+    // DRAG START
+    // =====================================
+
+    div.addEventListener("dragstart", () => {
+      draggedReadingId = item.id;
+      div.classList.add("dragging");
+    });
+
+    // =====================================
+    // DRAG END
+    // =====================================
+
+    div.addEventListener("dragend", () => {
+      draggedReadingId = null;
+      div.classList.remove("dragging");
+    });
+
+    // =====================================
+    // DRAG OVER
+    // =====================================
+
+    div.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    // =====================================
+    // DROP
+    // =====================================
+
+    div.addEventListener("drop", () => {
+
+      if (draggedReadingId === item.id) return;
+
+      const fromIndex = track.reading.findIndex(
+        r => r.id === draggedReadingId
+      );
+
+      const toIndex = track.reading.findIndex(
+        r => r.id === item.id
+      );
+
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const [movedItem] =
+        track.reading.splice(fromIndex, 1);
+
+      track.reading.splice(toIndex, 0, movedItem);
+
+      persistTracks();
+
+      renderReading(track);
     });
 
     container.appendChild(div);

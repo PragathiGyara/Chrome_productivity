@@ -9,6 +9,57 @@
   min-height: 0;
 }
 
+/* =====================================================
+   READING ITEM INTERACTIONS
+===================================================== */
+
+#readingList .deadline-item {
+
+  cursor: grab;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+#readingList .deadline-item:hover {
+
+  transform: translateY(-1px);
+}
+
+#readingList .deadline-item.dragging {
+
+  opacity: 0.5;
+
+  transform: scale(0.98);
+
+  cursor: grabbing;
+}
+
+
+/* =====================================================
+   READING HEADER
+===================================================== */
+
+.reading-header {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.drag-handle {
+
+  opacity: 0.5;
+
+  font-size: 14px;
+
+  user-select: none;
+}
+
 
 /* =====================================================
    READING LINK
