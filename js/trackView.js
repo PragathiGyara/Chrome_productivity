@@ -809,8 +809,10 @@ function openReadingForm(track) {
     });
 
     persistTracks();
+
     form.remove();
-    renderReading(track);
+
+    refreshCurrentView();
   };
 
   form.querySelector("#cancelReadingBtn").onclick = () => {
