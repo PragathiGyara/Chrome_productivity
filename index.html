@@ -159,6 +159,7 @@
 <script src="js/features/wotd.js"></script>
 <script src="js/features/deadlines.js"></script>
 <script src="js/features/dashboard.js"></script>
+<script src="js/features/projectsView.js"></script>
 <script src="js/panels.js"></script>
 <script src="js/tracks.js"></script>
 <script src="js/trackView.js"></script>
@@ -244,6 +245,66 @@
         </div>
     </div>
     </div>
+    <!-- =====================================
+        ADD PROJECT MODAL
+    ===================================== -->
+    <div
+    id="addProjectModal"
+    class="modal hidden"
+    >
+    <div
+        class="modal-content add-project-modal-content"
+    >
+        <!-- =============================
+            MODAL HEADER
+        ============================== -->
+        <div class="modal-header">
+        <h2>
+            Add Project
+        </h2>
+        <button
+            id="closeAddProjectModalBtn"
+        >
+            ✕
+        </button>
+        </div>
+        <!-- =============================
+            PROJECT FORM
+        ============================== -->
+        <div class="project-form">
+        <input
+            type="text"
+            id="projectNameInput"
+            placeholder="Project name"
+        />
+        <input
+            type="number"
+            id="projectTargetInput"
+            placeholder="Hours per day"
+            min="0.5"
+            step="0.5"
+        />
+        <!-- =============================
+            ACTIONS
+        ============================== -->
+        <div class="project-form-actions">
+            <button
+            id="saveProjectBtn"
+            class="primary-btn"
+            >
+            Save Project
+            </button>
+            <button
+            id="cancelProjectBtn"
+            class="neutral-btn"
+            >
+            Cancel
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
+
 </body>
 </html>
 
