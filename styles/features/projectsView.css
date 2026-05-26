@@ -178,3 +178,79 @@
 
   gap: 12px;
 }
+
+/* =====================================================
+   PROJECT STATS
+===================================================== */
+
+#projectsStats {
+
+  margin-top: 28px;
+}
+
+
+/* =====================================================
+   STATS CARD
+===================================================== */
+
+.projects-stats-card {
+
+  background: rgba(255,255,255,0.04);
+
+  border-radius: 14px;
+
+  padding: 18px;
+}
+
+
+/* =====================================================
+   STATS TITLE
+===================================================== */
+
+.projects-stats-title {
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  margin-bottom: 14px;
+}
+
+
+/* =====================================================
+   STATS HOURS
+===================================================== */
+
+.projects-stats-hours {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-size: 24px;
+
+  font-weight: 700;
+
+  margin-bottom: 14px;
+}
+
+.stats-divider {
+
+  opacity: 0.5;
+}
+
+
+/* =====================================================
+   STATS PERCENT
+===================================================== */
+
+.projects-stats-percent {
+
+  margin-top: 10px;
+
+  opacity: 0.7;
+
+  font-size: 14px;
+}
