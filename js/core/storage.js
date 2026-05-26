@@ -4,6 +4,7 @@
 
 const TRACK_STORAGE_KEY = "dashboardTracks";
 const TODO_STORAGE_KEY = "dailyTodos";
+const PROJECT_STORAGE_KEY = "dashboardProjects";
 
 
 // =====================================================
@@ -135,6 +136,29 @@ function persistTodos(todos) {
   );
 }
 
+
+// =====================================================
+// PROJECT STORAGE
+// =====================================================
+
+function persistProjects() {
+
+  localStorage.setItem(
+    PROJECT_STORAGE_KEY,
+    JSON.stringify(projects)
+  );
+}
+
+
+function loadProjects() {
+
+  const stored =
+    localStorage.getItem(PROJECT_STORAGE_KEY);
+
+  projects = stored
+    ? JSON.parse(stored)
+    : [];
+}
 
 // =====================================================
 // TODAY HELPERS

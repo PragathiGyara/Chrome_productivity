@@ -16,6 +16,8 @@
 // Constants
 // --------------------------
 
+let currentDashboardSection = "tracks";
+
 let currentOpenTrackId = null;
 
 let isDragging = false;
@@ -23,6 +25,13 @@ let isDragging = false;
 let draggedTrackId = null;
 
 let currentLeftView = "deadlines"; // "deadlines" | "todos"
+
+let currentDashboardPage = 0;
+
+const dashboardPages = [
+  "tracks",
+  "projects"
+];
 
 const BASE_LANGUAGES = ["English", "Hindi", "Telugu", "Marathi"];
 
@@ -32,6 +41,7 @@ const BASE_LANGUAGES = ["English", "Hindi", "Telugu", "Marathi"];
 // --------------------------
 
 let tracks = [];
+let projects = [];
 let activeTrackEditId = null;
 let trackPendingDeletion = null;
 
@@ -43,6 +53,8 @@ let trackPendingDeletion = null;
 document.addEventListener("DOMContentLoaded", () => {
 
   loadTracks();
+
+  loadProjects();
 
   renderDashboardView();
 
