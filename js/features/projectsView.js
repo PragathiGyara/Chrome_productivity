@@ -10,6 +10,13 @@
 
 
 // =====================================================
+// ANALYTICS RANGE STATE
+// =====================================================
+
+let currentAnalyticsRange =
+  "thisWeek";
+
+// =====================================================
 // RENDER PROJECTS VIEW
 // =====================================================
 
@@ -38,16 +45,63 @@ function renderProjectsView() {
     </div>
 
     <!-- =============================
-         PROJECTS LIST
+        TRACKER SECTION
     ============================== -->
+
+    <div class="projects-tracker-section">
+
+    <div class="projects-tracker-header">
+
+        <div class="projects-section-title">
+        Project Time Tracker
+        </div>
+
+        <button
+        id="calendarBtn"
+        class="icon-btn"
+        >
+        📅
+        </button>
+
+    </div>
 
     <div id="projectsList"></div>
 
+    </div>
+
+
     <!-- =============================
-        PROJECT STATS
+        ANALYTICS SECTION
     ============================== -->
 
-    <div id="projectsStats"></div>
+    <div class="projects-analytics-section">
+        <div class="projects-analytics-header">
+        <div class="projects-section-title">
+            Analytics
+        </div>
+        <!-- =============================
+            ANALYTICS RANGE SELECTOR
+        ============================== -->
+        <select
+            id="analyticsRangeSelect"
+            class="analytics-range-select"
+        >
+            <option value="thisWeek">
+            This Week
+            </option>
+            <option value="previousWeek">
+            Previous Week
+            </option>
+            <option value="thisMonth">
+            This Month
+            </option>
+            <option value="overall">
+            Overall
+            </option>
+        </select>
+        </div>
+        <div id="projectsStats"></div>
+    </div>
   `;
 
   renderProjects();
@@ -205,7 +259,107 @@ function renderProjects() {
 
 
 // =====================================================
-// RENDER PROJECT STATS
+// GET ANALYTICS DATE RANGE
+// =====================================================
+
+function getAnalyticsDateRange() {
+
+  const today = new Date();
+
+  let startDate = null;
+
+  let endDate = new Date();
+
+  // =========================================
+  // THIS WEEK
+  // Sunday → Today
+  // =========================================
+
+  if (
+    currentAnalyticsRange ===
+    "thisWeek"
+  ) {
+
+    startDate = new Date(today);
+
+    startDate.setDate(
+      today.getDate() -
+      today.getDay()
+    );
+  }
+
+  // =========================================
+  // PREVIOUS WEEK
+  // Previous Sunday → Saturday
+  // =========================================
+
+  else if (
+    currentAnalyticsRange ===
+    "previousWeek"
+  ) {
+
+    const currentSunday =
+      new Date(today);
+
+    currentSunday.setDate(
+      today.getDate() -
+      today.getDay()
+    );
+
+    endDate =
+      new Date(currentSunday);
+
+    endDate.setDate(
+      currentSunday.getDate() - 1
+    );
+
+    startDate =
+      new Date(endDate);
+
+    startDate.setDate(
+      endDate.getDate() - 6
+    );
+  }
+
+  // =========================================
+  // THIS MONTH
+  // =========================================
+
+  else if (
+    currentAnalyticsRange ===
+    "thisMonth"
+  ) {
+
+    startDate =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+  }
+
+  // =========================================
+  // OVERALL
+  // =========================================
+
+  else if (
+    currentAnalyticsRange ===
+    "overall"
+  ) {
+
+    startDate = null;
+    endDate = null;
+  }
+
+  return {
+    startDate,
+    endDate
+  };
+}
+
+
+// =====================================================
+// RENDER PROJECT ANALYTICS
 // =====================================================
 
 function renderProjectsStats() {
@@ -217,24 +371,69 @@ function renderProjectsStats() {
 
   if (!container) return;
 
+  container.innerHTML = "";
+
+  const {
+    startDate,
+    endDate
+    } = getAnalyticsDateRange();
+
   // =========================================
-  // WEEKLY CALCULATIONS
+  // ANALYTICS PER PROJECT
   // =========================================
-
-  let expectedHours = 0;
-
-  let actualHours = 0;
-
-  const today = new Date();
 
   projects.forEach(project => {
 
-    // Expected
+    let actualHours = 0;
 
-    expectedHours +=
-      project.targetHoursPerDay * 7;
+    let expectedMultiplier = 7;
 
-    // Actual
+    // =========================================
+    // RANGE MULTIPLIER
+    // =========================================
+
+    if (
+    currentAnalyticsRange ===
+    "thisMonth"
+    ) {
+
+    const today = new Date();
+
+    expectedMultiplier =
+        today.getDate();
+    }
+
+    else if (
+    currentAnalyticsRange ===
+    "overall"
+    ) {
+
+    const createdDate =
+        new Date(
+        project.createdAt
+        );
+
+    const today =
+        new Date();
+
+    const diffDays =
+        Math.floor(
+        (
+            today - createdDate
+        ) / (1000 * 60 * 60 * 24)
+        ) + 1;
+
+    expectedMultiplier =
+        Math.max(diffDays, 1);
+    }
+
+    const expectedHours =
+    project.targetHoursPerDay *
+    expectedMultiplier;
+
+    // =====================================
+    // SUM LAST 7 DAYS
+    // =====================================
 
     Object.entries(
       project.logs || {}
@@ -243,85 +442,107 @@ function renderProjectsStats() {
       const logDate =
         new Date(date);
 
-      const diff =
-        (
-          today - logDate
-        ) / (1000 * 60 * 60 * 24);
+    const inRange =
 
-      if (diff >= 0 && diff < 7) {
+    // OVERALL
+    (!startDate && !endDate)
 
-        actualHours += hours;
-      }
+    ||
+
+    // NORMAL RANGE
+    (
+        logDate >= startDate &&
+        logDate <= endDate
+    );
+
+    if (inRange) {
+
+    actualHours += hours;
+    }
 
     });
 
-  });
+    // =====================================
+    // PERCENTAGES
+    // =====================================
 
-  // =========================================
-  // PROGRESS
-  // =========================================
+    const completionPercent =
+      expectedHours > 0
+        ? Math.min(
+            (
+              actualHours /
+              expectedHours
+            ) * 100,
+            100
+          )
+        : 0;
 
-  const percentage =
-    expectedHours > 0
-      ? Math.min(
-          (
-            actualHours /
-            expectedHours
-          ) * 100,
-          100
-        )
-      : 0;
+    const remainingPercent =
+      100 - completionPercent;
 
-  // =========================================
-  // RENDER
-  // =========================================
+    // =====================================
+    // ANALYTICS CARD
+    // =====================================
 
-  container.innerHTML = `
+    const card =
+      document.createElement("div");
 
-    <div class="projects-stats-card">
+    card.classList.add(
+      "analytics-card"
+    );
 
-      <div class="projects-stats-title">
+    card.innerHTML = `
 
-        Weekly Progress
+      <!-- =============================
+           HEADER
+      ============================== -->
+
+      <div class="analytics-card-header">
+
+        <div class="analytics-card-title">
+          ${project.name}
+        </div>
+
+        <div class="analytics-card-percent">
+          ${completionPercent.toFixed(0)}%
+        </div>
 
       </div>
 
-      <div class="projects-stats-hours">
+      <!-- =============================
+           BAR
+      ============================== -->
 
-        <span>
-          ${actualHours.toFixed(1)}h
-        </span>
-
-        <span class="stats-divider">
-          /
-        </span>
-
-        <span>
-          ${expectedHours.toFixed(1)}h
-        </span>
-
-      </div>
-
-      <div class="project-progress">
+      <div class="analytics-bar">
 
         <div
-          class="project-progress-fill"
-          style="width: ${percentage}%"
+          class="analytics-bar-green"
+          style="width: ${completionPercent}%"
+        ></div>
+
+        <div
+          class="analytics-bar-red"
+          style="width: ${remainingPercent}%"
         ></div>
 
       </div>
 
-      <div class="projects-stats-percent">
+      <!-- =============================
+           HOURS
+      ============================== -->
 
-        ${percentage.toFixed(0)}%
-        completed
+      <div class="analytics-hours">
+
+        ${actualHours.toFixed(1)}h
+        /
+        ${expectedHours.toFixed(1)}h
 
       </div>
+    `;
 
-    </div>
-  `;
+    container.appendChild(card);
+  });
 }
-
 
 // =====================================================
 // PROJECT EVENTS
@@ -336,6 +557,24 @@ function attachProjectEvents() {
       openAddProjectModal();
 
     });
+    // =========================================
+    // ANALYTICS RANGE
+    // =========================================
+
+    document
+    .getElementById(
+        "analyticsRangeSelect"
+    )
+    ?.addEventListener(
+        "change",
+        (e) => {
+
+        currentAnalyticsRange =
+            e.target.value;
+
+        renderProjectsStats();
+        }
+    );
 }
 
 
@@ -506,6 +745,9 @@ function saveProject() {
 
     targetHoursPerDay:
       targetHours,
+
+    createdAt:
+        new Date().toISOString(),
 
     logs: {}
   });

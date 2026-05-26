@@ -254,3 +254,204 @@
 
   font-size: 14px;
 }
+
+/* =====================================================
+   SECTION LAYOUT
+===================================================== */
+
+.projects-tracker-section,
+.projects-analytics-section {
+
+  background: rgba(255,255,255,0.03);
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+  margin-bottom: 24px;
+}
+
+
+/* =====================================================
+   SECTION TITLES
+===================================================== */
+
+.projects-section-title {
+
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   TRACKER HEADER
+===================================================== */
+
+.projects-tracker-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   ANALYTICS CARD
+===================================================== */
+
+.analytics-card {
+
+  margin-top: 14px;
+}
+
+
+/* =====================================================
+   ANALYTICS HEADER
+===================================================== */
+
+.analytics-card-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 14px;
+}
+
+.analytics-card-title {
+
+  font-size: 16px;
+
+  font-weight: 600;
+}
+
+.analytics-card-percent {
+
+  font-size: 22px;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   ANALYTICS BAR
+===================================================== */
+
+.analytics-bar {
+
+  display: flex;
+
+  height: 18px;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+
+  margin-bottom: 18px;
+
+  background: rgba(255,255,255,0.06);
+}
+
+.analytics-bar-green {
+
+  background: #22c55e;
+}
+
+.analytics-bar-red {
+
+  background: #ef4444;
+}
+
+
+/* =====================================================
+   ANALYTICS HOURS
+===================================================== */
+
+.analytics-hours {
+
+  margin-top: 10px;
+
+  font-size: 15px;
+
+  opacity: 0.8;
+}
+
+.analytics-hours-item {
+
+  display: flex;
+
+  justify-content: space-between;
+}
+
+.analytics-label {
+
+  opacity: 0.7;
+}
+
+.analytics-value {
+
+  font-weight: 600;
+}
+
+/* =====================================================
+   ANALYTICS HEADER
+===================================================== */
+
+.projects-analytics-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   ANALYTICS RANGE SELECT
+===================================================== */
+
+.analytics-range-select {
+
+  background: rgba(255,255,255,0.06);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: white;
+
+  padding: 8px 12px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.analytics-range-select:focus {
+
+  outline: none;
+
+  border-color: #38bdf8;
+}
+
+
+/* =====================================================
+   SELECT OPTIONS
+===================================================== */
+
+.analytics-range-select option {
+
+  background: #111827;
+
+  color: white;
+}

@@ -153,11 +153,31 @@ function persistProjects() {
 function loadProjects() {
 
   const stored =
-    localStorage.getItem(PROJECT_STORAGE_KEY);
+    localStorage.getItem(
+      PROJECT_STORAGE_KEY
+    );
 
   projects = stored
     ? JSON.parse(stored)
     : [];
+
+  // =========================================
+  // NORMALIZE PROJECTS
+  // =========================================
+
+  projects.forEach(project => {
+
+    if (!project.logs) {
+      project.logs = {};
+    }
+
+    if (!project.createdAt) {
+
+      project.createdAt =
+        new Date().toISOString();
+    }
+
+  });
 }
 
 // =====================================================
