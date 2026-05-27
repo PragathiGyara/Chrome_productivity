@@ -16,6 +16,22 @@
 let currentAnalyticsRange =
   "thisWeek";
 
+
+// =====================================================
+// CURRENT TRACKER DATE
+// =====================================================
+
+let selectedProjectDate =
+  getTodayKey();
+
+
+// =====================================================
+// MANAGE PROJECTS TAB STATE
+// =====================================================
+
+let currentManageProjectsTab =
+  "current";
+
 // =====================================================
 // RENDER PROJECTS VIEW
 // =====================================================
@@ -35,12 +51,12 @@ function renderProjectsView() {
 
     <div class="projects-header">
 
-      <button
-        id="addProjectBtn"
-        class="primary-btn"
-      >
-        + Add Project
-      </button>
+    <button
+      id="manageProjectsBtn"
+      class="primary-btn"
+    >
+      Manage Projects
+    </button>
 
     </div>
 
@@ -56,12 +72,19 @@ function renderProjectsView() {
         Project Time Tracker
         </div>
 
-        <button
-        id="calendarBtn"
-        class="icon-btn"
-        >
-        📅
-        </button>
+        <div class="projects-date-picker">
+
+          <span class="projects-date-icon">
+            📅
+          </span>
+
+          <input
+            type="date"
+            id="projectsDateInput"
+            value="${selectedProjectDate}"
+          />
+
+        </div>
 
     </div>
 
@@ -109,6 +132,8 @@ function renderProjectsView() {
   renderProjectsStats();
 
   attachProjectEvents();
+
+  initializeManageProjectsEvents();
 }
 
 
@@ -125,136 +150,351 @@ function renderProjects() {
 
   list.innerHTML = "";
 
-  projects.forEach(project => {
+  projects
 
-    const todayKey =
-      getTodayKey();
+    // =====================================
+    // FILTER PROJECTS
+    // =====================================
 
-    const todayHours =
-      project.logs?.[todayKey] || 0;
+    .filter(project => {
 
-    const progress =
-      Math.min(
-        (
-          todayHours /
-          project.targetHoursPerDay
-        ) * 100,
-        100
-      );
+      const status =
+        project.status || "active";
 
-    // =========================================
-    // PROJECT ROW
-    // =========================================
+      // hide completed projects
+      if (status === "completed") {
+        return false;
+      }
 
-    const row =
-      document.createElement("div");
+      const createdDateKey =
+        getDateKey(
+          new Date(project.createdAt)
+        );
 
-    row.classList.add("project-row");
+      // don't show before creation date
+      if (
+        selectedProjectDate <
+        createdDateKey
+      ) {
+        return false;
+      }
 
-    row.innerHTML = `
+      return true;
+    })
 
-      <!-- =============================
-           PROJECT INFO
-      ============================== -->
+    // =====================================
+    // ACTIVE FIRST, PAUSED LAST
+    // =====================================
 
-      <div class="project-info">
+    .sort((a, b) => {
 
-        <div class="project-name">
-          ${project.name}
+      const aPaused =
+        (a.status || "active")
+        === "paused";
+
+      const bPaused =
+        (b.status || "active")
+        === "paused";
+
+      return aPaused - bPaused;
+    })
+
+    // =====================================
+    // RENDER ROWS
+    // =====================================
+
+    .forEach(project => {
+
+      const todayKey =
+        selectedProjectDate;
+
+      const todayHours =
+        project.logs?.[todayKey] || 0;
+
+      const progress =
+        project.targetHoursPerDay > 0
+          ? Math.min(
+              (
+                todayHours /
+                project.targetHoursPerDay
+              ) * 100,
+              100
+            )
+          : 0;
+
+      // =====================================
+      // PROJECT ROW
+      // =====================================
+
+      const row =
+        document.createElement("div");
+
+      row.classList.add("project-row");
+
+      if (
+        project.status === "paused"
+      ) {
+
+        row.classList.add(
+          "paused-project-row"
+        );
+      }
+
+      row.innerHTML = `
+
+        <!-- =============================
+             PROJECT INFO
+        ============================== -->
+
+        <div class="project-info">
+
+          <div class="project-name">
+
+            ${project.name}
+
+            ${
+              project.status === "paused"
+                ? `
+                  <span class="project-paused-tag">
+                    Paused
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+          <div class="project-hours">
+
+            ${todayHours.toFixed(1)}h
+            /
+            ${project.targetHoursPerDay}h
+
+          </div>
+
         </div>
 
-        <div class="project-hours">
+        <!-- =============================
+             PROGRESS BAR
+        ============================== -->
 
-          ${todayHours.toFixed(1)}h
-          /
-          ${project.targetHoursPerDay}h
+        <div class="project-progress">
+
+          <div
+            class="project-progress-fill"
+            style="width: ${progress}%"
+          ></div>
 
         </div>
 
-      </div>
+        <!-- =============================
+             QUICK LOG ACTIONS
+        ============================== -->
 
-      <!-- =============================
-           PROGRESS BAR
-      ============================== -->
+        <div class="project-actions">
 
-      <div class="project-progress">
-
-        <div
-          class="project-progress-fill"
-          style="width: ${progress}%"
-        ></div>
-
-      </div>
-
-      <!-- =============================
-           QUICK LOG ACTIONS
-      ============================== -->
-
-      <div class="project-actions">
-
-        <button
+          <button
             class="project-log-btn"
             data-add="0.083"
-        >
+          >
             +5m
-        </button>
+          </button>
 
-        <button
-          class="project-log-btn"
-          data-add="0.25"
-        >
-          +15m
-        </button>
+          <button
+            class="project-log-btn"
+            data-add="0.25"
+          >
+            +15m
+          </button>
 
-        <button
-          class="project-log-btn"
-          data-add="0.5"
-        >
-          +30m
-        </button>
+          <button
+            class="project-log-btn"
+            data-add="0.5"
+          >
+            +30m
+          </button>
 
-        <button
-          class="project-log-btn"
-          data-add="1"
-        >
-          +1h
-        </button>
+          <button
+            class="project-log-btn"
+            data-add="1"
+          >
+            +1h
+          </button>
 
-      </div>
-    `;
+          ${
+            project.status !== "paused"
+              ? `
+                <button
+                  class="project-pause-btn"
+                >
+                  Pause
+                </button>
 
-    // =========================================
-    // QUICK LOGGING
-    // =========================================
-
-    row
-      .querySelectorAll(".project-log-btn")
-      .forEach(btn => {
-
-        btn.addEventListener("click", () => {
-
-          const addHours =
-            Number(btn.dataset.add);
-
-          if (!project.logs) {
-            project.logs = {};
+                <button
+                  class="project-complete-btn"
+                >
+                  Complete
+                </button>
+              `
+              : `
+                <button
+                  class="project-resume-btn"
+                >
+                  Resume
+                </button>
+              `
           }
 
-          project.logs[todayKey] =
-            (project.logs[todayKey] || 0)
-            + addHours;
+          <button
+            class="project-delete-btn"
+          >
+            Delete
+          </button>
 
-          persistProjects();
+        </div>
+      `;
 
-          renderProjects();
+      // =====================================
+      // DISABLE BUTTONS IF PAUSED
+      // =====================================
 
-          renderProjectsStats();
+      if (
+        project.status === "paused"
+      ) {
+
+        row
+          .querySelectorAll(
+            ".project-log-btn"
+          )
+          .forEach(btn => {
+
+            btn.disabled = true;
+
+            btn.classList.add(
+              "disabled-project-btn"
+            );
+          });
+      }
+
+      // =====================================
+      // QUICK LOGGING
+      // =====================================
+
+      row
+        .querySelectorAll(
+          ".project-log-btn"
+        )
+        .forEach(btn => {
+
+          btn.addEventListener(
+            "click",
+            () => {
+
+              if (
+                project.status ===
+                "paused"
+              ) {
+                return;
+              }
+
+              const addHours =
+                Number(btn.dataset.add);
+
+              if (!project.logs) {
+                project.logs = {};
+              }
+
+              project.logs[todayKey] =
+                (
+                  project.logs[todayKey]
+                  || 0
+                ) + addHours;
+
+              persistProjects();
+
+              renderProjects();
+
+              renderProjectsStats();
+            }
+          );
+
         });
 
-      });
+      // =====================================
+      // DELETE
+      // =====================================
 
-    list.appendChild(row);
-  });
+      row
+        .querySelector(
+          ".project-delete-btn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+
+            deleteProject(project.id);
+
+          }
+        );
+
+
+      // =====================================
+      // PAUSE
+      // =====================================
+
+      row
+        .querySelector(
+          ".project-pause-btn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+
+            pauseProject(project.id);
+
+          }
+        );
+
+
+      // =====================================
+      // RESUME
+      // =====================================
+
+      row
+        .querySelector(
+          ".project-resume-btn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+
+            resumeProject(project.id);
+
+          }
+        );
+
+
+      // =====================================
+      // COMPLETE
+      // =====================================
+
+      row
+        .querySelector(
+          ".project-complete-btn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+
+            completeProject(project.id);
+
+          }
+        );
+
+      list.appendChild(row);
+
+    });
+
 }
 
 
@@ -382,7 +622,12 @@ function renderProjectsStats() {
   // ANALYTICS PER PROJECT
   // =========================================
 
-  projects.forEach(project => {
+  projects
+    .filter(
+      project =>
+        project.status === "active"
+    )
+    .forEach(project => {
 
     let actualHours = 0;
 
@@ -393,43 +638,63 @@ function renderProjectsStats() {
     // =========================================
 
     if (
-    currentAnalyticsRange ===
-    "thisMonth"
+      currentAnalyticsRange ===
+      "thisWeek"
     ) {
 
-    const today = new Date();
+      const today = new Date();
 
-    expectedMultiplier =
+      // Sunday = 0
+      // Monday = 1
+      // ...
+      // Saturday = 6
+
+      expectedMultiplier =
+        today.getDay() + 1;
+    }
+
+    else if (
+      currentAnalyticsRange ===
+      "previousWeek"
+    ) {
+
+      expectedMultiplier = 7;
+    }
+
+    else if (
+      currentAnalyticsRange ===
+      "thisMonth"
+    ) {
+
+      const today = new Date();
+
+      expectedMultiplier =
         today.getDate();
     }
 
     else if (
-    currentAnalyticsRange ===
-    "overall"
+      currentAnalyticsRange ===
+      "overall"
     ) {
 
-    const createdDate =
+      const createdDate =
         new Date(
-        project.createdAt
+          project.createdAt
         );
 
-    const today =
+      const today =
         new Date();
 
-    const diffDays =
+      const diffDays =
         Math.floor(
-        (
+          (
             today - createdDate
-        ) / (1000 * 60 * 60 * 24)
+          ) / (1000 * 60 * 60 * 24)
         ) + 1;
 
-    expectedMultiplier =
+      expectedMultiplier =
         Math.max(diffDays, 1);
     }
-
-    const expectedHours =
-    project.targetHoursPerDay *
-    expectedMultiplier;
 
     // =====================================
     // SUM LAST 7 DAYS
@@ -440,7 +705,7 @@ function renderProjectsStats() {
     ).forEach(([date, hours]) => {
 
       const logDate =
-        new Date(date);
+        parseLocalDate(date);
 
     const inRange =
 
@@ -461,6 +726,11 @@ function renderProjectsStats() {
     }
 
     });
+
+
+    const expectedHours =
+    project.targetHoursPerDay *
+    expectedMultiplier;
 
     // =====================================
     // PERCENTAGES
@@ -551,10 +821,10 @@ function renderProjectsStats() {
 function attachProjectEvents() {
 
   document
-    .getElementById("addProjectBtn")
+    .getElementById("manageProjectsBtn")
     ?.addEventListener("click", () => {
 
-      openAddProjectModal();
+      openManageProjectsModal();
 
     });
     // =========================================
@@ -575,45 +845,80 @@ function attachProjectEvents() {
         renderProjectsStats();
         }
     );
+
+    // =========================================
+    // DATE PICKER
+    // =========================================
+
+    document
+      .getElementById(
+        "projectsDateInput"
+      )
+      ?.addEventListener(
+        "change",
+        (e) => {
+
+          selectedProjectDate =
+            e.target.value;
+
+          renderProjects();
+        }
+      );
 }
 
-
 // =====================================================
-// OPEN ADD PROJECT MODAL
+// OPEN MANAGE PROJECTS MODAL
 // =====================================================
 
-function openAddProjectModal() {
+function openManageProjectsModal() {
 
   const modal =
     document.getElementById(
-      "addProjectModal"
+      "manageProjectsModal"
     );
 
   if (!modal) return;
 
   modal.classList.remove("hidden");
+  
+  // =========================================
+  // RESET TAB STATE
+  // =========================================
 
-  // Reset fields
+  currentManageProjectsTab =
+    "current";
 
-  document.getElementById(
-    "projectNameInput"
-  ).value = "";
+  document
+    .querySelectorAll(
+      ".manage-projects-tab"
+    )
+    .forEach(tab => {
 
-  document.getElementById(
-    "projectTargetInput"
-  ).value = "";
+      tab.classList.remove("active");
+
+      if (
+        tab.dataset.tab === "current"
+      ) {
+
+        tab.classList.add("active");
+      }
+    });
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
 }
 
 
 // =====================================================
-// CLOSE ADD PROJECT MODAL
+// CLOSE MANAGE PROJECTS MODAL
 // =====================================================
 
-function closeAddProjectModal() {
+function closeManageProjectsModal() {
 
   const modal =
     document.getElementById(
-      "addProjectModal"
+      "manageProjectsModal"
     );
 
   if (!modal) return;
@@ -621,70 +926,289 @@ function closeAddProjectModal() {
   modal.classList.add("hidden");
 }
 
+
 // =====================================================
-// INITIALIZE PROJECT MODAL EVENTS
+// RENDER MANAGE PROJECTS CONTENT
 // =====================================================
 
-function initializeProjectModalEvents() {
+function renderManageProjectsContent() {
 
-  const saveBtn =
+  const container =
     document.getElementById(
-      "saveProjectBtn"
+      "manageProjectsContent"
     );
 
-  const cancelBtn =
-    document.getElementById(
-      "cancelProjectBtn"
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // =========================================
+  // FILTERED PROJECTS
+  // =========================================
+
+  let filteredProjects = [];
+
+  if (
+    currentManageProjectsTab ===
+    "current"
+  ) {
+
+    filteredProjects =
+      projects.filter(
+        project =>
+          project.status ===
+          "active"
+      );
+  }
+
+  else if (
+    currentManageProjectsTab ===
+    "paused"
+  ) {
+
+    filteredProjects =
+      projects.filter(
+        project =>
+          project.status ===
+          "paused"
+      );
+  }
+
+  else if (
+    currentManageProjectsTab ===
+    "completed"
+  ) {
+
+    filteredProjects =
+      projects.filter(
+        project =>
+          project.status ===
+          "completed"
+      );
+  }
+
+  // =========================================
+  // EMPTY STATE
+  // =========================================
+
+  if (
+    filteredProjects.length === 0
+  ) {
+
+    container.innerHTML = `
+
+      <div class="manage-projects-empty">
+
+        No projects here yet.
+
+      </div>
+    `;
+
+    return;
+  }
+
+  // =========================================
+  // RENDER ROWS
+  // =========================================
+
+  filteredProjects.forEach(project => {
+
+    const row =
+      document.createElement("div");
+
+    row.classList.add(
+      "manage-project-row"
     );
 
-  const closeBtn =
+    row.innerHTML = `
+
+      <div class="manage-project-name">
+
+        ${project.name}
+
+      </div>
+
+      <div class="manage-project-actions">
+
+        ${
+          project.status ===
+          "active"
+
+          ? `
+
+            <button
+              class="manage-pause-btn"
+            >
+              Pause
+            </button>
+
+            <button
+              class="manage-complete-btn"
+            >
+              Complete
+            </button>
+          `
+
+          : ""
+        }
+
+        ${
+          project.status ===
+          "paused"
+
+          ? `
+
+            <button
+              class="manage-resume-btn"
+            >
+              Resume
+            </button>
+          `
+
+          : ""
+        }
+        <button
+          class="manage-delete-btn"
+        >
+          Delete
+        </button>
+
+      </div>
+    `;
+
+    // =====================================
+    // PAUSE
+    // =====================================
+
+    row
+      .querySelector(
+        ".manage-pause-btn"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+
+          pauseProject(project.id);
+
+        }
+      );
+
+    // =====================================
+    // COMPLETE
+    // =====================================
+
+    row
+      .querySelector(
+        ".manage-complete-btn"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+
+          completeProject(project.id);
+
+        }
+      );
+
+    // =====================================
+    // RESUME
+    // =====================================
+
+    row
+      .querySelector(
+        ".manage-resume-btn"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+
+          resumeProject(project.id);
+
+        }
+      );
+
+      // =====================================
+      // DELETE
+      // =====================================
+
+      row
+        .querySelector(
+          ".manage-delete-btn"
+        )
+        ?.addEventListener(
+          "click",
+          () => {
+
+            deleteProject(project.id);
+
+          }
+        );
+
+    container.appendChild(row);
+  });
+}
+
+
+// =====================================================
+// UPDATE PROJECT TAB COUNTS
+// =====================================================
+
+function updateManageProjectsCounts() {
+
+  const currentCount =
+    projects.filter(
+      project =>
+        project.status === "active"
+    ).length;
+
+  const pausedCount =
+    projects.filter(
+      project =>
+        project.status === "paused"
+    ).length;
+
+  const completedCount =
+    projects.filter(
+      project =>
+        project.status === "completed"
+    ).length;
+
+  // =========================================
+  // UPDATE UI
+  // =========================================
+
+  const currentTab =
     document.getElementById(
-      "closeAddProjectModalBtn"
+      "currentProjectsTab"
     );
 
-  const modal =
+  const pausedTab =
     document.getElementById(
-      "addProjectModal"
+      "pausedProjectsTab"
     );
 
-  // =========================================
-  // SAVE
-  // =========================================
+  const completedTab =
+    document.getElementById(
+      "completedProjectsTab"
+    );
 
-  saveBtn?.addEventListener(
-    "click",
-    saveProject
-  );
+  if (currentTab) {
 
-  // =========================================
-  // CLOSE ACTIONS
-  // =========================================
+    currentTab.textContent =
+      `Current (${currentCount})`;
+  }
 
-  cancelBtn?.addEventListener(
-    "click",
-    closeAddProjectModal
-  );
+  if (pausedTab) {
 
-  closeBtn?.addEventListener(
-    "click",
-    closeAddProjectModal
-  );
+    pausedTab.textContent =
+      `Paused (${pausedCount})`;
+  }
 
-  // =========================================
-  // BACKDROP CLOSE
-  // =========================================
+  if (completedTab) {
 
-  modal?.addEventListener(
-    "click",
-    (e) => {
-
-      if (e.target === modal) {
-
-        closeAddProjectModal();
-      }
-
-    }
-  );
+    completedTab.textContent =
+      `Completed (${completedCount})`;
+  }
 }
 
 
@@ -709,6 +1233,33 @@ function saveProject() {
 
   const targetHours =
     Number(targetInput.value);
+
+
+  // =========================================
+  // DUPLICATE NAME CHECK
+  // =========================================
+
+  const duplicateProject =
+    projects.find(project =>
+
+      project.name
+        .trim()
+        .toLowerCase()
+
+      ===
+
+      name
+        .toLowerCase()
+    );
+
+  if (duplicateProject) {
+
+    alert(
+      "A project with this name already exists."
+    );
+
+    return;
+  }
 
   // =========================================
   // VALIDATION
@@ -749,16 +1300,295 @@ function saveProject() {
     createdAt:
         new Date().toISOString(),
 
+    status: "active",
+
     logs: {}
   });
 
   persistProjects();
 
-  closeAddProjectModal();
+  nameInput.value = "";
+  targetInput.value = "";
 
   renderProjects();
+
+  renderProjectsStats();
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
 
   showToast(
     `Project "${name}" added`
   );
+}
+
+// =====================================================
+// INITIALIZE MANAGE PROJECTS EVENTS
+// =====================================================
+
+function initializeManageProjectsEvents() {
+
+  // =========================================
+  // BACKDROP CLOSE
+  // =========================================
+
+  const manageModal =
+    document.getElementById(
+      "manageProjectsModal"
+    );
+
+  manageModal?.addEventListener(
+    "click",
+    (e) => {
+
+      if (e.target === manageModal) {
+
+        closeManageProjectsModal();
+      }
+
+    }
+  );
+
+  // =========================================
+  // CLOSE
+  // =========================================
+
+  document
+    .getElementById(
+      "closeManageProjectsModalBtn"
+    )
+    ?.addEventListener(
+      "click",
+      closeManageProjectsModal
+    );
+
+  // =========================================
+  // TABS
+  // =========================================
+
+  document
+    .querySelectorAll(
+      ".manage-projects-tab"
+    )
+    .forEach(tab => {
+
+      tab.addEventListener(
+        "click",
+        () => {
+
+          currentManageProjectsTab =
+            tab.dataset.tab;
+
+          document
+            .querySelectorAll(
+              ".manage-projects-tab"
+            )
+            .forEach(t => {
+
+              t.classList.remove(
+                "active"
+              );
+            });
+
+          tab.classList.add(
+            "active"
+          );
+
+          renderManageProjectsContent();
+        }
+      );
+    });
+
+    document
+    .getElementById(
+      "saveProjectBtn"
+    )
+    ?.addEventListener(
+      "click",
+      saveProject
+    );
+
+}
+
+
+// =====================================================
+// DELETE PROJECT
+// =====================================================
+
+function deleteProject(projectId) {
+
+  const project =
+    projects.find(
+      p => p.id === projectId
+    );
+
+  if (!project) return;
+
+  const confirmed =
+    confirm(
+
+`Delete "${project.name}"?
+
+This will permanently remove:
+• all logged hours
+• analytics history
+• project progress data
+
+This action cannot be undone.`
+
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  projects =
+    projects.filter(
+      p => p.id !== projectId
+    );
+
+  persistProjects();
+
+  renderProjects();
+
+  renderProjectsStats();
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
+
+  showToast(
+    `Project "${project.name}" deleted`
+  );
+}
+
+// =====================================================
+// PAUSE PROJECT
+// =====================================================
+
+function pauseProject(projectId) {
+
+  const project =
+    projects.find(
+      p => p.id === projectId
+    );
+
+  if (!project) return;
+
+  project.status = "paused";
+
+  persistProjects();
+
+  renderProjects();
+
+  renderProjectsStats();
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
+
+  showToast(
+    `Project "${project.name}" paused`
+  );
+}
+
+
+// =====================================================
+// RESUME PROJECT
+// =====================================================
+
+function resumeProject(projectId) {
+
+  const project =
+    projects.find(
+      p => p.id === projectId
+    );
+
+  if (!project) return;
+
+  project.status = "active";
+
+  persistProjects();
+
+  renderProjects();
+
+  renderProjectsStats();
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
+
+  showToast(
+    `Project "${project.name}" resumed`
+  );
+}
+
+
+// =====================================================
+// COMPLETE PROJECT
+// =====================================================
+
+function completeProject(projectId) {
+
+  const project =
+    projects.find(
+      p => p.id === projectId
+    );
+
+  if (!project) return;
+
+  const confirmed =
+    confirm(
+
+`Mark "${project.name}" as completed?
+
+The project will be removed from active tracking
+but its analytics history will be preserved.`
+
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  project.status = "completed";
+
+  persistProjects();
+
+  renderProjects();
+
+  renderProjectsStats();
+
+  updateManageProjectsCounts();
+
+  renderManageProjectsContent();
+
+  showToast(
+    `Project "${project.name}" completed`
+  );
+}
+
+
+// =========================================
+// HELPERS
+// =========================================
+
+function parseLocalDate(dateString) {
+
+  const [year, month, day] =
+    dateString.split("-").map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+}
+
+function getDateKey(date) {
+
+  return date
+    .toISOString()
+    .split("T")[0];
 }

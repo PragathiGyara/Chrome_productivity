@@ -246,63 +246,108 @@
     </div>
     </div>
     <!-- =====================================
-        ADD PROJECT MODAL
+        MANAGE PROJECTS MODAL
     ===================================== -->
+
     <div
-    id="addProjectModal"
+    id="manageProjectsModal"
     class="modal hidden"
     >
+
     <div
-        class="modal-content add-project-modal-content"
+        class="modal-content manage-projects-modal-content"
     >
+
         <!-- =============================
-            MODAL HEADER
+            HEADER
         ============================== -->
+
         <div class="modal-header">
+
         <h2>
-            Add Project
+            Manage Projects
         </h2>
+
         <button
-            id="closeAddProjectModalBtn"
+            id="closeManageProjectsModalBtn"
         >
             ✕
         </button>
+
         </div>
+
         <!-- =============================
-            PROJECT FORM
+            NAVIGATION
         ============================== -->
-        <div class="project-form">
-        <input
-            type="text"
-            id="projectNameInput"
-            placeholder="Project name"
-        />
-        <input
-            type="number"
-            id="projectTargetInput"
-            placeholder="Hours per day"
-            min="0.5"
-            step="0.5"
-        />
+
+        <div class="manage-projects-nav">
+        <button
+        id="currentProjectsTab"
+        class="manage-projects-tab active"
+        data-tab="current"
+        >
+        Current (0)
+        </button>
+
+        <button
+        id="pausedProjectsTab"
+        class="manage-projects-tab"
+        data-tab="paused"
+        >
+        Paused (0)
+        </button>
+
+        <button
+        id="completedProjectsTab"
+        class="manage-projects-tab"
+        data-tab="completed"
+        >
+        Completed (0)
+        </button>
+
+        </div>
+
         <!-- =============================
-            ACTIONS
+            CONTENT
         ============================== -->
-        <div class="project-form-actions">
-            <button
-            id="saveProjectBtn"
-            class="primary-btn"
-            >
-            Save Project
-            </button>
-            <button
-            id="cancelProjectBtn"
-            class="neutral-btn"
-            >
-            Cancel
-            </button>
+
+        <div id="manageProjectsContent"></div>
+
+        <!-- =============================
+            FOOTER ACTIONS
+        ============================== -->
+
+        <div class="manage-projects-footer">
+
+            <div class="manage-projects-add-form">
+
+                <input
+                    type="text"
+                    id="projectNameInput"
+                    placeholder="Project name"
+                />
+
+                <input
+                    type="number"
+                    id="projectTargetInput"
+                    placeholder="Hours per day"
+                    min="0.5"
+                    step="0.5"
+                />
+
+                <button
+                    id="saveProjectBtn"
+                    class="primary-btn"
+                >
+                    + Add Project
+                </button>
+
+            </div>
+
         </div>
-        </div>
+
     </div>
+
     </div>
 
 </body>

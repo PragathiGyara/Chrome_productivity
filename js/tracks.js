@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   attachTrackEvents();
 
-  initializeProjectModalEvents();
 
 });
 

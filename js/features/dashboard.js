@@ -171,22 +171,6 @@ function renderCurrentDashboardPage() {
 
     settingsBtn?.classList.add("hidden");
 
-    content.innerHTML = `
-
-      <div class="projects-header">
-
-        <button
-          id="addProjectBtn"
-          class="primary-btn"
-        >
-          + Add Project
-        </button>
-
-      </div>
-
-      <div id="projectsList"></div>
-    `;
-
     renderProjectsView();
   }
 }

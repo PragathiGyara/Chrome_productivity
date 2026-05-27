@@ -139,15 +139,28 @@
 
 
 /* =====================================================
-   ADD PROJECT MODAL
+   MANAGE PROJECTS ADD FORM
 ===================================================== */
 
-.add-project-modal-content {
+.manage-projects-add-form {
 
-  width: 420px;
+  display: flex;
 
-  max-width: 90vw;
+  gap: 12px;
+
+  align-items: center;
+
+  margin-top: 18px;
 }
+
+.manage-projects-add-form input {
+
+  flex: 1;
+
+  min-width: 0;
+}
+
+
 
 
 /* =====================================================
@@ -163,20 +176,6 @@
   gap: 18px;
 
   margin-top: 18px;
-}
-
-
-/* =====================================================
-   PROJECT FORM ACTIONS
-===================================================== */
-
-.project-form-actions {
-
-  display: flex;
-
-  justify-content: flex-end;
-
-  gap: 12px;
 }
 
 /* =====================================================
@@ -307,6 +306,19 @@
 .analytics-card {
 
   margin-top: 14px;
+}
+
+.analytics-card {
+
+  padding: 14px 0;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.06);
+}
+
+.analytics-card:last-child {
+
+  border-bottom: none;
 }
 
 
@@ -454,4 +466,227 @@
   background: #111827;
 
   color: white;
+}
+
+
+/* =====================================================
+   DATE PICKER
+===================================================== */
+
+.projects-date-picker {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.projects-date-icon {
+
+  font-size: 18px;
+}
+
+#projectsDateInput {
+
+  background: rgba(255,255,255,0.06);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: white;
+
+  padding: 8px 10px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+}
+
+#projectsDateInput::-webkit-calendar-picker-indicator {
+
+  filter: invert(1);
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   MANAGE PROJECT ROW
+===================================================== */
+
+.manage-project-row {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 14px 16px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.04);
+
+  margin-bottom: 12px;
+}
+
+.manage-project-name {
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   MANAGE PROJECT ACTIONS
+===================================================== */
+
+.manage-project-actions {
+
+  display: flex;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   DELETE PROJECT BUTTON
+===================================================== */
+
+.manage-delete-btn {
+
+  background: rgba(239,68,68,0.14);
+
+  color: #ef4444;
+
+  border: none;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.manage-delete-btn:hover {
+
+  background: rgba(239,68,68,0.22);
+
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   PROJECT DELETE BUTTON
+===================================================== */
+
+.project-delete-btn {
+
+  margin-left: auto;
+
+  background: rgba(239,68,68,0.14);
+
+  color: #ef4444;
+
+  border: none;
+
+  padding: 6px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.project-delete-btn:hover {
+
+  background: rgba(239,68,68,0.22);
+
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   PROJECT STATUS ACTION BUTTONS
+===================================================== */
+
+.project-pause-btn,
+.project-resume-btn,
+.project-complete-btn {
+
+  border: none;
+
+  padding: 6px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* =========================================
+   PAUSE
+========================================= */
+
+.project-pause-btn {
+
+  background: rgba(251,191,36,0.14);
+
+  color: #fbbf24;
+}
+
+.project-pause-btn:hover {
+
+  background: rgba(251,191,36,0.22);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   RESUME
+========================================= */
+
+.project-resume-btn {
+
+  background: rgba(34,197,94,0.14);
+
+  color: #22c55e;
+}
+
+.project-resume-btn:hover {
+
+  background: rgba(34,197,94,0.22);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   COMPLETE
+========================================= */
+
+.project-complete-btn {
+
+  background: rgba(59,130,246,0.14);
+
+  color: #60a5fa;
+}
+
+.project-complete-btn:hover {
+
+  background: rgba(59,130,246,0.22);
+
+  transform: translateY(-1px);
 }
