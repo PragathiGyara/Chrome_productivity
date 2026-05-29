@@ -94,25 +94,28 @@ function renderDashboardView() {
 
     <!-- HEADER -->
     <div class="center-header">
-        <div class="dashboard-switcher">
-            <button
-              id="dashboardPrevBtn"
-              class="dashboard-nav-btn"
-            >
-              ◀
-            </button>
-            <h2 id="dashboardTitle">
-              My Tracks
-            </h2>
-            <button
-              id="dashboardNextBtn"
-              class="dashboard-nav-btn"
-            >
-              ▶
-            </button>
-        </div>
+
+        <button
+          id="dashboardPrevBtn"
+          class="dashboard-nav-btn">
+          ◀
+        </button>
+
+        <h2 id="dashboardTitle">
+          My Tracks
+        </h2>
+
+        <button
+          id="dashboardNextBtn"
+          class="dashboard-nav-btn">
+          ▶
+        </button>
+
+    </div>
+
+    <div class="dashboard-actions">
         <button id="trackSettingsBtn">
-          ⚙
+            Manage Tracks
         </button>
     </div>
     <!-- DYNAMIC DASHBOARD CONTENT -->
@@ -153,6 +156,8 @@ function renderCurrentDashboardPage() {
     settingsBtn?.classList.remove("hidden");
 
     title.textContent = "My Tracks";
+    trackSettingsBtn.textContent =
+      "Manage Tracks";
 
     content.innerHTML = `
       <div id="trackGrid" class="grid"></div>
@@ -168,6 +173,8 @@ function renderCurrentDashboardPage() {
   else if (page === "projects") {
 
     title.textContent = "Projects";
+    trackSettingsBtn.textContent =
+      "Manage Projects";
 
     settingsBtn?.classList.add("hidden");
 

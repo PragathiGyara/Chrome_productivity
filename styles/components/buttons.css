@@ -78,6 +78,28 @@
    DASHBOARD NAVIGATION BUTTONS
 ===================================================== */
 
+.center-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-switcher {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.manage-tracks-btn {
+    padding: 8px 12px;
+}
+
 .dashboard-nav-btn {
 
   background: none;
