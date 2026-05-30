@@ -1,135 +1,39 @@
+
 // =====================================================
 // DASHBOARD VIEW
+//
+// Responsibilities:
+// - Render dashboard layout
+// - Switch between dashboard pages
+// - Coordinate WOTD and page navigation
+//
+// Does NOT handle:
+// - WOTD logic
+// - Track rendering
+// - Project rendering
 // =====================================================
+
+let currentDashboardPage = 0;
+
+const dashboardPages = [
+  "tracks",
+  "projects"
+];
 
 function renderDashboardView() {
 
   const center = document.querySelector(".center");
 
-  center.innerHTML = `
-
-    <!-- 🌟 WORD OF THE DAY -->
-    <div id="centerWOTD" class="center-wotd">
-
-        <div class="wotd-main">
-
-            <div class="wotd-title">
-                🌟 Word of the Day —
-                <span id="centerWOTDLanguage"></span>
-            </div>
-
-            <div
-              id="centerWOTDWord"
-              class="wotd-word"
-            ></div>
-
-            <div
-              id="centerWOTDMeaning"
-              class="wotd-meaning"
-            ></div>
-
-            <div
-              id="wotdToggleContainer"
-              class="wotd-toggle hidden"
-            >
-
-                <label class="toggle-switch">
-
-                    <input
-                      type="checkbox"
-                      id="wotdSentenceToggle"
-                    >
-
-                    <span class="slider"></span>
-
-                </label>
-
-                <div class="toggle-label">
-                  Show example sentence
-                </div>
-
-            </div>
-
-            <div
-              id="wotdSentence"
-              class="wotd-sentence hidden"
-            ></div>
-            <div class="wotd-actions">
-                <button
-                id="wotdLearnBtn"
-                class="wotd-action-btn"
-                >
-                ✓ Learned
-                </button>
-
-                <button
-                id="wotdVaultBtn"
-                class="wotd-action-btn"
-                >
-                📖 Vault
-                </button>
-            </div>
-
-        </div>
-
-        <div class="wotd-nav-container">
-
-            <button
-              id="wotdPrev"
-              class="wotd-nav"
-            >
-              ◀
-            </button>
-
-            <button
-              id="wotdNext"
-              class="wotd-nav"
-            >
-              ▶
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- HEADER -->
-    <div class="center-header">
-
-        <button
-          id="dashboardPrevBtn"
-          class="dashboard-nav-btn">
-          ◀
-        </button>
-
-        <h2 id="dashboardTitle">
-          My Tracks
-        </h2>
-
-        <button
-          id="dashboardNextBtn"
-          class="dashboard-nav-btn">
-          ▶
-        </button>
-
-    </div>
-
-    <div class="dashboard-actions">
-        <button id="trackSettingsBtn">
-            Manage Tracks
-        </button>
-    </div>
-    <!-- DYNAMIC DASHBOARD CONTENT -->
-    <div id="dashboardContent"></div>
-  `;
+  center.innerHTML = getDashboardTemplate();
 
   renderCurrentDashboardPage();
 
   renderWordOfTheDay();
 
   attachDashboardEvents();
+
+  attachWOTDEvents();
 }
-
-
 
 function renderCurrentDashboardPage() {
 
@@ -137,50 +41,101 @@ function renderCurrentDashboardPage() {
     dashboardPages[currentDashboardPage];
 
   const content =
-    document.getElementById("dashboardContent");
+    document.getElementById(
+      "dashboardContent"
+    );
 
   const title =
-    document.getElementById("dashboardTitle");
+    document.getElementById(
+      "dashboardTitle"
+    );
 
   if (!content || !title) return;
 
   const settingsBtn =
-    document.getElementById("trackSettingsBtn");
+    document.getElementById(
+      "trackSettingsBtn"
+    );
 
-  // =============================
-  // TRACKS PAGE
-  // =============================
+  switch (page) {
 
-  if (page === "tracks") {
+    case "tracks":
 
-    settingsBtn?.classList.remove("hidden");
+      title.textContent =
+        "My Tracks";
 
-    title.textContent = "My Tracks";
-    trackSettingsBtn.textContent =
-      "Manage Tracks";
+      settingsBtn.textContent =
+        "Manage Tracks";
 
-    content.innerHTML = `
-      <div id="trackGrid" class="grid"></div>
-    `;
+      settingsBtn.onclick =
+        openTrackSettings;
 
-    renderTracks();
-  }
+      content.innerHTML = `
+        <div
+          id="trackGrid"
+          class="grid"
+        ></div>
+      `;
 
-  // =============================
-  // PROJECTS PAGE
-  // =============================
+      renderTracks();
 
-  else if (page === "projects") {
+      break;
 
-    title.textContent = "Projects";
-    trackSettingsBtn.textContent =
-      "Manage Projects";
+    case "projects":
 
-    settingsBtn?.classList.add("hidden");
+      title.textContent =
+        "Projects";
 
-    renderProjectsView();
+      settingsBtn.textContent =
+        "Manage Projects";
+
+      settingsBtn.onclick = null;
+
+      renderProjectsView();
+
+      break;
+
+    default:
+
+      title.textContent =
+        "My Tracks";
+
+      content.innerHTML = `
+        <div
+          id="trackGrid"
+          class="grid"
+        ></div>
+      `;
+
+      renderTracks();
   }
 }
+
+/* =====================================================
+   DASHBOARD NAVIGATION
+===================================================== */
+
+function nextDashboardPage() {
+
+  currentDashboardPage =
+    (currentDashboardPage + 1)
+    % dashboardPages.length;
+
+  renderCurrentDashboardPage();
+}
+
+function previousDashboardPage() {
+
+  currentDashboardPage =
+    (
+      currentDashboardPage - 1 +
+      dashboardPages.length
+    ) % dashboardPages.length;
+
+  renderCurrentDashboardPage();
+}
+
+
 
 /* =====================================================
    DASHBOARD EVENTS
@@ -196,83 +151,19 @@ function attachDashboardEvents() {
 
       renderTrackList();
     });
-
-  document
-    .getElementById("wotdNext")
-    ?.addEventListener("click", () => {
-
-        nextWOTDLanguage();
-    });
-
-  document
-    .getElementById("wotdPrev")
-    ?.addEventListener("click", () => {
-
-        prevWOTDLanguage();
-    });
-
-  document
-    .getElementById("wotdSentenceToggle")
-    ?.addEventListener("change", (e) => {
-
-      const sentenceEl =
-        document.getElementById("wotdSentence");
-
-      if (e.target.checked) {
-
-        sentenceEl.classList.remove("hidden");
-
-      } else {
-
-        sentenceEl.classList.add("hidden");
-      }
-
-    });
-   document
-    .getElementById("wotdLearnBtn")
-    ?.addEventListener("click", () => {
-
-        if (!currentWOTDWord) return;
-
-        const learnedWord =
-        currentWOTDWord.word;
-
-        markAsLearned(currentWOTDWord.id);
-
-        showToast(
-        `"${learnedWord}" marked as learned`
-        );
-    });
-    document
-    .getElementById("wotdVaultBtn")
-    ?.addEventListener("click", () => {
-
-        goToCurrentWOTDInVault();
-
-    });
     document
       .getElementById("dashboardNextBtn")
-      ?.addEventListener("click", () => {
-
-        currentDashboardPage =
-          (currentDashboardPage + 1)
-          % dashboardPages.length;
-
-        renderCurrentDashboardPage();
-      });
+      ?.addEventListener(
+        "click",
+        nextDashboardPage
+      );
 
     document
       .getElementById("dashboardPrevBtn")
-      ?.addEventListener("click", () => {
-
-        currentDashboardPage =
-          (
-            currentDashboardPage - 1 +
-            dashboardPages.length
-          ) % dashboardPages.length;
-
-        renderCurrentDashboardPage();
-      });
+      ?.addEventListener(
+        "click",
+        previousDashboardPage
+      );
 }
 
 

@@ -1,22 +1,24 @@
 // =====================================================
-// APP INITIALIZATION
+// APPLICATION ENTRY POINT
 // =====================================================
 
 document.addEventListener(
   "DOMContentLoaded",
-  () => {
-
-    loadTracks();
-
-    loadWords();
-
-    renderDashboardView();
-
-    updateLeftPanel();
-
-    setupLeftPanelToggle();
-
-    attachTrackEvents();
-
-  }
+  initializeApp
 );
+
+function initializeApp() {
+
+  loadTracks();
+
+  loadProjects();
+
+  renderDashboardView();
+
+  updateLeftPanel();
+
+  setupLeftPanelToggle();
+
+  attachTrackEvents();
+
+}

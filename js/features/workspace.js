@@ -18,6 +18,8 @@ let showFinishedTasks = false;
 let selectedNewTrackIcon = "📌";
 let draggedReadingId = null;
 
+let currentOpenTrackId = null;
+
 
 // =====================================================
 // VIEW SWITCHING
