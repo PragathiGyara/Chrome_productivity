@@ -20,6 +20,9 @@
 let currentAnalyticsRange =
   "thisWeek";
 
+let currentAnalyticsView =
+  "overview";
+
 
 // =====================================================
 // DATE RANGE
@@ -382,4 +385,104 @@ function renderProjectsStats() {
       );
 
     });
+}
+
+
+function renderProjectsAnalytics() {
+
+  switch (
+    currentAnalyticsView
+  ) {
+
+    case "trend":
+
+      renderTrendAnalytics();
+      break;
+
+    case "distribution":
+
+      renderDistributionAnalytics();
+      break;
+
+    case "insights":
+
+      renderInsightsAnalytics();
+      break;
+
+    case "overview":
+
+    default:
+
+      renderOverviewAnalytics();
+      break;
+  }
+
+}
+
+
+function renderOverviewAnalytics() {
+
+  const container =
+    document.getElementById(
+      "projectsAnalyticsContent"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="analytics-placeholder">
+      Overview Analytics
+    </div>
+  `;
+}
+
+
+function renderTrendAnalytics() {
+
+  const container =
+    document.getElementById(
+      "projectsAnalyticsContent"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="analytics-placeholder">
+      Trend Analytics
+    </div>
+  `;
+}
+
+
+function renderDistributionAnalytics() {
+
+  const container =
+    document.getElementById(
+      "projectsAnalyticsContent"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="analytics-placeholder">
+      Distribution Analytics
+    </div>
+  `;
+}
+
+
+function renderInsightsAnalytics() {
+
+  const container =
+    document.getElementById(
+      "projectsAnalyticsContent"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="analytics-placeholder">
+      Insights Analytics
+    </div>
+  `;
 }

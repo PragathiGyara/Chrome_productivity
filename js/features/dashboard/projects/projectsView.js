@@ -123,14 +123,50 @@ function renderProjectsView() {
 
       </div>
 
-      <div id="projectsStats"></div>
+      <div
+        class="analytics-tabs"
+      >
+
+        <button
+          class="analytics-tab active"
+          data-view="overview"
+        >
+          Overview
+        </button>
+
+        <button
+          class="analytics-tab"
+          data-view="trend"
+        >
+          Trend
+        </button>
+
+        <button
+          class="analytics-tab"
+          data-view="distribution"
+        >
+          Distribution
+        </button>
+
+        <button
+          class="analytics-tab"
+          data-view="insights"
+        >
+          Insights
+        </button>
+
+      </div>
+
+      <div
+        id="projectsAnalyticsContent"
+      ></div>
 
     </div>
   `;
 
   renderProjects();
 
-  renderProjectsStats();
+  renderProjectsAnalytics();
 
   attachProjectEvents();
 }
@@ -540,6 +576,21 @@ function attachProjectEvents() {
 
   document
     .getElementById(
+      "projectsDateInput"
+    )
+    ?.addEventListener(
+      "change",
+      (e) => {
+
+        selectedProjectDate =
+          e.target.value;
+
+        renderProjects();
+      }
+    );
+
+  document
+    .getElementById(
       "analyticsRangeSelect"
     )
     ?.addEventListener(
@@ -553,18 +604,40 @@ function attachProjectEvents() {
       }
     );
 
+
+
   document
-    .getElementById(
-      "projectsDateInput"
-    )
-    ?.addEventListener(
-      "change",
-      (e) => {
+  .querySelectorAll(
+    ".analytics-tab"
+  )
+  .forEach(tab => {
 
-        selectedProjectDate =
-          e.target.value;
+    tab.addEventListener(
+      "click",
+      () => {
 
-        renderProjects();
+        currentAnalyticsView =
+          tab.dataset.view;
+
+        document
+          .querySelectorAll(
+            ".analytics-tab"
+          )
+          .forEach(btn => {
+
+            btn.classList.remove(
+              "active"
+            );
+
+          });
+
+        tab.classList.add(
+          "active"
+        );
+
+        renderProjectsAnalytics();
       }
     );
+
+  });
 }
