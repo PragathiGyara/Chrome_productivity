@@ -21,6 +21,9 @@
 let selectedProjectDate =
   getTodayKey();
 
+let isProjectsTrackerCollapsed =
+  false;
+
 
 // =====================================================
 // RENDER PROJECTS VIEW
@@ -49,33 +52,66 @@ function renderProjectsView() {
         class="projects-tracker-header"
       >
 
-        <div
-          class="projects-section-title"
+      <div
+        class="projects-section-title
+              tracker-collapse-toggle"
+        id="trackerCollapseToggle"
+      >
+
+        <span
+          class="tracker-collapse-icon"
         >
-          Project Time Tracker
-        </div>
+          ${
+            isProjectsTrackerCollapsed
+              ? "▶"
+              : "▼"
+          }
+        </span>
 
-        <div
-          class="projects-date-picker"
-        >
-
-          <span
-            class="projects-date-icon"
-          >
-            📅
-          </span>
-
-          <input
-            type="date"
-            id="projectsDateInput"
-            value="${selectedProjectDate}"
-          />
-
-        </div>
+        Project Time Tracker
 
       </div>
 
-      <div id="projectsList"></div>
+      ${
+        !isProjectsTrackerCollapsed
+          ? `
+            <div
+              class="projects-date-picker"
+            >
+
+              <span
+                class="projects-date-icon"
+              >
+                📅
+              </span>
+
+              <input
+                type="date"
+                id="projectsDateInput"
+                value="${selectedProjectDate}"
+              />
+
+            </div>
+          `
+          : ""
+      }
+
+      </div>
+
+      <div
+        id="projectsTrackerContent"
+        class="
+          ${
+            isProjectsTrackerCollapsed
+              ? "tracker-collapsed"
+              : ""
+          }
+        "
+      >
+
+        <div id="projectsList"></div>
+
+      </div>
 
     </div>
 
@@ -178,6 +214,11 @@ function renderProjectsView() {
 
 function renderProjects() {
 
+  if (
+    isProjectsTrackerCollapsed
+  ) {
+    return;
+  }
   const list =
     document.getElementById(
       "projectsList"
@@ -604,7 +645,21 @@ function attachProjectEvents() {
       }
     );
 
+  document
+    .getElementById(
+      "trackerCollapseToggle"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
 
+        isProjectsTrackerCollapsed =
+          !isProjectsTrackerCollapsed;
+
+        renderProjectsView();
+
+      }
+    );
 
   document
   .querySelectorAll(

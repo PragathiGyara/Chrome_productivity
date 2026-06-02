@@ -297,6 +297,40 @@
 
   margin-bottom: 20px;
 }
+/* =====================================================
+   TRACKER COLLAPSE TOGGLE
+===================================================== */
+
+.tracker-collapse-toggle {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  cursor: pointer;
+
+  user-select: none;
+}
+/* =====================================================
+   TRACKER COLLAPSE ICON
+===================================================== */
+
+.tracker-collapse-icon {
+
+  font-size: 14px;
+
+  opacity: 0.8;
+}
+/* =====================================================
+   COLLAPSED TRACKER
+===================================================== */
+
+.tracker-collapsed {
+
+  display: none;
+}
 
 
 /* =====================================================
