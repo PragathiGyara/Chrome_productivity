@@ -19,7 +19,7 @@
 // =====================================================
 
 let selectedProjectDate =
-  getTodayKey();
+  getLocalDateKey();
 
 let isProjectsTrackerCollapsed =
   false;

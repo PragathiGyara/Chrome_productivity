@@ -77,7 +77,7 @@ function saveTimelineEntry() {
     ).value || null;
 
   const today =
-    getTodayKey();
+    getLocalDateKey();
 
   const entry = {
 
