@@ -17,19 +17,45 @@ function renderTimelineView() {
 
       <div class="timeline-header">
 
-        <div class="timeline-title">
-          Daily Timeline
-        </div>
+        <button
+          id="addTimelineEntryBtn"
+        >
+          + Add Activity
+        </button>
 
       </div>
 
-      <div class="timeline-placeholder">
+      <div
+        id="timelineEntriesContainer"
+      >
 
-        Timeline coming soon.
+        No activities yet.
 
       </div>
 
     </div>
-
   `;
+
+  attachTimelineEvents();
+}
+
+function attachTimelineEvents() {
+
+  document
+    .getElementById(
+      "addTimelineEntryBtn"
+    )
+    ?.addEventListener(
+      "click",
+      openTimelineModal
+    );
+    
+  document
+    .getElementById(
+      "saveTimelineEntryBtn"
+    )
+    ?.addEventListener(
+      "click",
+      saveTimelineEntry
+    );
 }

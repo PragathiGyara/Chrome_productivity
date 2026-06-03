@@ -175,6 +175,8 @@
 <script src="js/features/dashboard/projects/projectModal.js"></script>
 <script src="js/features/dashboard/projects/projectsView.js"></script>
 
+<script src="js/features/dashboard/timeline/timelineModal.js"></script>
+<script src="js/features/dashboard/timeline/timelineStorage.js"></script>
 <script src="js/features/dashboard/timeline/timelineView.js"></script>
 
 <!-- WOTD -->
@@ -368,6 +370,77 @@
                 </button>
 
             </div>
+
+        </div>
+
+    </div>
+
+    </div>
+
+    <!-- =====================================
+        TIMELINE MODAL
+    ===================================== -->
+
+    <div
+    id="timelineModal"
+    class="modal hidden"
+    >
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+        <h2>
+            Add Activity
+        </h2>
+
+        <button
+            id="closeTimelineModalBtn"
+        >
+            ✕
+        </button>
+
+        </div>
+
+        <div class="timeline-form">
+
+        <input
+            id="timelineActivityInput"
+            type="text"
+            placeholder="Activity Name"
+        />
+
+        <input
+            id="timelineStartTime"
+            type="time"
+        />
+
+        <input
+            id="timelineEndTime"
+            type="time"
+        />
+
+        <select
+            id="timelineProjectSelect"
+        >
+            <option value="">
+            No Project
+            </option>
+        </select>
+
+        <select
+            id="timelineTrackSelect"
+        >
+            <option value="">
+            No Track
+            </option>
+        </select>
+
+        <button
+            id="saveTimelineEntryBtn"
+        >
+            Save
+        </button>
 
         </div>
 

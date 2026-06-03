@@ -13,6 +13,8 @@ function initializeApp() {
 
   loadProjects();
 
+  loadTimelineEntries();
+
   renderDashboardView();
 
   updateLeftPanel();
@@ -22,5 +24,7 @@ function initializeApp() {
   attachTrackEvents();
 
   attachManageProjectsEvents();
+
+  attachTimelineModalEvents();
 
 }
