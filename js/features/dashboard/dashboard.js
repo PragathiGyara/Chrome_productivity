@@ -17,7 +17,8 @@ let currentDashboardPage = 0;
 
 const dashboardPages = [
   "tracks",
-  "projects"
+  "projects",
+  "timeline"
 ];
 
 function renderDashboardView() {
@@ -61,6 +62,9 @@ function renderCurrentDashboardPage() {
 
     case "tracks":
 
+      settingsBtn.style.display =
+        "block";
+
       title.textContent =
         "My Tracks";
 
@@ -83,6 +87,9 @@ function renderCurrentDashboardPage() {
 
     case "projects":
 
+      settingsBtn.style.display =
+        "block";
+
       title.textContent =
         "Projects";
 
@@ -92,6 +99,18 @@ function renderCurrentDashboardPage() {
       settingsBtn.onclick = openManageProjectsModal;
 
       renderProjectsView();
+
+      break;
+
+    case "timeline":
+
+      title.textContent =
+        "Timeline";
+
+      settingsBtn.style.display =
+        "none";
+
+      renderTimelineView();
 
       break;
 
