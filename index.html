@@ -405,20 +405,48 @@
         <div class="timeline-form">
 
         <input
-            id="timelineActivityInput"
-            type="text"
-            placeholder="Activity Name"
+        id="timelineActivityInput"
+        type="text"
+        placeholder="Activity Name"
+        list="timelineActivitySuggestions"
         />
 
-        <input
-            id="timelineStartTime"
-            type="time"
-        />
+        <datalist
+        id="timelineActivitySuggestions"
+        ></datalist>
 
-        <input
-            id="timelineEndTime"
-            type="time"
-        />
+        <div class="timeline-selected-times">
+
+            <div class="timeline-selected-time">
+
+                <span class="time-label">
+                Start
+                </span>
+
+                <span id="selectedStartTime">
+                --
+                </span>
+
+            </div>
+
+            <div class="timeline-selected-time">
+
+                <span class="time-label">
+                End
+                </span>
+
+                <span id="selectedEndTime">
+                --
+                </span>
+
+            </div>
+
+        </div>
+
+        <div
+        id="timelineTimeStrip"
+        class="timeline-time-strip"
+        ></div>
 
         <select
             id="timelineProjectSelect"

@@ -1,0 +1,43 @@
+.timeline-selected-times {
+
+  display: flex;
+  gap: 20px;
+
+  margin-bottom: 16px;
+}
+
+.timeline-selected-time {
+
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-time-strip {
+
+  display: flex;
+
+  gap: 6px;
+
+  overflow-x: auto;
+
+  padding: 8px 0;
+
+  margin-bottom: 16px;
+}
+
+.time-slot-btn {
+
+  flex: 0 0 auto;
+
+  min-width: 70px;
+}
+
+.time-slot-start {
+
+  font-weight: bold;
+}
+
+.time-slot-end {
+
+  font-weight: bold;
+}
