@@ -34,7 +34,7 @@ let projects = [];
 // --------------------------
 
 function attachTrackEvents() {
-  const settingsBtn = document.getElementById("trackSettingsBtn");
+  
   const modal = document.getElementById("trackSettingsModal");
   const closeBtn = document.getElementById("closeTrackModalBtn");
   const modalContent = modal.querySelector(".modal-content");
@@ -89,12 +89,6 @@ function attachTrackEvents() {
     if (e.target === addTrackModal) {
       closeAddTrackModal();
     }
-  });
-
-  // Open settings modal
-  settingsBtn.addEventListener("click", () => {
-    openModal("trackSettingsModal");
-    renderTrackList();
   });
 
   // Close button (top-right X)

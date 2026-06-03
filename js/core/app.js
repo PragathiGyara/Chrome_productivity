@@ -21,4 +21,6 @@ function initializeApp() {
 
   attachTrackEvents();
 
+  attachManageProjectsEvents();
+
 }

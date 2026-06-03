@@ -89,7 +89,7 @@ function renderCurrentDashboardPage() {
       settingsBtn.textContent =
         "Manage Projects";
 
-      settingsBtn.onclick = null;
+      settingsBtn.onclick = openManageProjectsModal;
 
       renderProjectsView();
 
@@ -143,14 +143,6 @@ function previousDashboardPage() {
 
 function attachDashboardEvents() {
 
-  document
-    .getElementById("trackSettingsBtn")
-    ?.addEventListener("click", () => {
-
-      openModal("trackSettingsModal");
-
-      renderTrackList();
-    });
     document
       .getElementById("dashboardNextBtn")
       ?.addEventListener(
