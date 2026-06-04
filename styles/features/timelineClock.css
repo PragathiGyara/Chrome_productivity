@@ -1,76 +1,20 @@
-.timeline-clock {
-
-  position: relative;
-
-  width: 320px;
-  height: 320px;
-
-  margin: 20px auto;
-
-  border-radius: 50%;
-
-  border: 2px solid var(--border-color);
-}
-
-.clock-segment {
-
-  position: absolute;
-
-  left: 50%;
-  top: 10px;
-
-  transform-origin:
-    center 170px;
-}
-
-.clock-segment.minor {
-
-  width: 1px;
-  height: 12px;
-
-    transition:
-    height 0.15s ease,
-    background 0.15s ease;
-
-  background:
-    rgba(255,255,255,0.25);
-}
-
-.clock-segment.major {
-
-  width: 2px;
-  height: 24px;
-    transition:
-    height 0.15s ease,
-    background 0.15s ease;
-
-  background:
-    rgba(255,255,255,0.9);
-}
-
-.clock-segment:hover {
-
-  background: var(--accent-color);
-}
-
-.clock-hour-label {
-
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  transform-origin:
-    center center;
-}
+/* =====================================================
+   CLOCK CONTAINER
+===================================================== */
 
 .timeline-clock-container {
 
   display: flex;
+
   justify-content: center;
 
   margin: 20px 0;
 }
+
+
+/* =====================================================
+   CLOCK FACE
+===================================================== */
 
 .timeline-clock {
 
@@ -81,12 +25,13 @@
 
   border-radius: 50%;
 
-  border: 2px solid #4a6cf7;
+  border: 2px solid var(--primary);
 }
 
-/* =======================
+
+/* =====================================================
    CLOCK TICKS
-======================= */
+===================================================== */
 
 .clock-segment {
 
@@ -95,30 +40,51 @@
   left: 50%;
   top: 10px;
 
-  width: 2px;
-  height: 20px;
-
-  background: rgba(
-    255,
-    255,
-    255,
-    0.35
-  );
-
   transform-origin:
     center 170px;
+
+  transition:
+    height var(--transition-fast),
+    background var(--transition-fast);
+
 }
 
-.clock-segment:hover {
 
-  background: white;
+.clock-segment.minor {
 
-  height: 28px;
+  width: 1px;
+
+  height: 12px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.25
+    );
 }
 
-/* =======================
-   LABELS
-======================= */
+
+.clock-segment.major {
+
+  width: 2px;
+
+  height: 24px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.9
+    );
+}
+
+
+/* =====================================================
+   CLOCK LABELS
+===================================================== */
 
 .clock-hour-label {
 
@@ -133,34 +99,45 @@
 
   font-size: 18px;
 
-  color: white;
+  color: var(--text-main);
+
+  user-select: none;
+
+  pointer-events: none;
 }
+
+
+/* =====================================================
+   HOVERED HOUR
+===================================================== */
 
 .hour-hover {
 
   background:
-    #4a6cf7 !important;
+    var(--primary) !important;
 }
+
 
 .hour-hover.minor {
 
   height: 22px !important;
-
-  background:
-    #4a6cf7 !important;
 }
+
 
 .hour-hover.major {
 
   height: 34px !important;
-
-  background:
-    #4a6cf7 !important;
 }
+
+
+/* =====================================================
+   HOVERED HOUR LABEL
+===================================================== */
 
 .hour-label-hover {
 
-  color: #4a6cf7;
+  color:
+    var(--primary);
 
   font-weight: bold;
 
@@ -168,4 +145,3 @@
     translate(-50%, -50%)
     scale(1.15);
 }
-

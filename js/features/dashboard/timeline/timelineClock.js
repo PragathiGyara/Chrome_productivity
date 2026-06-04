@@ -6,6 +6,10 @@ let clockStartIndex = null;
 
 let clockEndIndex = null;
 
+// =====================================================
+// CLOCK RENDERING
+// =====================================================
+
 function renderTimelineClock() {
 
   const container =
@@ -29,6 +33,8 @@ function renderTimelineClock() {
 
   for (let i = 0; i < 144; i++) {
 
+    // 24 hours × 6 segments per hour
+    // = 144 selectable 10-minute segments
     const segment =
       document.createElement("div");
 
@@ -38,6 +44,9 @@ function renderTimelineClock() {
         : "clock-segment minor";
 
     segment.dataset.index = i;
+
+    // 360° / 144 segments
+    // = 2.5° per segment
 
     segment.style.transform =
       `translateX(-50%) rotate(${i * 2.5}deg)`;
@@ -72,7 +81,10 @@ function renderClockLabels(clock) {
       document.createElement("div");
 
     label.className =
-      "clock-hour-label";
+    "clock-hour-label";
+
+    label.dataset.hour =
+    hour;
 
     label.textContent =
       String(hour).padStart(2, "0");
@@ -97,81 +109,9 @@ function renderClockLabels(clock) {
   }
 }
 
-function segmentToTime(
-  segmentIndex
-) {
-
-  const totalMinutes =
-    segmentIndex * 10;
-
-  const hours =
-    Math.floor(
-      totalMinutes / 60
-    );
-
-  const minutes =
-    totalMinutes % 60;
-
-  return (
-    String(hours)
-      .padStart(2,"0")
-    + ":"
-    +
-    String(minutes)
-      .padStart(2,"0")
-  );
-}
-
-function selectClockSegment(
-  segmentIndex
-) {
-
-  if (
-    selectedClockStart === null
-  ) {
-
-    selectedClockStart =
-      segmentIndex;
-
-  } else if (
-    selectedClockEnd === null
-  ) {
-
-    selectedClockEnd =
-      segmentIndex;
-
-  } else {
-
-    selectedClockStart =
-      segmentIndex;
-
-    selectedClockEnd =
-      null;
-  }
-
-  updateClockSelection();
-}
-
-function updateClockSelection() {
-
-  document.getElementById(
-    "selectedStartTime"
-  ).textContent =
-    selectedClockStart === null
-      ? "--"
-      : segmentToTime(
-          selectedClockStart
-        );
-
-  document.getElementById(
-    "selectedEndTime"
-  ).textContent =
-    selectedClockEnd === null
-      ? "--"
-      : segmentToTime(
-          selectedClockEnd
-        );
-}
+// =====================================================
+// CLOCK INTERACTION
+// =====================================================
 
 function highlightHour(
   segmentIndex
@@ -266,6 +206,10 @@ function onClockSegmentClick(
 
   updateClockDisplay();
 }
+
+// =====================================================
+// CLOCK HELPERS
+// =====================================================
 
 function indexToTime(
   index

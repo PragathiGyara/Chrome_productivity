@@ -2,8 +2,9 @@
 // TIMELINE MODAL
 // =====================================================
 
-let selectedStartTime = null;
-let selectedEndTime = null;
+// =====================================================
+// MODAL OPEN / CLOSE
+// =====================================================
 
 function openTimelineModal() {
 
@@ -12,11 +13,12 @@ function openTimelineModal() {
   populateActivitySuggestions();
 
   attachActivityAutofill();
-
-  selectedStartTime = null;
-  selectedEndTime = null;
-
+  clockStartIndex = null;
+  clockEndIndex = null;
+  
   renderTimelineClock();
+  
+  updateClockDisplay();
 
   openModal(
     "timelineModal"
@@ -29,6 +31,10 @@ function closeTimelineModal() {
   closeModal("timelineModal");
 }
 
+
+// =====================================================
+// EVENT BINDING
+// =====================================================
 
 function attachTimelineModalEvents() {
 
@@ -61,6 +67,10 @@ function attachTimelineModalEvents() {
   );
 }
 
+// =====================================================
+// SAVE ENTRY
+// =====================================================
+
 function saveTimelineEntry() {
 
   const activityName =
@@ -69,10 +79,18 @@ function saveTimelineEntry() {
     ).value.trim();
 
     const startTime =
-    selectedStartTime;
+    clockStartIndex === null
+        ? null
+        : indexToTime(
+            clockStartIndex
+        );
 
     const endTime =
-    selectedEndTime;
+    clockEndIndex === null
+        ? null
+        : indexToTime(
+            clockEndIndex
+        );
 
   const projectId =
     document.getElementById(
@@ -114,6 +132,11 @@ function saveTimelineEntry() {
 
   closeTimelineModal();
 }
+
+
+// =====================================================
+// DROPDOWNS
+// =====================================================
 
 function populateTimelineDropdowns() {
 
@@ -161,6 +184,10 @@ function populateTimelineDropdowns() {
     `;
   });
 }
+
+// =====================================================
+// ACTIVITY SUGGESTIONS
+// =====================================================
 
 function populateActivitySuggestions() {
 
@@ -234,130 +261,4 @@ function attachActivityAutofill() {
         metadata.trackId || "";
     }
   );
-}
-
-function generateTimeSlots() {
-
-  const slots = [];
-
-  for (
-    let hour = 0;
-    hour < 24;
-    hour++
-  ) {
-
-    slots.push(
-      `${String(hour).padStart(2,"0")}:00`
-    );
-
-    slots.push(
-      `${String(hour).padStart(2,"0")}:30`
-    );
-  }
-
-  return slots;
-}
-
-function renderTimeStrip() {
-
-  const strip =
-    document.getElementById(
-      "timelineTimeStrip"
-    );
-
-  if (!strip) return;
-
-  strip.innerHTML = "";
-
-  generateTimeSlots()
-    .forEach(time => {
-
-      const btn =
-        document.createElement(
-          "button"
-        );
-
-      btn.classList.add(
-        "time-slot-btn"
-      );
-
-      btn.textContent = time;
-
-      btn.dataset.time = time;
-
-      btn.addEventListener(
-        "click",
-        () => selectTimeSlot(time)
-      );
-
-      strip.appendChild(btn);
-    });
-
-  updateTimeStripUI();
-}
-
-function selectTimeSlot(time) {
-
-  if (!selectedStartTime) {
-
-    selectedStartTime = time;
-
-  } else if (!selectedEndTime) {
-
-    selectedEndTime = time;
-
-  } else {
-
-    selectedStartTime = time;
-
-    selectedEndTime = null;
-  }
-
-  updateTimeStripUI();
-}
-
-function updateTimeStripUI() {
-
-  document.getElementById(
-    "selectedStartTime"
-  ).textContent =
-    selectedStartTime || "--";
-
-  document.getElementById(
-    "selectedEndTime"
-  ).textContent =
-    selectedEndTime || "--";
-
-  document
-    .querySelectorAll(
-      ".time-slot-btn"
-    )
-    .forEach(btn => {
-
-      btn.classList.remove(
-        "time-slot-start",
-        "time-slot-end"
-      );
-
-      if (
-        btn.dataset.time ===
-        selectedStartTime
-      ) {
-
-        btn.classList.add(
-          "time-slot-start"
-        );
-      }
-
-      if (
-        btn.dataset.time ===
-        selectedEndTime
-      ) {
-
-        btn.classList.add(
-          "time-slot-end"
-        );
-      }
-
-    });
 }
