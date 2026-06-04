@@ -145,3 +145,42 @@
     translate(-50%, -50%)
     scale(1.15);
 }
+
+/* =====================================================
+   TIME TOOLTIP
+===================================================== */
+
+.clock-time-tooltip {
+
+  position: absolute;
+
+  display: none;
+
+  padding: 6px 10px;
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--bg-panel);
+
+  border:
+    1px solid
+    var(--primary);
+
+  color:
+    var(--text-main);
+
+  font-size: 12px;
+
+  white-space: nowrap;
+
+  pointer-events: none;
+
+  z-index: 100;
+}
+
+.clock-time-tooltip.visible {
+
+  display: block;
+}

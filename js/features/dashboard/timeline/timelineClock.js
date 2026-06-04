@@ -24,6 +24,19 @@ function renderTimelineClock() {
   const clock =
     document.createElement("div");
 
+  const tooltip =
+    document.createElement("div");
+
+  tooltip.id =
+    "clockTimeTooltip";
+
+  tooltip.className =
+    "clock-time-tooltip";
+
+  clock.appendChild(
+    tooltip
+    );
+
   clock.className =
     "timeline-clock";
 
@@ -53,9 +66,34 @@ function renderTimelineClock() {
 
     segment.addEventListener(
         "mouseenter",
-        () =>
-            highlightHour(i)
-        );  
+        (event) => {
+
+            highlightHour(i);
+
+            showTimeTooltip(
+            event,
+            i
+            );
+        }
+        );
+    segment.addEventListener(
+        "mousemove",
+        (event) => {
+
+            moveTimeTooltip(
+            event
+            );
+        }
+        );
+    segment.addEventListener(
+        "mousemove",
+        (event) => {
+
+            moveTimeTooltip(
+            event
+            );
+        }
+        );
 
     segment.addEventListener(
         "click",
@@ -67,6 +105,11 @@ function renderTimelineClock() {
   }
 
   renderClockLabels(clock);
+
+  clock.addEventListener(
+    "mouseleave",
+    clearHourHighlight
+    );
 
   container.appendChild(clock);
 }
@@ -175,6 +218,91 @@ function highlightHour(
             );
             }
         });
+}
+
+function clearHourHighlight() {
+
+  document
+    .querySelectorAll(
+      ".clock-segment"
+    )
+    .forEach(segment => {
+
+      segment.classList.remove(
+        "hour-hover"
+      );
+    });
+
+  document
+    .querySelectorAll(
+      ".clock-hour-label"
+    )
+    .forEach(label => {
+
+      label.classList.remove(
+        "hour-label-hover"
+      );
+    });
+
+  hideTimeTooltip();
+}
+
+function showTimeTooltip(
+  event,
+  segmentIndex
+) {
+
+  const tooltip =
+    document.getElementById(
+      "clockTimeTooltip"
+    );
+
+  if (!tooltip) return;
+
+  tooltip.textContent =
+    indexToTime(
+      segmentIndex
+    );
+
+  tooltip.classList.add(
+    "visible"
+  );
+
+  moveTimeTooltip(
+    event
+  );
+}
+
+function moveTimeTooltip(
+  event
+) {
+
+  const tooltip =
+    document.getElementById(
+      "clockTimeTooltip"
+    );
+
+  if (!tooltip) return;
+
+  tooltip.style.left =
+    `${event.offsetX + 15}px`;
+
+  tooltip.style.top =
+    `${event.offsetY - 10}px`;
+}
+
+function hideTimeTooltip() {
+
+  const tooltip =
+    document.getElementById(
+      "clockTimeTooltip"
+    );
+
+  if (!tooltip) return;
+
+  tooltip.classList.remove(
+    "visible"
+  );
 }
 
 function onClockSegmentClick(
