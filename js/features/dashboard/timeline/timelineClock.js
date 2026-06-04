@@ -62,7 +62,7 @@ function renderTimelineClock() {
     // = 2.5° per segment
 
     segment.style.transform =
-      `translateX(-50%) rotate(${i * 2.5}deg)`;
+    `translateX(-50%) rotate(${i * 2.5 - 90}deg)`;
 
     segment.addEventListener(
         "mouseenter",
@@ -124,8 +124,8 @@ function renderClockLabels(clock) {
       String(hour).padStart(2, "0");
 
     const angle =
-      (hour / 24) * (2 * Math.PI)
-      - Math.PI / 2;
+    (hour / 24) * (2 * Math.PI)
+    - Math.PI;
 
     const x =
       Math.cos(angle) * radius;
