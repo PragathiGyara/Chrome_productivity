@@ -177,6 +177,7 @@
 
 <script src="js/features/dashboard/timeline/timelineModal.js"></script>
 <script src="js/features/dashboard/timeline/timelineStorage.js"></script>
+<script src="js/features/dashboard/timeline/timelineClock.js"></script>
 <script src="js/features/dashboard/timeline/timelineView.js"></script>
 
 <!-- WOTD -->
@@ -404,73 +405,41 @@
 
         <div class="timeline-form">
 
-        <input
-        id="timelineActivityInput"
-        type="text"
-        placeholder="Activity Name"
-        list="timelineActivitySuggestions"
-        />
-
-        <datalist
-        id="timelineActivitySuggestions"
-        ></datalist>
+        <input id="timelineActivityInput" />
 
         <div class="timeline-selected-times">
 
-            <div class="timeline-selected-time">
+        <span>
+            Start:
+            <b id="selectedStartTime">
+            --:--
+            </b>
+        </span>
 
-                <span class="time-label">
-                Start
-                </span>
-
-                <span id="selectedStartTime">
-                --
-                </span>
-
-            </div>
-
-            <div class="timeline-selected-time">
-
-                <span class="time-label">
-                End
-                </span>
-
-                <span id="selectedEndTime">
-                --
-                </span>
-
-            </div>
+        <span>
+            End:
+            <b id="selectedEndTime">
+            --:--
+            </b>
+        </span>
 
         </div>
 
         <div
-        id="timelineTimeStrip"
-        class="timeline-time-strip"
+        id="timelineClockContainer"
         ></div>
 
-        <select
-            id="timelineProjectSelect"
-        >
-            <option value="">
-            No Project
-            </option>
+        <select id="timelineProjectSelect">
         </select>
 
-        <select
-            id="timelineTrackSelect"
-        >
-            <option value="">
-            No Track
-            </option>
+        <select id="timelineTrackSelect">
         </select>
 
         <button
-            id="saveTimelineEntryBtn"
+        id="saveTimelineEntryBtn"
         >
-            Save
+        Save
         </button>
-
-        </div>
 
     </div>
 

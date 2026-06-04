@@ -1,0 +1,171 @@
+.timeline-clock {
+
+  position: relative;
+
+  width: 320px;
+  height: 320px;
+
+  margin: 20px auto;
+
+  border-radius: 50%;
+
+  border: 2px solid var(--border-color);
+}
+
+.clock-segment {
+
+  position: absolute;
+
+  left: 50%;
+  top: 10px;
+
+  transform-origin:
+    center 170px;
+}
+
+.clock-segment.minor {
+
+  width: 1px;
+  height: 12px;
+
+    transition:
+    height 0.15s ease,
+    background 0.15s ease;
+
+  background:
+    rgba(255,255,255,0.25);
+}
+
+.clock-segment.major {
+
+  width: 2px;
+  height: 24px;
+    transition:
+    height 0.15s ease,
+    background 0.15s ease;
+
+  background:
+    rgba(255,255,255,0.9);
+}
+
+.clock-segment:hover {
+
+  background: var(--accent-color);
+}
+
+.clock-hour-label {
+
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform-origin:
+    center center;
+}
+
+.timeline-clock-container {
+
+  display: flex;
+  justify-content: center;
+
+  margin: 20px 0;
+}
+
+.timeline-clock {
+
+  position: relative;
+
+  width: 360px;
+  height: 360px;
+
+  border-radius: 50%;
+
+  border: 2px solid #4a6cf7;
+}
+
+/* =======================
+   CLOCK TICKS
+======================= */
+
+.clock-segment {
+
+  position: absolute;
+
+  left: 50%;
+  top: 10px;
+
+  width: 2px;
+  height: 20px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.35
+  );
+
+  transform-origin:
+    center 170px;
+}
+
+.clock-segment:hover {
+
+  background: white;
+
+  height: 28px;
+}
+
+/* =======================
+   LABELS
+======================= */
+
+.clock-hour-label {
+
+  position: absolute;
+
+  width: 30px;
+
+  text-align: center;
+
+  transform:
+    translate(-50%, -50%);
+
+  font-size: 18px;
+
+  color: white;
+}
+
+.hour-hover {
+
+  background:
+    #4a6cf7 !important;
+}
+
+.hour-hover.minor {
+
+  height: 22px !important;
+
+  background:
+    #4a6cf7 !important;
+}
+
+.hour-hover.major {
+
+  height: 34px !important;
+
+  background:
+    #4a6cf7 !important;
+}
+
+.hour-label-hover {
+
+  color: #4a6cf7;
+
+  font-weight: bold;
+
+  transform:
+    translate(-50%, -50%)
+    scale(1.15);
+}
+

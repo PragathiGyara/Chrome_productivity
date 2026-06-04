@@ -16,7 +16,7 @@ function openTimelineModal() {
   selectedStartTime = null;
   selectedEndTime = null;
 
-  renderTimeStrip();
+  renderTimelineClock();
 
   openModal(
     "timelineModal"
