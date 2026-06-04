@@ -6,234 +6,356 @@ let clockStartIndex = null;
 
 let clockEndIndex = null;
 
+let clockHoverIndex = null;
+
 // =====================================================
 // CLOCK RENDERING
 // =====================================================
 
 function renderTimelineClock() {
 
-  const container =
-    document.getElementById(
-      "timelineClockContainer"
-    );
+    const container =
+        document.getElementById(
+        "timelineClockContainer"
+        );
 
-  if (!container) return;
+    if (!container) return;
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  const clock =
-    document.createElement("div");
+    const clock =
+        document.createElement("div");
 
-  const tooltip =
-    document.createElement("div");
+    const tooltip =
+        document.createElement("div");
 
-  tooltip.id =
-    "clockTimeTooltip";
+    tooltip.id =
+        "clockTimeTooltip";
 
-  tooltip.className =
-    "clock-time-tooltip";
+    tooltip.className =
+        "clock-time-tooltip";
 
-  clock.appendChild(
-    tooltip
-    );
+    clock.appendChild(
+        tooltip
+        );
 
-  clock.className =
-    "timeline-clock";
+    clock.className =
+        "timeline-clock";
 
-  // ======================
-  // SEGMENTS
-  // ======================
+    // ======================
+    // SEGMENTS
+    // ======================
 
-  for (let i = 0; i < 144; i++) {
+    for (let i = 0; i < 144; i++) {
 
-    // 24 hours × 6 segments per hour
-    // = 144 selectable 10-minute segments
-    const segment =
-      document.createElement("div");
+        // 24 hours × 6 segments per hour
+        // = 144 selectable 10-minute segments
+        const segment =
+        document.createElement("div");
 
-    segment.className =
-    i % 6 === 0
-        ? "clock-segment major"
-        : "clock-segment minor";
+        segment.className =
+        i % 6 === 0
+            ? "clock-segment major"
+            : "clock-segment minor";
 
-    segment.dataset.index = i;
+        segment.dataset.index = i;
 
-    // 360° / 144 segments
-    // = 2.5° per segment
+        // 360° / 144 segments
+        // = 2.5° per segment
 
-    segment.style.transform =
-    `translateX(-50%) rotate(${i * 2.5 - 90}deg)`;
+        segment.style.transform =
+        `translateX(-50%) rotate(${i * 2.5}deg)`;
 
-    segment.addEventListener(
-        "mouseenter",
-        (event) => {
+        clock.appendChild(segment);
+    }
 
-            highlightHour(i);
+    renderClockLabels(clock);
+
+        clock.addEventListener(
+            "mouseleave",
+            clearClockHover
+        );
+
+        clock.addEventListener(
+            "mousemove",
+            (event) => {
+                const segmentIndex =
+                getSegmentFromMousePosition(
+                    event
+                );
+
+                if (
+                    segmentIndex === null
+                    ) {
+
+                    clockHoverIndex =
+                        null;
+
+                    renderClockSelection();
+
+                    hideTimeTooltip();
+
+                    return;
+                }
+
+            console.log(
+                segmentIndex,
+                indexToTime(segmentIndex)
+            );
+
+            clockHoverIndex =
+            segmentIndex;
+
+            renderClockSelection();
 
             showTimeTooltip(
             event,
-            i
-            );
-        }
+            segmentIndex
         );
-    segment.addEventListener(
-        "mousemove",
-        (event) => {
-
-            moveTimeTooltip(
-            event
-            );
         }
-        );
-
-    segment.addEventListener(
-        "click",
-        () =>
-            onClockSegmentClick(i)
-        );  
-
-    clock.appendChild(segment);
-  }
-
-  renderClockLabels(clock);
-
-  clock.addEventListener(
-    "mouseleave",
-    clearHourHighlight
     );
 
-  container.appendChild(clock);
+        clock.addEventListener(
+        "click",
+        (event) => {
+
+            const segmentIndex =
+            getSegmentFromMousePosition(
+                event
+            );
+
+            if (
+            segmentIndex === null
+            ) {
+            return;
+            }
+
+            onClockSegmentClick(
+            segmentIndex
+            );
+        }
+        );
+
+    container.appendChild(clock);
+    }
+
+    function renderClockLabels(clock) {
+
+    const radius = 165;
+
+    for (let hour = 0; hour < 24; hour++) {
+
+        const label =
+        document.createElement("div");
+
+        label.className =
+        "clock-hour-label";
+
+        label.dataset.hour =
+        hour;
+
+        label.textContent =
+        String(hour).padStart(2, "0");
+
+        const angle =
+        (hour / 24) * (2 * Math.PI)
+        + Math.PI;
+
+        const x =
+        Math.cos(angle) * radius;
+
+        const y =
+        Math.sin(angle) * radius;
+
+        label.style.left =
+        `calc(50% + ${x}px)`;
+
+        label.style.top =
+        `calc(50% + ${y}px)`;
+
+        clock.appendChild(label);
+    }
 }
 
-function renderClockLabels(clock) {
+// =====================================================
+// CLOCK POSITION HELPERS
+// =====================================================
 
-  const radius = 165;
+function getSegmentFromMousePosition(
+  event
+) {
 
-  for (let hour = 0; hour < 24; hour++) {
+  const clock =
+    document.querySelector(
+      ".timeline-clock"
+    );
 
-    const label =
-      document.createElement("div");
-
-    label.className =
-    "clock-hour-label";
-
-    label.dataset.hour =
-    hour;
-
-    label.textContent =
-      String(hour).padStart(2, "0");
-
-    const angle =
-    (hour / 24) * (2 * Math.PI)
-    - Math.PI;
-
-    const x =
-      Math.cos(angle) * radius;
-
-    const y =
-      Math.sin(angle) * radius;
-
-    label.style.left =
-      `calc(50% + ${x}px)`;
-
-    label.style.top =
-      `calc(50% + ${y}px)`;
-
-    clock.appendChild(label);
+  if (!clock) {
+    return null;
   }
+
+  const rect =
+    clock.getBoundingClientRect();
+
+  const centerX =
+    rect.width / 2;
+
+  const centerY =
+    rect.height / 2;
+
+  const x =
+    event.clientX
+    - rect.left
+    - centerX;
+
+  const y =
+    event.clientY
+    - rect.top
+    - centerY;
+
+  const distance =
+    Math.sqrt(
+      x * x +
+      y * y
+    );
+
+  // ==========================
+  // Only allow interaction
+  // on the clock ring
+  // ==========================
+
+  if (
+    distance < 100 ||
+    distance > 160
+  ) {
+
+    return null;
+  }
+
+    let angle =
+    Math.atan2(y, x);
+
+    if (
+    angle < 0
+    ) {
+
+    angle +=
+        2 * Math.PI;
+    }
+
+    while (
+        angle < 0
+        ) {
+
+        angle +=
+            2 * Math.PI;
+        }
+
+        while (
+        angle >=
+        2 * Math.PI
+        ) {
+
+        angle -=
+            2 * Math.PI;
+    }
+
+    const degrees =
+    (
+    angle *
+    180 /
+    Math.PI
+    - 180
+    + 360
+    ) % 360;
+
+  const segmentIndex =
+    Math.floor(
+      degrees / 2.5
+    );
+
+  return Math.max(
+    0,
+    Math.min(
+      143,
+      segmentIndex
+    )
+  );
 }
 
 // =====================================================
 // CLOCK INTERACTION
 // =====================================================
 
-function highlightHour(
-  segmentIndex
-) {
+// function highlightHour(
+//   segmentIndex
+// ) {
 
-  const hour =
-    Math.floor(
-      segmentIndex / 6
-    );
+//   const hour =
+//     Math.floor(
+//       segmentIndex / 6
+//     );
 
-  document
-    .querySelectorAll(
-      ".clock-segment"
-    )
-    .forEach(seg => {
+//   document
+//     .querySelectorAll(
+//       ".clock-segment"
+//     )
+//     .forEach(seg => {
 
-      seg.classList.remove(
-        "hour-hover"
-      );
-    });
+//       seg.classList.remove(
+//         "hour-hover"
+//       );
+//     });
 
-  document
-    .querySelectorAll(
-      ".clock-segment"
-    )
-    .forEach(seg => {
+//   document
+//     .querySelectorAll(
+//       ".clock-segment"
+//     )
+//     .forEach(seg => {
 
-      const index =
-        Number(
-          seg.dataset.index
-        );
+//       const index =
+//         Number(
+//           seg.dataset.index
+//         );
 
-      if (
-        Math.floor(index / 6)
-        === hour
-      ) {
+//       if (
+//         Math.floor(index / 6)
+//         === hour
+//       ) {
 
-        seg.classList.add(
-          "hour-hover"
-        );
-      }
+//         seg.classList.add(
+//           "hour-hover"
+//         );
+//       }
 
-    });
-    document
-        .querySelectorAll(
-            ".clock-hour-label"
-        )
-        .forEach(label => {
+//     });
+//     document
+//         .querySelectorAll(
+//             ".clock-hour-label"
+//         )
+//         .forEach(label => {
 
-            label.classList.remove(
-            "hour-label-hover"
-            );
+//             label.classList.remove(
+//             "hour-label-hover"
+//             );
 
-            if (
-            Number(label.dataset.hour)
-            === hour
-            ) {
+//             if (
+//             Number(label.dataset.hour)
+//             === hour
+//             ) {
 
-            label.classList.add(
-                "hour-label-hover"
-            );
-            }
-        });
-}
+//             label.classList.add(
+//                 "hour-label-hover"
+//             );
+//             }
+//         });
+// }
 
-function clearHourHighlight() {
+function clearClockHover() {
 
-  document
-    .querySelectorAll(
-      ".clock-segment"
-    )
-    .forEach(segment => {
+  clockHoverIndex = null;
 
-      segment.classList.remove(
-        "hour-hover"
-      );
-    });
-
-  document
-    .querySelectorAll(
-      ".clock-hour-label"
-    )
-    .forEach(label => {
-
-      label.classList.remove(
-        "hour-label-hover"
-      );
-    });
+  renderClockSelection();
 
   hideTimeTooltip();
 }
@@ -324,6 +446,23 @@ function onClockSegmentClick(
     clockEndIndex =
       index;
 
+    clockHoverIndex =
+      null;
+
+    if (
+      clockEndIndex <
+      clockStartIndex
+    ) {
+
+      [
+        clockStartIndex,
+        clockEndIndex
+      ] = [
+        clockEndIndex,
+        clockStartIndex
+      ];
+    }
+
   } else {
 
     clockStartIndex =
@@ -331,9 +470,14 @@ function onClockSegmentClick(
 
     clockEndIndex =
       null;
+
+    clockHoverIndex =
+      null;
   }
 
   updateClockDisplay();
+
+  renderClockSelection();
 }
 
 // =====================================================
@@ -385,4 +529,115 @@ function updateClockDisplay() {
       : indexToTime(
           clockEndIndex
         );
+}
+
+function renderClockSelection() {
+
+  const segments =
+    document.querySelectorAll(
+      ".clock-segment"
+    );
+
+  segments.forEach(segment => {
+
+    segment.classList.remove(
+      "clock-selection-preview",
+      "clock-selection-start",
+      "clock-selection-end",
+      "clock-hovered"
+    );
+  });
+
+    if (
+    clockStartIndex === null
+    ) {
+
+    if (
+        clockHoverIndex !== null
+    ) {
+
+        segments[
+        clockHoverIndex
+        ]?.classList.add(
+        "clock-hovered"
+        );
+    }
+
+    return;
+    }
+
+  segments[
+    clockStartIndex
+  ]?.classList.add(
+    "clock-selection-start"
+  );
+
+  // ==========================
+  // LIVE PREVIEW
+  // ==========================
+
+  if (
+    clockEndIndex === null &&
+    clockHoverIndex !== null
+  ) {
+
+    const start =
+      Math.min(
+        clockStartIndex,
+        clockHoverIndex
+      );
+
+    const end =
+      Math.max(
+        clockStartIndex,
+        clockHoverIndex
+      );
+
+    for (
+      let i = start;
+      i <= end;
+      i++
+    ) {
+
+      if (
+        i !== clockStartIndex
+      ) {
+
+        segments[i]
+          ?.classList.add(
+            "clock-selection-preview"
+          );
+      }
+    }
+
+    return;
+  }
+
+  // ==========================
+  // FINAL RANGE
+  // ==========================
+
+  if (
+    clockEndIndex !== null
+  ) {
+
+    segments[
+      clockEndIndex
+    ]?.classList.add(
+      "clock-selection-end"
+    );
+
+    for (
+      let i =
+        clockStartIndex + 1;
+      i < clockEndIndex;
+      i++
+    ) {
+
+      segments[i]
+        ?.classList.add(
+          "clock-selection-preview"
+        );
+    }
+  }
 }

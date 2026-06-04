@@ -112,45 +112,6 @@
 
 
 /* =====================================================
-   HOVERED HOUR
-===================================================== */
-
-.hour-hover {
-
-  background:
-    var(--primary) !important;
-}
-
-
-.hour-hover.minor {
-
-  height: 22px !important;
-}
-
-
-.hour-hover.major {
-
-  height: 34px !important;
-}
-
-
-/* =====================================================
-   HOVERED HOUR LABEL
-===================================================== */
-
-.hour-label-hover {
-
-  color:
-    var(--primary);
-
-  font-weight: bold;
-
-  transform:
-    translate(-50%, -50%)
-    scale(1.15);
-}
-
-/* =====================================================
    TIME TOOLTIP
 ===================================================== */
 
@@ -187,4 +148,46 @@
 .clock-time-tooltip.visible {
 
   display: block;
+}
+
+
+/* =====================================================
+   CLOCK SELECTION
+===================================================== */
+
+.clock-selection-preview {
+
+  background:
+    var(--primary) !important;
+
+  height: 24px !important;
+}
+
+.clock-selection-start {
+
+  background:
+    var(--success) !important;
+
+  height: 34px !important;
+}
+
+.clock-selection-end {
+
+  background:
+    var(--danger) !important;
+
+  height: 34px !important;
+}
+
+/* =====================================================
+   SINGLE TICK HOVER
+===================================================== */
+
+.clock-hovered {
+
+  background:
+    white !important;
+
+  height:
+    30px !important;
 }
