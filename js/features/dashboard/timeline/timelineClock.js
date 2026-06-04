@@ -1,4 +1,21 @@
 // =====================================================
+// CLOCK GEOMETRY
+// =====================================================
+
+// Tick 0 points upward.
+//
+// We want:
+//
+//          06
+//           |
+// 00 -------+------- 12
+//           |
+//           18
+//
+
+const CLOCK_HOUR_OFFSET = 6;
+
+// =====================================================
 // CLOCK STATE
 // =====================================================
 
@@ -63,8 +80,17 @@ function renderTimelineClock() {
         // 360° / 144 segments
         // = 2.5° per segment
 
+        const visualIndex =
+        (
+        i
+        -
+        36
+        +
+        144
+        ) % 144;
+
         segment.style.transform =
-        `translateX(-50%) rotate(${i * 2.5}deg)`;
+        `translateX(-50%) rotate(${visualIndex * 2.5}deg)`;
 
         clock.appendChild(segment);
     }
@@ -137,44 +163,69 @@ function renderTimelineClock() {
         );
 
     container.appendChild(clock);
-    }
+}
 
-    function renderClockLabels(clock) {
+function renderClockLabels(
+  clock
+) {
 
-    const radius = 165;
+  const radius = 165;
 
-    for (let hour = 0; hour < 24; hour++) {
+  for (
+    let hour = 0;
+    hour < 24;
+    hour++
+  ) {
 
-        const label =
-        document.createElement("div");
+    const label =
+      document.createElement(
+        "div"
+      );
 
-        label.className =
-        "clock-hour-label";
+    label.className =
+      "clock-hour-label";
 
-        label.dataset.hour =
-        hour;
+    label.dataset.hour =
+      hour;
 
-        label.textContent =
-        String(hour).padStart(2, "0");
+    label.textContent =
+      String(hour)
+        .padStart(2, "0");
 
-        const angle =
-        (hour / 24) * (2 * Math.PI)
-        + Math.PI;
+    const visualHour =
+      (
+        hour -
+        CLOCK_HOUR_OFFSET +
+        24
+      ) % 24;
 
-        const x =
-        Math.cos(angle) * radius;
+    const angle =
+      (
+        visualHour / 24
+      ) *
+      2 *
+      Math.PI
+      -
+      Math.PI / 2;
 
-        const y =
-        Math.sin(angle) * radius;
+    const x =
+      Math.cos(angle) *
+      radius;
 
-        label.style.left =
-        `calc(50% + ${x}px)`;
+    const y =
+      Math.sin(angle) *
+      radius;
 
-        label.style.top =
-        `calc(50% + ${y}px)`;
+    label.style.left =
+      `calc(50% + ${x}px)`;
 
-        clock.appendChild(label);
-    }
+    label.style.top =
+      `calc(50% + ${y}px)`;
+
+    clock.appendChild(
+      label
+    );
+  }
 }
 
 // =====================================================
@@ -231,9 +282,14 @@ function getSegmentFromMousePosition(
 
     return null;
   }
+  let angle =
+  Math.atan2(
+    y,
+    x
+  );
 
-    let angle =
-    Math.atan2(y, x);
+    angle +=
+    Math.PI / 2;
 
     if (
     angle < 0
@@ -243,44 +299,24 @@ function getSegmentFromMousePosition(
         2 * Math.PI;
     }
 
-    while (
-        angle < 0
-        ) {
-
-        angle +=
-            2 * Math.PI;
-        }
-
-        while (
-        angle >=
-        2 * Math.PI
-        ) {
-
-        angle -=
-            2 * Math.PI;
-    }
-
-    const degrees =
-    (
-    angle *
-    180 /
-    Math.PI
-    - 180
-    + 360
-    ) % 360;
-
-  const segmentIndex =
+    const visualIndex =
     Math.floor(
-      degrees / 2.5
+        (
+        angle *
+        180 /
+        Math.PI
+        ) / 2.5
     );
 
-  return Math.max(
-    0,
-    Math.min(
-      143,
-      segmentIndex
-    )
-  );
+    const actualIndex =
+    (
+    visualIndex
+    +
+    36
+    ) % 144;
+
+    return actualIndex;
+
 }
 
 // =====================================================
