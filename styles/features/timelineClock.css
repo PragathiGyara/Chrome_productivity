@@ -12,7 +12,16 @@
 }
 
 #timelineClockContainer {
-    margin-bottom: 40px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin-top: 50px;
+
+    margin-bottom: 30px;
 }
 
 
@@ -190,4 +199,135 @@
 
   height:
     30px !important;
+}
+
+.clock-center-display {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    text-align: center;
+
+    pointer-events: none;
+
+    width: 140px;
+}
+
+.clock-center-title {
+
+    font-size: 16px;
+
+    color:
+        var(--text-secondary);
+}
+
+.clock-center-subtitle {
+
+    margin-top: 6px;
+
+    font-size: 13px;
+
+    color:
+        var(--text-secondary);
+}
+
+.clock-center-time {
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+    color:
+        var(--primary);
+}
+
+.clock-center-duration {
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+    color:
+        var(--primary);
+}
+
+.clock-center-range {
+
+    margin-top: 6px;
+
+    font-size: 13px;
+
+    color:
+        var(--text-secondary);
+}
+
+.timeline-field-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: var(--text-secondary);
+}
+
+.timeline-selected-times {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 40px;
+
+    margin-top: 10px;
+
+    margin-bottom: 24px;
+}
+
+.timeline-selected-times span {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+}
+
+.timeline-selected-times small {
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+
+    opacity: 0.7;
+}
+
+.timeline-selected-times b {
+
+    margin-top: 4px;
+
+    font-size: 22px;
+
+    font-weight: 700;
+}
+
+.timeline-save-btn {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 12px;
+
+    font-size: 15px;
+
+    font-weight: 600;
 }

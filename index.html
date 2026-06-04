@@ -387,64 +387,162 @@
     class="modal hidden"
     >
 
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-        <h2>
-            Add Activity
-        </h2>
-
-        <button
-            id="closeTimelineModalBtn"
-        >
-            ✕
-        </button>
-
-        </div>
-
-        <div class="timeline-form">
-
-        <input id="timelineActivityInput" />
-
-        <div class="timeline-selected-times">
-
-        <span>
-            Start:
-            <b id="selectedStartTime">
-            --:--
-            </b>
-        </span>
-
-        <span>
-            End:
-            <b id="selectedEndTime">
-            --:--
-            </b>
-        </span>
-
-        </div>
-
         <div
-        id="timelineClockContainer"
-        ></div>
-
-        <select id="timelineProjectSelect">
-        </select>
-
-        <select id="timelineTrackSelect">
-        </select>
-
-        <button
-        id="saveTimelineEntryBtn"
+            class="
+                modal-content
+                timeline-modal-content
+            "
         >
-        Save
-        </button>
+
+            <!-- HEADER -->
+
+            <div class="modal-header">
+
+                <h2>
+                    Add Activity
+                </h2>
+
+                <button
+                    id="closeTimelineModalBtn"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+            <!-- FORM -->
+
+            <div class="timeline-form">
+
+                <!-- ACTIVITY -->
+
+                <label
+                    class="timeline-field-label"
+                    for="timelineActivityInput"
+                >
+                    Activity
+                </label>
+
+                <input
+                    id="timelineActivityInput"
+                    list="timelineActivitySuggestions"
+                    placeholder="What were you working on?"
+                />
+
+                <datalist
+                    id="timelineActivitySuggestions"
+                ></datalist>
+
+                <!-- CLOCK -->
+
+                <div
+                    id="timelineClockContainer"
+                ></div>
+
+                <!-- TIME SUMMARY -->
+
+                <div
+                    class="timeline-selected-times"
+                >
+
+                    <span>
+
+                        <small>
+                            START
+                        </small>
+
+                        <b
+                            id="selectedStartTime"
+                        >
+                            --:--
+                        </b>
+
+                    </span>
+
+                    <span>
+
+                        <small>
+                            END
+                        </small>
+
+                        <b
+                            id="selectedEndTime"
+                        >
+                            --:--
+                        </b>
+
+                    </span>
+
+                </div>
+
+                <!-- DETAILS CARD -->
+
+                <div
+                    class="timeline-details-card"
+                >
+
+                    <div
+                        class="timeline-meta-row"
+                    >
+
+                        <div
+                            class="timeline-meta-field"
+                        >
+
+                            <label
+                                class="timeline-field-label"
+                            >
+                                Project
+                            </label>
+
+                            <select
+                                id="timelineProjectSelect"
+                            >
+                            </select>
+
+                        </div>
+
+                        <div
+                            class="timeline-meta-field"
+                        >
+
+                            <label
+                                class="timeline-field-label"
+                            >
+                                Track
+                            </label>
+
+                            <select
+                                id="timelineTrackSelect"
+                            >
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTIONS -->
+
+                <div
+                    class="timeline-actions"
+                >
+
+                    <button
+                        id="saveTimelineEntryBtn"
+                        class="timeline-save-btn primary-btn"
+                    >
+                        Save Activity
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
-
-    </div>
-
 </body>
 </html>
 

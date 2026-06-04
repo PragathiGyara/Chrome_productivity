@@ -56,6 +56,19 @@ function renderTimelineClock() {
         tooltip
         );
 
+    const centerDisplay =
+        document.createElement("div");
+
+    centerDisplay.id =
+        "clockCenterDisplay";
+
+    centerDisplay.className =
+        "clock-center-display";
+
+    clock.appendChild(
+        centerDisplay
+    );
+
     clock.className =
         "timeline-clock";
 
@@ -123,11 +136,6 @@ function renderTimelineClock() {
 
                     return;
                 }
-
-            console.log(
-                segmentIndex,
-                indexToTime(segmentIndex)
-            );
 
             clockHoverIndex =
             segmentIndex;
@@ -565,6 +573,7 @@ function updateClockDisplay() {
       : indexToTime(
           clockEndIndex
         );
+    updateDurationDisplay();
 }
 
 function renderClockSelection() {
@@ -676,4 +685,117 @@ function renderClockSelection() {
         );
     }
   }
+
+  updateClockCenterDisplay();
+}
+
+function updateClockCenterDisplay() {
+
+    const center =
+        document.getElementById(
+            "clockCenterDisplay"
+        );
+
+    if (!center) return;
+
+    if (
+        clockStartIndex === null
+    ) {
+
+        center.innerHTML = `
+            <div class="clock-center-title">
+                Select Start
+            </div>
+        `;
+
+        return;
+    }
+
+    if (
+        clockEndIndex === null
+    ) {
+
+        center.innerHTML = `
+            <div class="clock-center-time">
+                ${indexToTime(
+                    clockStartIndex
+                )}
+            </div>
+
+            <div class="clock-center-subtitle">
+                Select End
+            </div>
+        `;
+
+        return;
+    }
+
+    const durationMinutes =
+        (
+            clockEndIndex
+            -
+            clockStartIndex
+        ) * 10;
+
+    const hours =
+        Math.floor(
+            durationMinutes / 60
+        );
+
+    const minutes =
+        durationMinutes % 60;
+
+    center.innerHTML = `
+        <div class="clock-center-duration">
+            ${hours}h ${minutes}m
+        </div>
+
+        <div class="clock-center-range">
+            ${indexToTime(
+                clockStartIndex
+            )}
+            →
+            ${indexToTime(
+                clockEndIndex
+            )}
+        </div>
+    `;
+}
+
+function updateDurationDisplay() {
+
+    const element =
+        document.getElementById(
+            "timelineDurationDisplay"
+        );
+
+    if (!element) return;
+
+    if (
+        clockStartIndex === null ||
+        clockEndIndex === null
+    ) {
+
+        element.textContent =
+            "Select a time range";
+
+        return;
+    }
+
+    const minutes =
+        (
+            clockEndIndex -
+            clockStartIndex
+        ) * 10;
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+    const remainingMinutes =
+        minutes % 60;
+
+    element.textContent =
+        `${hours}h ${remainingMinutes}m`;
 }

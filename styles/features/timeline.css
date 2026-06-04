@@ -1,43 +1,139 @@
+/* =====================================================
+   TIMELINE MODAL
+===================================================== */
+
+.timeline-modal-content {
+
+    width: 560px;
+
+    max-width: calc(100vw - 40px);
+
+    box-sizing: border-box;
+
+    overflow-x: hidden;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.timeline-form {
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.timeline-field-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: var(--text-secondary);
+}
+
+#timelineActivityInput {
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   START / END DISPLAY
+===================================================== */
+
 .timeline-selected-times {
 
-  display: flex;
-  gap: 20px;
+    display: flex;
 
-  margin-bottom: 20px;
+    justify-content: center;
+
+    gap: 40px;
+
+    margin-bottom: 20px;
 }
 
-.timeline-selected-time {
+.timeline-selected-times span {
 
-  display: flex;
-  flex-direction: column;
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
 }
 
-.timeline-time-strip {
+.timeline-selected-times small {
 
-  display: flex;
+    font-size: 11px;
 
-  gap: 6px;
+    letter-spacing: 1px;
 
-  overflow-x: auto;
-
-  padding: 8px 0;
-
-  margin-bottom: 16px;
+    opacity: 0.7;
 }
 
-.time-slot-btn {
+.timeline-selected-times b {
 
-  flex: 0 0 auto;
+    margin-top: 4px;
 
-  min-width: 70px;
+    font-size: 20px;
+
+    font-weight: 700;
 }
 
-.time-slot-start {
 
-  font-weight: bold;
+/* =====================================================
+   DETAILS CARD
+===================================================== */
+
+.timeline-details-card {
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    background: rgba(255,255,255,0.02);
+
+    margin-bottom: 16px;
 }
 
-.time-slot-end {
 
-  font-weight: bold;
+/* =====================================================
+   PROJECT / TRACK ROW
+===================================================== */
+
+.timeline-meta-row {
+
+    display: flex;
+
+    gap: 16px;
+}
+
+.timeline-meta-field {
+
+    flex: 1;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.timeline-actions {
+
+    margin-top: 12px;
+}
+
+.timeline-save-btn {
+
+    width: 100%;
 }
