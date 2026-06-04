@@ -85,15 +85,6 @@ function renderTimelineClock() {
             );
         }
         );
-    segment.addEventListener(
-        "mousemove",
-        (event) => {
-
-            moveTimeTooltip(
-            event
-            );
-        }
-        );
 
     segment.addEventListener(
         "click",
@@ -284,11 +275,21 @@ function moveTimeTooltip(
 
   if (!tooltip) return;
 
+  const clock =
+    document.querySelector(
+      ".timeline-clock"
+    );
+
+  if (!clock) return;
+
+  const rect =
+    clock.getBoundingClientRect();
+
   tooltip.style.left =
-    `${event.offsetX + 15}px`;
+    `${event.clientX - rect.left + 20}px`;
 
   tooltip.style.top =
-    `${event.offsetY - 10}px`;
+    `${event.clientY - rect.top - 20}px`;
 }
 
 function hideTimeTooltip() {
