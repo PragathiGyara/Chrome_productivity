@@ -107,7 +107,7 @@ function renderTimelineClock() {
 
 function renderClockLabels(clock) {
 
-  const radius = 195;
+  const radius = 165;
 
   for (let hour = 0; hour < 24; hour++) {
 
