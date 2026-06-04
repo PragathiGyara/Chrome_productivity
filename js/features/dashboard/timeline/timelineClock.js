@@ -118,6 +118,7 @@ function renderTimelineClock() {
         clock.addEventListener(
             "mousemove",
             (event) => {
+
                 const segmentIndex =
                 getSegmentFromMousePosition(
                     event
@@ -125,29 +126,33 @@ function renderTimelineClock() {
 
                 if (
                     segmentIndex === null
-                    ) {
+                ) {
 
                     clockHoverIndex =
                         null;
 
                     renderClockSelection();
 
+                    updateClockCenterDisplay();
+
                     hideTimeTooltip();
 
                     return;
                 }
 
-            clockHoverIndex =
-            segmentIndex;
+                clockHoverIndex =
+                    segmentIndex;
 
-            renderClockSelection();
+                renderClockSelection();
 
-            showTimeTooltip(
-            event,
-            segmentIndex
+                updateClockCenterDisplay();
+
+                showTimeTooltip(
+                    event,
+                    segmentIndex
+                );
+            }
         );
-        }
-    );
 
         clock.addEventListener(
         "click",
@@ -400,6 +405,8 @@ function clearClockHover() {
   clockHoverIndex = null;
 
   renderClockSelection();
+
+  updateClockCenterDisplay();
 
   hideTimeTooltip();
 }
@@ -696,7 +703,13 @@ function updateClockCenterDisplay() {
             "clockCenterDisplay"
         );
 
-    if (!center) return;
+    if (!center) {
+        return;
+    }
+
+    // ==========================
+    // NO START SELECTED
+    // ==========================
 
     if (
         clockStartIndex === null
@@ -711,8 +724,14 @@ function updateClockCenterDisplay() {
         return;
     }
 
+    // ==========================
+    // START SELECTED
+    // NO HOVER YET
+    // ==========================
+
     if (
-        clockEndIndex === null
+        clockEndIndex === null &&
+        clockHoverIndex === null
     ) {
 
         center.innerHTML = `
@@ -730,10 +749,62 @@ function updateClockCenterDisplay() {
         return;
     }
 
+    // ==========================
+    // LIVE DURATION PREVIEW
+    // ==========================
+
+    if (
+        clockEndIndex === null &&
+        clockHoverIndex !== null
+    ) {
+
+        const start =
+            Math.min(
+                clockStartIndex,
+                clockHoverIndex
+            );
+
+        const end =
+            Math.max(
+                clockStartIndex,
+                clockHoverIndex
+            );
+
+        const durationMinutes =
+            (
+                end - start
+            ) * 10;
+
+        const hours =
+            Math.floor(
+                durationMinutes / 60
+            );
+
+        const minutes =
+            durationMinutes % 60;
+
+        center.innerHTML = `
+            <div class="clock-center-duration">
+                ${hours}h ${minutes}m
+            </div>
+
+            <div class="clock-center-range">
+                ${indexToTime(start)}
+                →
+                ${indexToTime(end)}
+            </div>
+        `;
+
+        return;
+    }
+
+    // ==========================
+    // FINAL SELECTION
+    // ==========================
+
     const durationMinutes =
         (
-            clockEndIndex
-            -
+            clockEndIndex -
             clockStartIndex
         ) * 10;
 
