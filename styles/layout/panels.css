@@ -95,7 +95,14 @@
 
     flex-direction: column;
 
-    min-height: 0;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+.left-panel-section:last-child {
+
+    border-bottom: none;
 }
 
 .left-section-header {
@@ -158,4 +165,74 @@
     padding: 8px 12px;
 
     margin-bottom: 6px;
+}
+
+.todo-view-toggle {
+
+    display: flex;
+
+    padding: 3px;
+
+    gap: 4px;
+
+    background: var(--bg-main);
+
+    border-radius: 10px;
+
+    margin-bottom: 10px;
+}
+
+.todo-toggle-btn {
+
+    flex: 1;
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+    cursor: pointer;
+
+    background: transparent;
+
+    transition: all 0.2s ease;
+
+    color: white;
+}
+
+.todo-toggle-btn.active {
+
+    background: var(--primary);
+
+    color: white;
+}
+
+.todo-toggle-btn:hover {
+
+    transform: none;
+}
+
+.todo-date {
+
+    font-size: 11px;
+
+    opacity: 0.7;
+
+    margin-top: 2px;
+}
+
+.todo-date-display {
+
+    text-align: center;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: white;
+
+    margin-bottom: 10px;
+
+    letter-spacing: 0.3px;
 }

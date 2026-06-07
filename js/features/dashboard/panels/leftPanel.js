@@ -1,6 +1,8 @@
 let deadlinesCollapsed = false;
 let todosCollapsed = false;
 
+let currentTodoView = "today";
+
 
 function initializeLeftPanel() {
 
@@ -18,9 +20,11 @@ function initializeLeftPanel() {
             openSidebarTodoForm
         );
 
-    renderLeftPanel();
+    initializeTodoToggle();
     initializeSectionCollapse();
     updateSectionCollapseUI();
+    renderLeftPanel();
+
 }
 
 
@@ -84,19 +88,169 @@ function updateSectionCollapseUI() {
             : "▼";
 }
 
+function initializeTodoToggle() {
+
+    const toggle =
+        document.getElementById(
+            "todoViewToggle"
+        );
+
+    if (!toggle) return;
+
+    toggle.addEventListener(
+        "click",
+        (e) => {
+
+            const btn =
+                e.target.closest(
+                    ".todo-toggle-btn"
+                );
+
+            if (!btn) return;
+
+            currentTodoView =
+                btn.dataset.view;
+
+            toggle
+                .querySelectorAll(
+                    ".todo-toggle-btn"
+                )
+                .forEach(b =>
+                    b.classList.remove(
+                        "active"
+                    )
+                );
+
+            btn.classList.add(
+                "active"
+            );
+
+            renderTodoSection();
+        }
+    );
+}
+
 
 function renderLeftPanel() {
 
     renderGlobalDeadlines();
 
-    renderTodayTodos();
+    renderTodoSection();
 
 }
 
+function renderTodoSection() {
 
-// --------------------------
-// Render TO DO
-// --------------------------
+    updateTodoDateDisplay();
+
+    if (
+        currentTodoView === "today"
+    ) {
+
+        renderTodayTodos();
+
+    } else {
+
+        renderGlobalTodos();
+
+    }
+    const addBtn =
+      document.getElementById(
+          "addTodoBtn"
+      );
+
+    if (addBtn) {
+
+        addBtn.textContent =
+            currentTodoView === "today"
+                ? "+ Add Today Task"
+                : "+ Add Global Task";
+    }
+}
+
+function renderGlobalTodos() {
+
+    const container =
+        document.getElementById(
+            "todayTodoList"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const {
+        todoData,
+        global
+    } = getGlobalTodos();
+
+    if (global.length === 0) {
+
+        container.innerHTML = `
+            <div class="todo-empty-state">
+                No global tasks
+            </div>
+        `;
+
+        return;
+    }
+
+    global.forEach(item => {
+
+        const div =
+            document.createElement("div");
+
+        div.classList.add(
+            "todo-item"
+        );
+
+        div.innerHTML = `
+            <div
+                class="todo-card
+                ${item.done ? "done" : ""}"
+            >
+
+                <input
+                    type="checkbox"
+                    ${item.done ? "checked" : ""}
+                />
+
+                <div>
+
+                    <div class="todo-text">
+                        ${item.text}
+                    </div>
+
+                    <div class="todo-date">
+                        Added ${formatTodoDate(item.createdAt)}
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        div.querySelector("input")
+            .addEventListener(
+                "change",
+                (e) => {
+
+                    item.done =
+                        e.target.checked;
+
+                    persistTodos(
+                        todoData
+                    );
+
+                    renderGlobalTodos();
+                }
+            );
+
+        container.appendChild(div);
+
+    });
+
+}
 
 
 function renderTodayTodos() {
@@ -105,7 +259,7 @@ function renderTodayTodos() {
 
   container.innerHTML = "";
 
-  const { todos, today } = getTodayTodos();
+  const { todoData, today } = getTodayTodos();
 
   // Optional summary
   const summary = document.createElement("div");
@@ -130,7 +284,7 @@ function renderTodayTodos() {
 
     div.querySelector("input").addEventListener("change", (e) => {
       item.done = e.target.checked;
-      persistTodos(todos);
+      persistTodos(todoData);
       renderTodayTodos();
     });
 
@@ -222,7 +376,7 @@ function openSidebarDeadlineForm() {
 
   container.prepend(form);
 
-  // ✅ GET ALL INPUT REFERENCES (YOU WERE MISSING THESE)
+  // ✅ GET ALL INPUT REFERENCES 
   const titleInput = form.querySelector("#sidebarTitle");
   const trackSelect = form.querySelector("#sidebarTrackSelect");
   const dateInput = form.querySelector("#sidebarDate");
@@ -298,7 +452,11 @@ function openSidebarTodoForm() {
   form.classList.add("todo-form");
 
   form.innerHTML = `
-    <input type="text" id="todoInput" placeholder="What needs to be done today?" />
+    <input type="text" id="todoInput" placeholder="${
+        currentTodoView === "today"
+            ? "What needs to be done today?"
+            : "What should not be forgotten?"
+    }" />
 
     <div class="deadline-form-actions">
       <button id="saveTodoBtn" class="primary-btn">Add</button>
@@ -311,23 +469,108 @@ function openSidebarTodoForm() {
   const input = form.querySelector("#todoInput");
 
   form.querySelector("#saveTodoBtn").addEventListener("click", () => {
-    const text = input.value.trim();
+    const text =
+        input.value.trim();
+
     if (!text) return;
 
-    const { todos, today } = getTodayTodos();
+    if (
+        currentTodoView === "today"
+    ) {
 
-    today.items.push({
-      id: Date.now(),
-      text,
-      done: false
-    });
+        const {
+            todoData,
+            today
+        } = getTodayTodos();
 
-    persistTodos(todos);
-    renderTodayTodos();
+        today.items.push({
+
+            id: Date.now(),
+
+            text,
+
+            done: false
+
+        });
+
+        persistTodos(todoData);
+
+        renderTodayTodos();
+
+    } else {
+
+        const {
+            todoData,
+            global
+        } = getGlobalTodos();
+
+        global.push({
+
+            id: Date.now(),
+
+            text,
+
+            done: false,
+
+            createdAt:
+                new Date().toISOString()
+
+        });
+
+        persistTodos(todoData);
+
+        renderGlobalTodos();
+    }
+
     form.remove();
   });
 
   form.querySelector("#cancelTodoBtn").addEventListener("click", () => {
     form.remove();
   });
+}
+
+
+function updateTodoDateDisplay() {
+
+    const el =
+        document.getElementById(
+            "todoDateDisplay"
+        );
+
+    if (!el) return;
+
+    if (
+        currentTodoView === "today"
+    ) {
+
+        el.textContent =
+            new Date().toLocaleDateString(
+                undefined,
+                {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short"
+                }
+            );
+
+    } else {
+
+        el.textContent = "";
+    }
+
+}
+
+function formatTodoDate(dateString) {
+
+    const date =
+        new Date(dateString);
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            day: "numeric",
+            month: "short"
+        }
+    );
 }

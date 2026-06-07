@@ -33,20 +33,20 @@
 
                     </div>
                 </div>
-                <div
-                    id="deadlinesSectionBody"
-                    class="section-body"
-                >
+                <div id="deadlinesSectionBody">
+
+                    <div
+                        id="globalDeadlineList"
+                        class="deadline-list"
+                    ></div>
+
                     <button
                         id="addDeadlineBtn"
                         class="section-add-btn"
                     >
                         + New Deadline
                     </button>
-                    <div
-                        id="globalDeadlineList"
-                        class="deadline-list"
-                    ></div>
+
                 </div>
             </section>
             <section class="left-panel-section">
@@ -62,31 +62,44 @@
                             ▼
                         </button>
 
-                        <h4>Today</h4>
+                        <h4>To Do</h4>
 
                     </div>
 
                 </div>
-
-                <div
-                    id="todosSectionBody"
-                    class="section-body"
-                >
-
+                <div id="todosSectionBody" class="section-body">
+                    <div
+                        id="todoDateDisplay"
+                        class="todo-date-display"
+                    ></div>
+                    <div
+                        id="todoViewToggle"
+                        class="todo-view-toggle"
+                    >
+                        <button
+                            class="todo-toggle-btn active"
+                            data-view="today"
+                        >
+                            Today
+                        </button>
+                        <button
+                            class="todo-toggle-btn"
+                            data-view="global"
+                        >
+                            Global
+                        </button>
+                    </div>
+                    <div
+                        id="todayTodoList"
+                        class="todo-list"
+                    ></div>
                     <button
                         id="addTodoBtn"
                         class="section-add-btn"
                     >
                         + Add Task
                     </button>
-
-                    <div
-                        id="todayTodoList"
-                        class="todo-list"
-                    ></div>
-
                 </div>
-
             </section>
         </div>
         </aside>

@@ -122,11 +122,29 @@ function loadTodos() {
   const stored =
     localStorage.getItem(TODO_STORAGE_KEY);
 
-  return stored
-    ? JSON.parse(stored)
-    : [];
-}
+  if (!stored) {
 
+    return {
+      daily: [],
+      global: [],
+      lastMigrationDate: null
+    };
+  }
+
+  const parsed = JSON.parse(stored);
+
+  // Backward compatibility
+  if (Array.isArray(parsed)) {
+
+    return {
+      daily: parsed,
+      global: [],
+      lastMigrationDate: null
+    };
+  }
+
+  return parsed;
+}
 
 function persistTodos(todos) {
 
@@ -134,6 +152,57 @@ function persistTodos(todos) {
     TODO_STORAGE_KEY,
     JSON.stringify(todos)
   );
+}
+
+// =====================================================
+// TODAY HELPERS
+// =====================================================
+
+function getTodayKey() {
+
+  return new Date()
+    .toISOString()
+    .split("T")[0];
+}
+
+
+function getTodayTodos() {
+
+  const todoData = loadTodos();
+
+  const todayKey = getTodayKey();
+
+  let today =
+    todoData.daily.find(
+      t => t.date === todayKey
+    );
+
+  if (!today) {
+
+    today = {
+      date: todayKey,
+      items: []
+    };
+
+    todoData.daily.push(today);
+
+    persistTodos(todoData);
+  }
+
+  return {
+    todoData,
+    today
+  };
+}
+
+function getGlobalTodos() {
+
+  const todoData = loadTodos();
+
+  return {
+    todoData,
+    global: todoData.global
+  };
 }
 
 
@@ -178,43 +247,4 @@ function loadProjects() {
     }
 
   });
-}
-
-// =====================================================
-// TODAY HELPERS
-// =====================================================
-
-function getTodayKey() {
-
-  return new Date()
-    .toISOString()
-    .split("T")[0];
-}
-
-
-function getTodayTodos() {
-
-  const todos = loadTodos();
-
-  const todayKey = getTodayKey();
-
-  let today =
-    todos.find(t => t.date === todayKey);
-
-  if (!today) {
-
-    today = {
-      date: todayKey,
-      items: []
-    };
-
-    todos.push(today);
-
-    persistTodos(todos);
-  }
-
-  return {
-    todos,
-    today
-  };
 }
