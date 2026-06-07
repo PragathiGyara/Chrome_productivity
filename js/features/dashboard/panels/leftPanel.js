@@ -1,52 +1,29 @@
+function initializeLeftPanel() {
 
-let currentLeftView = "deadlines"; // "deadlines" | "todos"
+    document
+        .getElementById("addDeadlineBtn")
+        ?.addEventListener(
+            "click",
+            openSidebarDeadlineForm
+        );
 
-function setupLeftPanelToggle() {
-  const toggle = document.getElementById("viewToggle");
+    document
+        .getElementById("addTodoBtn")
+        ?.addEventListener(
+            "click",
+            openSidebarTodoForm
+        );
 
-  toggle.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("toggle-option")) return;
-
-    currentLeftView = e.target.dataset.view;
-
-    // Update UI state
-    toggle.querySelectorAll(".toggle-option")
-      .forEach(el => el.classList.remove("active"));
-
-    e.target.classList.add("active");
-
-    updateLeftPanel();
-  });
+    renderLeftPanel();
 }
 
 
-// --------------------------
-// Left Panel
-// --------------------------
+function renderLeftPanel() {
 
-function updateLeftPanel() {
-  const title = document.getElementById("leftPanelTitle");
-  const btn = document.getElementById("addDeadlineBtn");
-
-  if (!title || !btn) {
-    console.error("Left panel elements not found");
-    return;
-  }
-
-  if (currentLeftView === "deadlines") {
-    title.textContent = "Deadlines";
     renderGlobalDeadlines();
 
-    btn.textContent = "+ New Deadline";
-    btn.onclick = openSidebarDeadlineForm;
-
-  } else {
-    title.textContent = "Today";
     renderTodayTodos();
 
-    btn.textContent = "+ Add Task";
-    btn.onclick = openSidebarTodoForm;
-  }
 }
 
 
@@ -56,7 +33,7 @@ function updateLeftPanel() {
 
 
 function renderTodayTodos() {
-  const container = document.getElementById("globalDeadlineList");
+  const container = document.getElementById("todayTodoList");
   if (!container) return;
 
   container.innerHTML = "";
@@ -245,7 +222,7 @@ function openSidebarDeadlineForm() {
 }
 
 function openSidebarTodoForm() {
-  const container = document.getElementById("globalDeadlineList");
+  const container = document.getElementById("todayTodoList");
   if (!container) return;
 
   if (container.querySelector(".todo-form")) return;

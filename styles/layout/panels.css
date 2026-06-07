@@ -78,60 +78,40 @@
 }
 
 
-/* =====================================================
-   LEFT PANEL CONTROLS
-===================================================== */
+.left-panel-sections {
 
-.left-controls {
+    display: flex;
 
-  display: flex;
+    flex-direction: column;
 
-  align-items: center;
+    gap: 16px;
 
-  gap: 6px;
+    height: 100%;
 }
 
+.left-panel-section {
 
-/* =====================================================
-   VIEW TOGGLE
-===================================================== */
+    display: flex;
 
-.view-toggle {
+    flex-direction: column;
 
-  display: flex;
-
-  background: var(--bg-main);
-
-  border-radius: 8px;
-
-  padding: 3px;
-
-  gap: 2px;
+    min-height: 0;
 }
 
+.left-section-header {
 
-.toggle-option {
+    display: flex;
 
-  padding: 4px 10px;
+    justify-content: space-between;
 
-  font-size: 13px;
+    align-items: center;
 
-  cursor: pointer;
-
-  border-radius: 6px;
-
-  color: var(--text-muted);
-
-  transition: all 0.2s ease;
+    margin-bottom: 8px;
 }
 
-.toggle-option.active {
+.section-add-btn {
 
-  background: var(--primary);
+    font-size: 14px;
 
-  color: white;
-}
-
-.toggle-option:hover {
-  color: white;
+    padding: 4px 8px;
 }

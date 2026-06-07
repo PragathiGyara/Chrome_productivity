@@ -17,9 +17,7 @@ function initializeApp() {
 
   renderDashboardView();
 
-  updateLeftPanel();
-
-  setupLeftPanelToggle();
+  initializeLeftPanel();
 
   attachTrackEvents();
 

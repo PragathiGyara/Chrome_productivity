@@ -11,31 +11,44 @@
         <!-- ================= LEFT SIDEBAR ================= -->
         <aside id="leftPanel" class="panel left">
 
-        <header> 
-            <h3 id="leftPanelTitle">Deadlines</h3> 
-
+        <header>
+            <h3>Overview</h3>
             <div class="left-controls">
-            <div id="viewToggle" class="view-toggle">
-            <span class="toggle-option active" data-view="deadlines" title="Deadlines">
-                ⏳
-            </span>
-            <span class="toggle-option" data-view="todos" title="Today Tasks">
-                📅
-            </span>
-            </div>
-
-            <button id="leftToggleBtn">☰</button>
+                <button id="leftToggleBtn">☰</button>
             </div>
         </header>
-
-        <!-- Deadline List -->
-        <div id="globalDeadlineList" class="deadline-list"></div>
-
-        <!-- Add Button -->
-        <button id="addDeadlineBtn" class="add-deadline-btn">
-            + New Deadline
-        </button>
-
+        <div class="left-panel-sections">
+            <section class="left-panel-section">
+                <div class="left-section-header">
+                    <h4>Deadlines</h4>
+                    <button
+                        id="addDeadlineBtn"
+                        class="section-add-btn"
+                    >
+                        +
+                    </button>
+                </div>
+                <div
+                    id="globalDeadlineList"
+                    class="deadline-list"
+                ></div>
+            </section>
+            <section class="left-panel-section">
+                <div class="left-section-header">
+                    <h4>Today</h4>
+                    <button
+                        id="addTodoBtn"
+                        class="section-add-btn"
+                    >
+                        +
+                    </button>
+                </div>
+                <div
+                    id="todayTodoList"
+                    class="todo-list"
+                ></div>
+            </section>
+        </div>
         </aside>
         <!-- ================= CENTER DASHBOARD ================= -->
         <main class="center"></main>
