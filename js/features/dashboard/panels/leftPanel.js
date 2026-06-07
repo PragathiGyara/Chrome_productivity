@@ -245,7 +245,22 @@ function renderGlobalTodos() {
                     renderGlobalTodos();
                 }
             );
+        const textEl =
+            div.querySelector(".todo-text");
 
+        textEl.addEventListener(
+            "click",
+            (e) => {
+
+                e.stopPropagation();
+
+                openEditTodoForm(
+                    item,
+                    "global"
+                );
+
+            }
+        );
         container.appendChild(div);
 
     });
@@ -286,7 +301,23 @@ function renderTodayTodos() {
       item.done = e.target.checked;
       persistTodos(todoData);
       renderTodayTodos();
-    });
+    })
+    const textEl =
+        div.querySelector(".todo-text");
+
+    textEl.addEventListener(
+        "click",
+        (e) => {
+
+            e.stopPropagation();
+
+            openEditTodoForm(
+                item,
+                "today"
+            );
+
+        }
+    );
 
     container.appendChild(div);
   });
@@ -530,6 +561,174 @@ function openSidebarTodoForm() {
   });
 }
 
+function openEditTodoForm(item, source) {
+
+  const container =
+    document.getElementById("todayTodoList");
+
+  if (!container) return;
+
+  if (container.querySelector(".todo-edit-form")) return;
+
+  const form = document.createElement("div");
+
+  form.classList.add(
+    "deadline-form",
+    "todo-edit-form"
+  );
+
+  form.innerHTML = `
+
+    <input
+      type="text"
+      id="editTodoText"
+      value="${item.text}"
+    />
+
+    <div class="deadline-form-actions">
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="cancelTodoEditBtn"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-btn"
+        id="updateTodoBtn"
+      >
+        Update
+      </button>
+
+      <button
+        type="button"
+        class="danger-btn"
+        id="deleteTodoBtn"
+      >
+        Delete
+      </button>
+
+    </div>
+  `;
+
+  container.prepend(form);
+
+  const input =
+    form.querySelector("#editTodoText");
+
+  const updateBtn =
+    form.querySelector("#updateTodoBtn");
+
+  const cancelBtn =
+    form.querySelector("#cancelTodoEditBtn");
+
+  const deleteBtn =
+    form.querySelector("#deleteTodoBtn");
+
+  const originalText =
+    item.text;
+
+  updateBtn.disabled = true;
+
+  input.addEventListener("input", () => {
+
+    updateBtn.disabled =
+      input.value.trim() === originalText;
+
+  });
+
+  updateBtn.addEventListener("click", () => {
+
+    const newText =
+      input.value.trim();
+
+    if (!newText) {
+      alert("Task cannot be empty.");
+      return;
+    }
+
+    item.text = newText;
+
+    let todoData;
+
+    if (source === "today") {
+
+      ({ todoData } =
+        getTodayTodos());
+
+    } else {
+
+      ({ todoData } =
+        getGlobalTodos());
+
+    }
+
+    persistTodos(todoData);
+
+    form.remove();
+
+    renderTodoSection();
+
+    showToast("Task updated");
+
+  });
+
+  deleteBtn.addEventListener("click", () => {
+
+    const confirmed = confirm(
+      `Delete "${item.text}"?`
+    );
+
+    if (!confirmed) return;
+
+    if (source === "today") {
+
+      const {
+        todoData,
+        today
+      } = getTodayTodos();
+
+      today.items =
+        today.items.filter(
+          t => t.id !== item.id
+        );
+
+      persistTodos(todoData);
+
+    } else {
+
+      const {
+          todoData,
+          global
+      } = getGlobalTodos();
+
+      todoData.global =
+          global.filter(
+              t => t.id !== item.id
+          );
+
+      persistTodos(todoData);
+
+    }
+
+    form.remove();
+
+    renderTodoSection();
+
+    showToast("Task deleted");
+
+  });
+
+  cancelBtn.addEventListener("click", () => {
+
+    form.remove();
+
+  });
+
+}
 
 function updateTodoDateDisplay() {
 

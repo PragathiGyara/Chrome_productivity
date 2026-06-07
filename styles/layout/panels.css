@@ -236,3 +236,13 @@
 
     letter-spacing: 0.3px;
 }
+
+.todo-card.done {
+
+    opacity: 0.55;
+}
+
+.todo-card.done .todo-text {
+
+    text-decoration: line-through;
+}
