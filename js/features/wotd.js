@@ -5,6 +5,8 @@
 let currentLanguageIndex = 0;
 let currentWOTDWord = null;
 
+let wotdGuessMode = false;
+let wotdRevealed = false;
 
 /* =====================================================
    GET DISPLAY WORDS
@@ -115,6 +117,21 @@ function renderWordOfTheDay() {
     document.getElementById(
       "wotdNext"
     );
+  const sentenceToggle =
+    document.getElementById(
+      "wotdSentenceToggle"
+    );
+
+  if (wotdGuessMode) {
+
+    sentenceToggle.disabled = true;
+
+  }
+  else {
+
+    sentenceToggle.disabled = false;
+
+  }
 
   if (!languages.length) {
 
@@ -150,14 +167,60 @@ function renderWordOfTheDay() {
   languageEl.textContent =
     currentLanguage;
 
-  wordEl.textContent =
-    word.word;
-
-  meaningEl.textContent =
-    word.meaning;
-
   sentenceEl.textContent =
     word.sentence || "";
+
+  const revealBtn =
+    document.getElementById(
+      "wotdRevealBtn"
+    );
+
+  if (!wotdGuessMode) {
+
+    wordEl.textContent =
+      word.word;
+
+    meaningEl.textContent =
+      word.meaning;
+
+    revealBtn.classList.add(
+      "hidden"
+    );
+
+  }
+  else {
+
+    meaningEl.textContent =
+      word.meaning;
+
+    revealBtn.classList.remove(
+      "hidden"
+    );
+
+  if (wotdRevealed) {
+
+    wordEl.textContent =
+      word.word;
+
+    revealBtn.classList.add(
+      "hidden"
+    );
+
+  }
+  else {
+
+    wordEl.textContent = "";
+
+    revealBtn.classList.remove(
+      "hidden"
+    );
+
+    revealBtn.textContent =
+      "Reveal";
+
+  }
+
+  }
 
   if (word.sentence) {
 
@@ -190,13 +253,16 @@ function nextWOTDLanguage() {
 
   currentLanguageIndex++;
 
+  wotdRevealed = false;
+
   renderWordOfTheDay();
 }
-
 
 function prevWOTDLanguage() {
 
   currentLanguageIndex--;
+
+  wotdRevealed = false;
 
   renderWordOfTheDay();
 }

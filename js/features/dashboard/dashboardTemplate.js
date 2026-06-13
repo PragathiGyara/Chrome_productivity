@@ -11,9 +11,32 @@ function getDashboardTemplate() {
 
         <div class="wotd-main">
 
-            <div class="wotd-title">
-                🌟 Word of the Day —
-                <span id="centerWOTDLanguage"></span>
+            <div class="wotd-header">
+
+                <div class="wotd-title">
+                    🌟 Word of the Day —
+                    <span id="centerWOTDLanguage"></span>
+                </div>
+
+                <div class="wotd-quiz-toggle">
+
+                    <span class="toggle-label">
+                        Guess Word
+                    </span>
+
+                    <label class="toggle-switch">
+
+                        <input
+                            type="checkbox"
+                            id="wotdGuessModeToggle"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
             </div>
 
             <div
@@ -53,41 +76,52 @@ function getDashboardTemplate() {
               class="wotd-sentence hidden"
             ></div>
 
-            <div class="wotd-actions">
+            <button
+                id="wotdRevealBtn"
+                class="wotd-action-btn hidden"
+            >
+                Show Word
+            </button>
 
-                <button
-                id="wotdLearnBtn"
-                class="wotd-action-btn"
-                >
-                ✓ Learned
-                </button>
+            <div class="wotd-footer">
 
-                <button
-                id="wotdVaultBtn"
-                class="wotd-action-btn"
-                >
-                📖 Vault
-                </button>
+                <div class="wotd-actions">
+
+                    <button
+                    id="wotdLearnBtn"
+                    class="wotd-action-btn"
+                    >
+                    ✓ Learned
+                    </button>
+
+                    <button
+                    id="wotdVaultBtn"
+                    class="wotd-action-btn"
+                    >
+                    📖 Vault
+                    </button>
+
+                </div>
+
+                <div class="wotd-nav-inline">
+
+                    <button
+                      id="wotdPrev"
+                      class="wotd-nav"
+                    >
+                      ←
+                    </button>
+
+                    <button
+                      id="wotdNext"
+                      class="wotd-nav"
+                    >
+                      →
+                    </button>
+
+                </div>
 
             </div>
-
-        </div>
-
-        <div class="wotd-nav-container">
-
-            <button
-              id="wotdPrev"
-              class="wotd-nav"
-            >
-              ◀
-            </button>
-
-            <button
-              id="wotdNext"
-              class="wotd-nav"
-            >
-              ▶
-            </button>
 
         </div>
 

@@ -39,6 +39,36 @@
   flex-direction: column;
 }
 
+/* =====================================================
+   WOTD HEADER
+===================================================== */
+
+.wotd-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 8px;
+}
+
+
+/* =====================================================
+   QUIZ TOGGLE
+===================================================== */
+
+.wotd-quiz-toggle {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
 
 /* =====================================================
    TITLE
@@ -49,8 +79,6 @@
   font-size: 13px;
 
   color: var(--text-muted);
-
-  margin-bottom: 8px;
 }
 
 
@@ -253,4 +281,76 @@
   background: #334155;
 
   transform: translateY(-1px);
+}
+
+/* =====================================================
+   WOTD FOOTER
+===================================================== */
+
+.wotd-footer {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  margin-top: 18px;
+
+  position: relative;
+}
+
+
+/* =====================================================
+   INLINE NAVIGATION
+===================================================== */
+
+.wotd-nav {
+
+  font-size: 28px;
+
+  line-height: 1;
+
+  background: transparent;
+
+  border: none;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  padding: 4px 10px;
+
+  font-weight: 600;
+}
+
+.wotd-nav:hover {
+
+  color: white;
+}
+
+.wotd-nav-inline {
+
+  position: absolute;
+
+  right: 0;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  display: flex;
+
+  gap: 12px;
+}
+
+/* =====================================================
+   REVEAL BUTTON
+===================================================== */
+
+#wotdRevealBtn {
+
+  display: block;
+
+  margin: 10px auto 0 auto;
 }
