@@ -448,9 +448,101 @@ function createWordElement(wordObj, number) {
   const footer = document.createElement("div");
   footer.className = "word-footer";
   footer.appendChild(actions);
+  div.addEventListener("dblclick", () => {
+    openEditWordForm(wordObj);
+  });
   div.append(header, language, meaning, sentence, footer, date);
   return div;
 }
+
+function openEditWordForm(wordObj) {
+
+  const container = document.getElementById("wordList");
+
+  if (container.querySelector(".word-edit-form")) return;
+
+  const form = document.createElement("div");
+  form.className = "word-form word-edit-form";
+
+  form.innerHTML = `
+    <select id="editLanguage">
+      <option value="English">English</option>
+      <option value="Hindi">Hindi</option>
+      <option value="Telugu">Telugu</option>
+      <option value="Marathi">Marathi</option>
+    </select>
+
+    <input
+      id="editWord"
+      value="${wordObj.word}"
+    />
+
+    <textarea id="editMeaning">${wordObj.meaning}</textarea>
+
+    <textarea id="editSentence">${wordObj.sentence || ""}</textarea>
+
+    <div class="deadline-form-actions">
+      <button
+        class="neutral-btn"
+        id="cancelWordEditBtn"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="primary-btn"
+        id="saveWordEditBtn"
+      >
+        Save
+      </button>
+    </div>
+  `;
+
+  form.querySelector("#editLanguage").value =
+    wordObj.language;
+
+  container.prepend(form);
+
+  form.querySelector("#cancelWordEditBtn")
+    .addEventListener("click", () => {
+      form.remove();
+    });
+
+  form.querySelector("#saveWordEditBtn")
+    .addEventListener("click", () => {
+
+      const language =
+        form.querySelector("#editLanguage").value;
+
+      const word =
+        form.querySelector("#editWord").value.trim();
+
+      const meaning =
+        form.querySelector("#editMeaning").value.trim();
+
+      const sentence =
+        form.querySelector("#editSentence").value.trim();
+
+      if (!word || !meaning) {
+        alert("Word and meaning required");
+        return;
+      }
+
+      wordObj.language = language;
+      wordObj.word = word;
+      wordObj.meaning = meaning;
+      wordObj.sentence = sentence;
+
+      persistWords();
+
+      renderWords();
+
+      reloadWOTD();
+
+      form.remove();
+    });
+}
+
 
 function markAsLearned(id) {
   let updatedWord = null;
