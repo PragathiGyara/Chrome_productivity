@@ -15,7 +15,7 @@
 
 
 /* =====================================================
-   FORM
+   TIMELINE FORM
 ===================================================== */
 
 .timeline-form {
@@ -136,4 +136,223 @@
 .timeline-save-btn {
 
     width: 100%;
+}
+
+/* =====================================================
+   TIMELINE VIEW
+===================================================== */
+
+.timeline-scroll-container {
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+}
+
+.timeline-scroll-content {
+
+    position: relative;
+
+    min-height: 180px;
+}
+
+/* =====================================================
+   TIMELINE HEADER
+===================================================== */
+
+.timeline-hour-header {
+
+    display: flex;
+
+    border-bottom:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+}
+
+.timeline-hour-cell {
+
+    width: 120px;
+
+    flex-shrink: 0;
+
+    text-align: center;
+
+    padding: 12px 0;
+
+    font-weight: 600;
+
+    color:
+        var(--text-secondary);
+
+    border-right:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.05
+        );
+}
+
+/* =====================================================
+   TIMELINE TRACK
+===================================================== */
+
+.timeline-track {
+
+    position: relative;
+
+    height: 140px;
+}
+
+
+/* =====================================================
+   TIMELINE ACTIVITY BLOCKS
+===================================================== */
+
+.timeline-activity-block {
+
+    position: absolute;
+
+    top: 20px;
+
+    height: 80px;
+
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    background:
+        var(--primary);
+
+    color: white;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.timeline-activity-block:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 6px 16px
+        rgba(
+            0,
+            0,
+            0,
+            0.25
+        );
+}
+
+.timeline-activity-name {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.timeline-activity-time {
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    opacity: 0.85;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.timeline-activity-duration {
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    opacity: 0.65;
+}
+
+/* =====================================================
+   TIMELINE TOOLTIP
+===================================================== */
+
+.timeline-tooltip {
+
+  position: fixed;
+
+  min-width: 220px;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  background:
+    var(--bg-panel);
+
+  border:
+    1px solid
+    var(--primary);
+
+  z-index: 5000;
+
+  pointer-events: none;
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      0,
+      0,
+      0,
+      0.35
+    );
+}
+
+.timeline-tooltip.hidden {
+
+  display: none;
+}
+
+.timeline-tooltip-title {
+
+  font-weight: 600;
+
+  margin-bottom: 8px;
+}
+
+.timeline-tooltip-row {
+
+  font-size: 13px;
+
+  margin-top: 4px;
+}
+
+
+.timeline-activity-block {
+
+    cursor: pointer;
 }
