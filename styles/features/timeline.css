@@ -351,8 +351,69 @@
   margin-top: 4px;
 }
 
+.timeline-tooltip-badge {
+
+    margin-top: 8px;
+
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    width: fit-content;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    font-size: 12px;
+}
+
 
 .timeline-activity-block {
 
     cursor: pointer;
+}
+
+/* =====================================================
+   CURRENT TIME
+===================================================== */
+
+.timeline-current-time-line {
+
+    position: absolute;
+
+    top: 0;
+
+    bottom: 0;
+
+    width: 2px;
+
+    background:
+        var(--danger);
+
+    z-index: 20;
+}
+
+.timeline-current-time-line::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+
+    height: 10px;
+
+    border-radius: 50%;
+
+    background:
+        var(--danger);
+
+    top: -5px;
+
+    left: -4px;
 }

@@ -154,19 +154,31 @@ function renderTimelineEntries() {
     `;
   }
 
+  const currentTimeLeft =
+    (
+      getCurrentTimeMinutes()
+      / 60
+    ) *
+    TIMELINE_HOUR_WIDTH;
+
   html += `
+        </div>
 
-      </div>
+        <div
+          class="
+            timeline-track
+          "
+        >
 
-      <!-- =====================
-           ACTIVITY LANE
-      ====================== -->
-
-      <div
-        class="
-          timeline-track
-        "
-      >
+          <div
+            class="
+              timeline-current-time-line
+            "
+            style="
+              left:
+              ${currentTimeLeft}px;
+            "
+          ></div>
   `;
 
   entries.forEach(
@@ -346,8 +358,19 @@ function attachTimelineHoverCards() {
               "
             >
               ${block.dataset.start}
-              -
+              →
               ${block.dataset.end}
+            </div>
+
+            <div
+              class="
+                timeline-tooltip-row
+              "
+            >
+              ${getDurationText(
+                block.dataset.start,
+                block.dataset.end
+              )}
             </div>
 
             ${
@@ -356,10 +379,10 @@ function attachTimelineHoverCards() {
               `
               <div
                 class="
-                  timeline-tooltip-row
+                  timeline-tooltip-badge
                 "
               >
-                Project:
+                🏗
                 ${block.dataset.project}
               </div>
               `
@@ -373,10 +396,10 @@ function attachTimelineHoverCards() {
               `
               <div
                 class="
-                  timeline-tooltip-row
+                  timeline-tooltip-badge
                 "
               >
-                Track:
+                🎯
                 ${block.dataset.track}
               </div>
               `
@@ -502,6 +525,18 @@ function timeToMinutes(
   return (
     hours * 60 +
     minutes
+  );
+}
+
+function getCurrentTimeMinutes() {
+
+  const now =
+    new Date();
+
+  return (
+    now.getHours() * 60
+    +
+    now.getMinutes()
   );
 }
 
