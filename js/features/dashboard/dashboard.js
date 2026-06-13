@@ -13,7 +13,7 @@
 // - Project rendering
 // =====================================================
 
-let currentDashboardPage = 0;
+let currentDashboardPage = 2;
 
 const dashboardPages = [
   "tracks",

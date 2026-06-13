@@ -89,20 +89,6 @@ function renderTimelineEntries() {
           )
       );
 
-  if (
-    entries.length === 0
-  ) {
-
-    container.innerHTML = `
-      <div
-        class="timeline-empty"
-      >
-        No activities yet.
-      </div>
-    `;
-
-    return;
-  }
 
   const timelineWidth =
     24 *
@@ -180,6 +166,23 @@ function renderTimelineEntries() {
             "
           ></div>
   `;
+
+  if (
+    entries.length === 0
+  ) {
+
+    html += `
+
+      <div
+        class="
+          timeline-empty-state
+        "
+      >
+        No activities recorded today
+      </div>
+
+    `;
+  }
 
   entries.forEach(
     entry => {

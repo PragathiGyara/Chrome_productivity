@@ -210,6 +210,34 @@
     height: 140px;
 }
 
+/* =====================================================
+   EMPTY TIMELINE STATE
+===================================================== */
+
+.timeline-empty-state {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+
+    opacity: 0.7;
+
+    white-space: nowrap;
+}
+
 
 /* =====================================================
    TIMELINE ACTIVITY BLOCKS
