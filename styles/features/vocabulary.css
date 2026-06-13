@@ -380,3 +380,40 @@
 
   color: var(--text-main);
 }
+
+/* ==========================
+   QUIZ
+========================== */
+
+.vault-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quiz-btn {
+  border: none;
+  cursor: pointer;
+
+  background: #1e293b;
+  color: white;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  font-size: 13px;
+}
+
+.quiz-btn:hover {
+  background: #334155;
+}
+
+.quiz-full-width {
+
+  width: 100%;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  display: block;
+}

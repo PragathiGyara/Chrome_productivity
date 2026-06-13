@@ -150,6 +150,26 @@ function attachEventListeners() {
       }
     );
   }
+
+  const quizBtn =
+    document.getElementById("takeQuizBtn");
+
+  const closeQuizBtn =
+    document.getElementById("closeQuizBtn");
+
+  if (quizBtn) {
+    quizBtn.addEventListener(
+      "click",
+      openQuizModal
+    );
+  }
+
+  if (closeQuizBtn) {
+    closeQuizBtn.addEventListener(
+      "click",
+      closeQuizModal
+    );
+  }
 }
 
 // ------------------------------
@@ -706,6 +726,22 @@ function getFilteredWords() {
     word =>
       word.language === currentWordFilter
   );
+}
+
+function openQuizModal() {
+
+  document
+    .getElementById("quizModal")
+    .classList.remove("hidden");
+
+}
+
+function closeQuizModal() {
+
+  document
+    .getElementById("quizModal")
+    .classList.add("hidden");
+
 }
 
 // ------------------------------
