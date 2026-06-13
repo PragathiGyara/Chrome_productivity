@@ -9,8 +9,21 @@
 const TIMELINE_HOUR_WIDTH =
   120;
 
-const TIMELINE_DEFAULT_HOUR =
-  9;
+const HOURS_BEFORE_CURRENT =
+  4;
+
+// =====================================================
+// TIMELINE DRAG STATE
+// =====================================================
+
+let timelineDragStartIndex =
+  null;
+
+let timelineDragEndIndex =
+  null;
+
+let timelineIsDragging =
+  false;
 
 // =====================================================
 // RENDERING
@@ -155,6 +168,10 @@ function renderTimelineEntries() {
             timeline-track
           "
         >
+        <div
+          id="timelineDragPreview"
+          class="timeline-drag-preview"
+        ></div>
 
           <div
             class="
@@ -166,6 +183,27 @@ function renderTimelineEntries() {
             "
           ></div>
   `;
+  for (
+    let hour = 0;
+    hour < 24;
+    hour++
+  ) {
+
+    html += `
+      <div
+        class="
+          timeline-hour-line
+        "
+        style="
+          left:
+          ${
+            hour *
+            TIMELINE_HOUR_WIDTH
+          }px;
+        "
+      ></div>
+    `;
+  }
 
   if (
     entries.length === 0
@@ -178,7 +216,7 @@ function renderTimelineEntries() {
           timeline-empty-state
         "
       >
-        No activities recorded today
+        Drag on the timeline to add an activity
       </div>
 
     `;
@@ -296,6 +334,71 @@ function renderTimelineEntries() {
     html;
 
   attachTimelineHoverCards();
+
+  attachTimelineDragEvents();
+
+  renderTimelineDragSelection();
+}
+
+function renderTimelineDragSelection() {
+
+  const preview =
+    document.getElementById(
+      "timelineDragPreview"
+    );
+
+  if (!preview) {
+    return;
+  }
+
+  if (
+    timelineDragStartIndex === null
+  ) {
+
+    preview.style.display =
+      "none";
+
+    return;
+  }
+
+  const start =
+    Math.min(
+      timelineDragStartIndex,
+      timelineDragEndIndex ??
+      timelineDragStartIndex
+    );
+
+  const end =
+    Math.max(
+      timelineDragStartIndex,
+      timelineDragEndIndex ??
+      timelineDragStartIndex
+    );
+
+  const left =
+    (
+      start * 10 / 60
+    ) *
+    TIMELINE_HOUR_WIDTH;
+
+  const width =
+    (
+      (
+        end -
+        start +
+        1
+      ) * 10 / 60
+    ) *
+    TIMELINE_HOUR_WIDTH;
+
+  preview.style.display =
+    "block";
+
+  preview.style.left =
+    `${left}px`;
+
+  preview.style.width =
+    `${width}px`;
 }
 
 // =====================================================
@@ -442,6 +545,107 @@ function attachTimelineHoverCards() {
     });
 }
 
+function attachTimelineDragEvents() {
+
+  const track =
+    document.querySelector(
+      ".timeline-track"
+    );
+
+  if (!track) {
+    return;
+  }
+
+  track.addEventListener(
+    "mousedown",
+    event => {
+
+      if (
+        event.target.closest(
+          ".timeline-activity-block"
+        )
+      ) {
+        return;
+      }
+
+      const rect =
+        track.getBoundingClientRect();
+
+      const scrollContainer =
+        document.getElementById(
+          "timelineEntriesContainer"
+        );
+
+      const x =
+        (
+          event.clientX
+          -
+          rect.left
+        )
+        +
+        scrollContainer.scrollLeft;
+
+      timelineDragStartIndex =
+        xPositionToTimelineIndex(
+          x
+        );
+
+      timelineDragEndIndex =
+        timelineDragStartIndex;
+
+      timelineIsDragging =
+        true;
+
+      renderTimelineDragSelection();
+    }
+  );
+
+  track.addEventListener(
+    "mousemove",
+    event => {
+
+      if (
+        !timelineIsDragging
+      ) {
+        return;
+      }
+
+      const rect =
+        track.getBoundingClientRect();
+
+      const scrollContainer =
+        document.getElementById(
+          "timelineEntriesContainer"
+        );
+
+      const x =
+        (
+          event.clientX
+          -
+          rect.left
+        )
+        +
+        scrollContainer.scrollLeft;
+
+      timelineDragEndIndex =
+        xPositionToTimelineIndex(
+          x
+        );
+
+      renderTimelineDragSelection();
+    }
+  );
+
+  document.addEventListener(
+    "mouseup",
+    () => {
+
+      timelineIsDragging =
+        false;
+    }
+  );
+}
+
 
 // =====================================================
 // SCROLL HELPERS
@@ -459,8 +663,34 @@ function scrollTimelineToDefaultHour() {
     return;
   }
 
+  const currentHour =
+    new Date()
+      .getHours();
+
+  const visibleHours =
+    Math.floor(
+      container.clientWidth /
+      TIMELINE_HOUR_WIDTH
+    );
+
+  const maxStartHour =
+    Math.max(
+      0,
+      24 - visibleHours
+    );
+
+  const startHour =
+    Math.max(
+      0,
+      Math.min(
+        currentHour -
+        HOURS_BEFORE_CURRENT,
+        maxStartHour
+      )
+    );
+
   container.scrollLeft =
-    9 *
+    startHour *
     TIMELINE_HOUR_WIDTH;
 }
 
@@ -540,6 +770,27 @@ function getCurrentTimeMinutes() {
     now.getHours() * 60
     +
     now.getMinutes()
+  );
+}
+
+function xPositionToTimelineIndex(
+  x
+) {
+
+  const minutes =
+    (
+      x /
+      TIMELINE_HOUR_WIDTH
+    ) * 60;
+
+  return Math.max(
+    0,
+    Math.min(
+      143,
+      Math.floor(
+        minutes / 10
+      )
+    )
   );
 }
 

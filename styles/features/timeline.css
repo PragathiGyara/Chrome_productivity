@@ -176,27 +176,27 @@
 
 .timeline-hour-cell {
 
-    width: 120px;
+  width: 120px;
 
-    flex-shrink: 0;
+  flex-shrink: 0;
 
-    text-align: center;
+  padding: 12px 0 12px 8px;
 
-    padding: 12px 0;
+  text-align: left;
 
-    font-weight: 600;
+  font-weight: 600;
 
-    color:
-        var(--text-secondary);
+  color:
+    var(--text-secondary);
 
-    border-right:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            0.05
-        );
+  border-right:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.05
+    );
 }
 
 /* =====================================================
@@ -208,6 +208,63 @@
     position: relative;
 
     height: 140px;
+
+    cursor: crosshair;
+
+    margin-top: 8px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    border-radius: 12px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.02
+        );
+}
+
+.timeline-track:hover {
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.04
+        );
+}
+
+/* =====================================================
+   TIMELINE GRID
+===================================================== */
+
+.timeline-hour-line {
+
+    position: absolute;
+
+    top: 0;
+
+    bottom: 0;
+
+    width: 1px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.05
+        );
 }
 
 /* =====================================================
@@ -444,4 +501,37 @@
     top: -5px;
 
     left: -4px;
+}
+
+/* =====================================================
+   DRAG SELECTION
+===================================================== */
+
+.timeline-drag-preview {
+
+    position: absolute;
+
+    top: 20px;
+
+    height: 80px;
+
+    display: none;
+
+    border-radius: 10px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.2
+        );
+
+    border:
+        2px solid
+        var(--primary);
+
+    pointer-events: none;
+
+    z-index: 5;
 }
