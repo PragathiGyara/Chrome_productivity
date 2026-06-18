@@ -278,3 +278,35 @@
 
   cursor: not-allowed;
 }
+
+
+.quiz-relearn-btn {
+
+  margin-top: 12px;
+
+  width: 100%;
+
+  padding: 10px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  background: #7f1d1d;
+
+  color: white;
+}
+
+.quiz-relearn-btn:hover {
+
+  background: #991b1b;
+}
+
+.quiz-relearn-btn:disabled {
+
+  opacity: 0.6;
+
+  cursor: default;
+}

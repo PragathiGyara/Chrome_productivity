@@ -624,21 +624,28 @@ function renderMCQQuestion(
         ${optionsHTML}
       </div>
 
-      ${
+        ${
         result === true
-          ? `
+            ? `
             <div class="quiz-feedback correct">
-              ✓ Correct
+                ✓ Correct
             </div>
-          `
-          : result === false
-          ? `
+            `
+            : result === false
+            ? `
             <div class="quiz-feedback wrong">
-              ✗ Wrong
+                ✗ Wrong
             </div>
-          `
-          : ""
-      }
+
+            <button
+                id="moveToLearningBtn"
+                class="quiz-relearn-btn"
+            >
+                Add Back To Learning
+            </button>
+            `
+            : ""
+        }
 
       <div class="quiz-arrow-nav">
 
@@ -871,6 +878,82 @@ function attachQuestionEvents(
       "click",
       finishQuiz
     );
+
+  document
+    .getElementById(
+        "moveToLearningBtn"
+    )
+    ?.addEventListener(
+        "click",
+        () => {
+
+        moveWordBackToLearning(
+            question
+        );
+
+        }
+    );  
+}
+
+function moveWordBackToLearning(
+  question
+) {
+
+  chrome.storage.local.get(
+    ["vocabularyWords"],
+    result => {
+
+      const words =
+        result.vocabularyWords || [];
+
+      const target =
+        words.find(
+          w =>
+            w.word === question.word &&
+            w.language === question.language
+        );
+
+      if (!target) return;
+
+      target.status =
+        "learning";
+
+      chrome.storage.local.set(
+        {
+          vocabularyWords: words
+        },
+        () => {
+
+          const button =
+            document.getElementById(
+              "moveToLearningBtn"
+            );
+
+          if (button) {
+
+            button.disabled = true;
+
+            button.innerText =
+              "Moved To Learning ✓";
+          }
+
+          if (
+            typeof renderWords ===
+            "function"
+          ) {
+            renderWords();
+          }
+
+          if (
+            typeof renderWordOfTheDay ===
+            "function"
+          ) {
+            renderWordOfTheDay();
+          }
+        }
+      );
+    }
+  );
 }
 
 
