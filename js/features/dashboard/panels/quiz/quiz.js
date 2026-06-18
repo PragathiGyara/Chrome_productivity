@@ -73,89 +73,231 @@ function renderQuizHome() {
 
   if (!content) return;
 
-    content.innerHTML = `
+  content.innerHTML = `
     <div class="quiz-home">
 
-        <h3>Choose Quiz Type</h3>
+      <h3>Choose Quiz Type</h3>
 
-        <label>
+      <label>
         <input
-            type="radio"
-            name="quizType"
-            value="wordToMeaning"
-            checked
+          type="radio"
+          name="quizType"
+          value="wordToMeaning"
+          checked
         >
         Word → Meaning
-        </label>
+      </label>
 
-        <br><br>
+      <br><br>
 
-        <label>
+      <label>
         <input
-            type="radio"
-            name="quizType"
-            value="meaningToWord"
+          type="radio"
+          name="quizType"
+          value="meaningToWord"
         >
         Meaning → Word
-        </label>
+      </label>
 
-        <br><br>
+      <br><br>
 
-        <h3>Choose Language</h3>
+      <h3>Choose Languages</h3>
 
-        <select id="quizLanguageSelect">
-        <option value="All">All Languages</option>
-        </select>
+      <div id="quizLanguageContainer">
+        Loading...
+      </div>
 
-        <br><br>
+      <br>
 
-        <button id="startQuizBtn">
+      <button
+        id="startQuizBtn"
+        disabled
+      >
         Start Quiz
-        </button>
+      </button>
 
-        <button id="viewQuizHistoryBtn">
+      <button
+        id="viewQuizHistoryBtn"
+      >
         View Previous Quizzes
-        </button>
+      </button>
 
     </div>
-    `;
+  `;
 
-    chrome.storage.local.get(
-        ["vocabularyWords"],
-        result => {
+  chrome.storage.local.get(
+    ["vocabularyWords"],
+    result => {
 
-            const words =
-            result.vocabularyWords || [];
+      const words =
+        result.vocabularyWords || [];
 
-            const languages =
-            [...new Set(
-                words.map(w => w.language)
-            )];
+      const languages =
+        [...new Set(
+          words.map(
+            w => w.language
+          )
+        )]
+        .filter(Boolean)
+        .sort();
 
-            const select =
-            document.getElementById(
-                "quizLanguageSelect"
-            );
+      const container =
+        document.getElementById(
+          "quizLanguageContainer"
+        );
 
-            languages
-            .filter(Boolean)
-            .sort()
-            .forEach(language => {
+      if (!languages.length) {
 
-                const option =
-                document.createElement(
-                    "option"
-                );
+        container.innerHTML =
+          "<p>No languages found</p>";
 
-                option.value = language;
-                option.textContent = language;
+        return;
+      }
 
-                select.appendChild(option);
-            });
+      container.innerHTML = `
+
+        <label
+          style="
+            display:block;
+            margin-bottom:10px;
+            font-weight:600;
+          "
+        >
+          <input
+            type="checkbox"
+            id="allLanguagesCheckbox"
+          >
+          All Languages
+        </label>
+
+        ${languages.map(language => `
+          <label
+            style="
+              display:block;
+              margin-bottom:6px;
+            "
+          >
+            <input
+              type="checkbox"
+              class="quiz-language-checkbox"
+              value="${language}"
+            >
+            ${language}
+          </label>
+        `).join("")}
+      `;
+
+      const startBtn =
+        document.getElementById(
+          "startQuizBtn"
+        );
+
+      const allCheckbox =
+        document.getElementById(
+          "allLanguagesCheckbox"
+        );
+
+      const languageCheckboxes =
+        document.querySelectorAll(
+          ".quiz-language-checkbox"
+        );
+
+      function updateStartButton() {
+
+        const quizTypeSelected =
+          document.querySelector(
+            'input[name="quizType"]:checked'
+          );
+
+        const languageSelected =
+          document.querySelector(
+            ".quiz-language-checkbox:checked"
+          );
+
+        startBtn.disabled =
+          !quizTypeSelected ||
+          !languageSelected;
+      }
+
+      // ====================================
+      // ALL LANGUAGES
+      // ====================================
+
+      allCheckbox.addEventListener(
+        "change",
+        () => {
+
+          languageCheckboxes.forEach(
+            checkbox => {
+              checkbox.checked =
+                allCheckbox.checked;
+            }
+          );
+
+          updateStartButton();
         }
-    );
+      );
 
-  // Start Quiz
+      // ====================================
+      // INDIVIDUAL LANGUAGES
+      // ====================================
+
+      languageCheckboxes.forEach(
+        checkbox => {
+
+          checkbox.addEventListener(
+            "change",
+            () => {
+
+              const checkedCount =
+                [
+                  ...languageCheckboxes
+                ].filter(
+                  cb => cb.checked
+                ).length;
+
+              if (
+                checkedCount !==
+                languageCheckboxes.length
+              ) {
+
+                allCheckbox.checked =
+                  false;
+              }
+
+              else {
+
+                allCheckbox.checked =
+                  true;
+              }
+
+              updateStartButton();
+            }
+          );
+
+        }
+      );
+
+      // ====================================
+      // QUIZ TYPE
+      // ====================================
+
+      document
+        .querySelectorAll(
+          'input[name="quizType"]'
+        )
+        .forEach(radio => {
+
+          radio.addEventListener(
+            "change",
+            updateStartButton
+          );
+
+        });
+
+      updateStartButton();
+    }
+  );
 
   document
     .getElementById("startQuizBtn")
@@ -164,8 +306,6 @@ function renderQuizHome() {
       startQuiz
     );
 
-  // History
-
   document
     .getElementById("viewQuizHistoryBtn")
     ?.addEventListener(
@@ -173,7 +313,6 @@ function renderQuizHome() {
       showQuizHistory
     );
 }
-
 
 
 // =====================================================
@@ -189,65 +328,75 @@ function startQuiz() {
 
   if (!selectedType) return;
 
-    currentQuizType =
+  currentQuizType =
     selectedType.value;
 
-    selectedQuizLanguage =
-    document.getElementById(
-        "quizLanguageSelect"
-    ).value;
+  const selectedLanguages =
+    [
+      ...document.querySelectorAll(
+        ".quiz-language-checkbox:checked"
+      )
+    ]
+    .map(
+      checkbox => checkbox.value
+    );
+
+  if (
+    selectedLanguages.length === 0
+  ) {
+
+    alert(
+      "Please select at least one language."
+    );
+
+    return;
+  }
 
   chrome.storage.local.get(
     ["vocabularyWords"],
     result => {
 
-        quizWords =
+      quizWords =
         (result.vocabularyWords || [])
-            .filter(word => {
+        .filter(word =>
+          selectedLanguages.includes(
+            word.language
+          )
+        );
 
-            if (
-                selectedQuizLanguage === "All"
-            ) {
-                return true;
-            }
+      if (!quizWords.length) {
 
-            return (
-                word.language ===
-                selectedQuizLanguage
-            );
-        });
+        const content =
+          document.getElementById(
+            "quizContent"
+          );
 
-        if (!quizWords.length) {
+        content.innerHTML = `
+          <h3>No words found</h3>
 
-            const content =
-                document.getElementById(
-                "quizContent"
-                );
+          <p>
+            No words available for the
+            selected languages.
+          </p>
 
-            content.innerHTML = `
-                <h3>No words found</h3>
+          <button
+            id="backToQuizHomeBtn"
+          >
+            Back
+          </button>
+        `;
 
-                <p>
-                No words available for
-                ${selectedQuizLanguage}
-                </p>
+        document
+          .getElementById(
+            "backToQuizHomeBtn"
+          )
+          .addEventListener(
+            "click",
+            renderQuizHome
+          );
 
-                <button id="backToQuizHomeBtn">
-                Back
-                </button>
-            `;
-
-            document
-                .getElementById(
-                "backToQuizHomeBtn"
-                )
-                .addEventListener(
-                "click",
-                renderQuizHome
-                );
-
-            return;
-        }
+        return;
+      }
 
       currentQuizIndex = 0;
 
