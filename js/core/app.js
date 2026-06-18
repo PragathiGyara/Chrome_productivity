@@ -25,4 +25,6 @@ function initializeApp() {
 
   attachTimelineModalEvents();
 
+  attachQuizEvents();
+
 }

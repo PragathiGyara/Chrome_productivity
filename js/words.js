@@ -152,7 +152,12 @@ function attachEventListeners() {
   }
 
   const quizBtn =
-    document.getElementById("takeQuizBtn");
+    document
+    .getElementById("takeQuizBtn")
+    .addEventListener(
+      "click",
+      openQuiz
+    );
 
   const closeQuizBtn =
     document.getElementById("closeQuizBtn");
