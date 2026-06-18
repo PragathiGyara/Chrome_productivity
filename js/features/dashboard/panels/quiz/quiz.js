@@ -22,11 +22,10 @@
 // =====================================================
 
 let currentQuizType = null;
+let selectedQuizLanguage = "All";
 
 let quizWords = [];
-
 let currentQuizIndex = 0;
-
 
 
 // =====================================================
@@ -74,53 +73,87 @@ function renderQuizHome() {
 
   if (!content) return;
 
-  content.innerHTML = `
-
+    content.innerHTML = `
     <div class="quiz-home">
 
-      <h3>
-        Choose Quiz Type
-      </h3>
+        <h3>Choose Quiz Type</h3>
 
-      <label>
-
+        <label>
         <input
-          type="radio"
-          name="quizType"
-          value="wordToMeaning"
-          checked
+            type="radio"
+            name="quizType"
+            value="wordToMeaning"
+            checked
         >
-
         Word → Meaning
+        </label>
 
-      </label>
+        <br><br>
 
-      <br><br>
-
-      <label>
-
+        <label>
         <input
-          type="radio"
-          name="quizType"
-          value="meaningToWord"
+            type="radio"
+            name="quizType"
+            value="meaningToWord"
         >
-
         Meaning → Word
+        </label>
 
-      </label>
+        <br><br>
 
-      <br><br>
+        <h3>Choose Language</h3>
 
-      <button id="startQuizBtn">
+        <select id="quizLanguageSelect">
+        <option value="All">All Languages</option>
+        </select>
+
+        <br><br>
+
+        <button id="startQuizBtn">
         Start Quiz
-      </button>
+        </button>
 
-      <button id="viewQuizHistoryBtn">
+        <button id="viewQuizHistoryBtn">
         View Previous Quizzes
-      </button>
+        </button>
 
     </div>
-  `;
+    `;
+
+    chrome.storage.local.get(
+        ["vocabularyWords"],
+        result => {
+
+            const words =
+            result.vocabularyWords || [];
+
+            const languages =
+            [...new Set(
+                words.map(w => w.language)
+            )];
+
+            const select =
+            document.getElementById(
+                "quizLanguageSelect"
+            );
+
+            languages
+            .filter(Boolean)
+            .sort()
+            .forEach(language => {
+
+                const option =
+                document.createElement(
+                    "option"
+                );
+
+                option.value = language;
+                option.textContent = language;
+
+                select.appendChild(option);
+            });
+        }
+    );
 
   // Start Quiz
 
@@ -156,19 +189,65 @@ function startQuiz() {
 
   if (!selectedType) return;
 
-  currentQuizType =
+    currentQuizType =
     selectedType.value;
+
+    selectedQuizLanguage =
+    document.getElementById(
+        "quizLanguageSelect"
+    ).value;
 
   chrome.storage.local.get(
     ["vocabularyWords"],
     result => {
 
-      quizWords =
+        quizWords =
         (result.vocabularyWords || [])
-          .filter(
-            word =>
-              word.status !== "learned"
-          );
+            .filter(word => {
+
+            if (
+                selectedQuizLanguage === "All"
+            ) {
+                return true;
+            }
+
+            return (
+                word.language ===
+                selectedQuizLanguage
+            );
+        });
+
+        if (!quizWords.length) {
+
+            const content =
+                document.getElementById(
+                "quizContent"
+                );
+
+            content.innerHTML = `
+                <h3>No words found</h3>
+
+                <p>
+                No words available for
+                ${selectedQuizLanguage}
+                </p>
+
+                <button id="backToQuizHomeBtn">
+                Back
+                </button>
+            `;
+
+            document
+                .getElementById(
+                "backToQuizHomeBtn"
+                )
+                .addEventListener(
+                "click",
+                renderQuizHome
+                );
+
+            return;
+        }
 
       currentQuizIndex = 0;
 
@@ -176,7 +255,6 @@ function startQuiz() {
     }
   );
 }
-
 
 
 // =====================================================
@@ -190,29 +268,29 @@ function renderQuizQuestion() {
 
   if (!content) return;
 
-  // No words
+  const question =
+    generateQuestion();
 
-  if (!quizWords.length) {
+  if (!question) {
 
     content.innerHTML = `
-
       <h3>
-        No words available
+        No learned words yet
       </h3>
 
       <p>
-        Add some words to the Vocabulary Vault first.
+        Mark some words as learned
+        before taking quizzes.
       </p>
 
       <button id="backToQuizHomeBtn">
         Back
       </button>
-
     `;
 
     document
       .getElementById("backToQuizHomeBtn")
-      ?.addEventListener(
+      .addEventListener(
         "click",
         renderQuizHome
       );
@@ -220,59 +298,185 @@ function renderQuizQuestion() {
     return;
   }
 
-  const word =
-    quizWords[currentQuizIndex];
+  const options =
+    generateOptions(question);
+
+  renderMCQQuestion(
+    question,
+    options
+  );
+}
+
+// =====================================================
+// GENERATE QUESTION
+// =====================================================
+
+function generateQuestion() {
+
+  const learnedWords =
+    quizWords.filter(
+      word => word.status === "learned"
+    );
+
+  if (!learnedWords.length) {
+    return null;
+  }
+
+  return learnedWords[
+    Math.floor(
+      Math.random() *
+      learnedWords.length
+    )
+  ];
+}
 
 
+// =====================================================
+// GENERATE OPTIONS
+// =====================================================
 
-  // ---------------------------------------------------
-  // WORD → MEANING
-  // ---------------------------------------------------
+function generateOptions(question) {
 
-  if (
-    currentQuizType ===
-    "wordToMeaning"
+  const options = [];
+
+  options.push(question);
+
+  const remainingWords =
+    quizWords.filter(
+      word =>
+        word.word !== question.word
+    );
+
+  while (
+    options.length < 4 &&
+    remainingWords.length
   ) {
 
-    content.innerHTML = `
+    const randomIndex =
+      Math.floor(
+        Math.random() *
+        remainingWords.length
+      );
+
+    options.push(
+      remainingWords.splice(
+        randomIndex,
+        1
+      )[0]
+    );
+  }
+
+  return shuffleArray(options);
+}
+
+
+// =====================================================
+// SHUFFLE
+// =====================================================
+
+function shuffleArray(array) {
+
+  const copy = [...array];
+
+  for (
+    let i = copy.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+    [copy[i], copy[j]] =
+      [copy[j], copy[i]];
+  }
+
+  return copy;
+}
+
+
+// =====================================================
+// RENDER MCQ
+// =====================================================
+
+function renderMCQQuestion(
+  question,
+  options
+) {
+
+  const content =
+    document.getElementById("quizContent");
+
+  const questionText =
+    currentQuizType === "wordToMeaning"
+      ? question.word
+      : question.meaning;
+
+  const optionsHTML =
+    options.map(option => {
+
+      const label =
+        currentQuizType === "wordToMeaning"
+          ? option.meaning
+          : option.word;
+
+      return `
+        <button
+          class="quiz-option"
+          data-answer="${option.word}"
+        >
+          ${label}
+        </button>
+      `;
+    }).join("");
+
+  content.innerHTML = `
+    <div class="quiz-question-container">
 
       <h3>
-        What does this word mean?
+        ${
+          currentQuizType === "wordToMeaning"
+            ? "What does this word mean?"
+            : "Which word matches this meaning?"
+        }
       </h3>
 
       <div class="quiz-question">
-        ${word.word}
+        ${questionText}
       </div>
 
-    `;
-
-    return;
-  }
-
-
-
-  // ---------------------------------------------------
-  // MEANING → WORD
-  // ---------------------------------------------------
-
-  if (
-    currentQuizType ===
-    "meaningToWord"
-  ) {
-
-    content.innerHTML = `
-
-      <h3>
-        Which word matches this meaning?
-      </h3>
-
-      <div class="quiz-question">
-        ${word.meaning}
+      <div class="quiz-options">
+        ${optionsHTML}
       </div>
 
-    `;
+    </div>
+  `;
 
-  }
+  content
+    .querySelectorAll(".quiz-option")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const isCorrect =
+            button.dataset.answer ===
+            question.word;
+
+          alert(
+            isCorrect
+              ? "Correct!"
+              : `Wrong!\nCorrect answer: ${question.word}`
+          );
+
+          renderQuizQuestion();
+        }
+      );
+
+    });
 }
 
 
