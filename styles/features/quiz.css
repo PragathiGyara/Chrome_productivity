@@ -1,0 +1,215 @@
+/* =====================================================
+   QUIZ HOME
+===================================================== */
+
+.quiz-home {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+
+/* =====================================================
+   QUIZ QUESTION CONTAINER
+===================================================== */
+
+.quiz-question-container {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+
+/* =====================================================
+   QUIZ PROGRESS
+===================================================== */
+
+.quiz-progress {
+
+  text-align: center;
+
+  font-size: 13px;
+
+  color: var(--text-muted);
+}
+
+
+/* =====================================================
+   QUIZ QUESTION
+===================================================== */
+
+.quiz-question {
+
+  background: var(--bg-main);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 10px;
+
+  padding: 16px;
+
+  text-align: center;
+
+  font-size: 20px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   QUIZ OPTIONS
+===================================================== */
+
+.quiz-options {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   QUIZ OPTION BUTTON
+===================================================== */
+
+.quiz-option {
+
+  width: 100%;
+
+  text-align: left;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid var(--border-color);
+
+  background: var(--bg-main);
+
+  color: var(--text-main);
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+.quiz-option:hover {
+
+  background: var(--bg-hover);
+}
+
+
+/* =====================================================
+   SELECTED OPTION
+===================================================== */
+
+.selected-option {
+
+  border-color: var(--primary);
+
+  background: rgba(59,130,246,0.15);
+}
+
+
+/* =====================================================
+   QUIZ NAVIGATION
+===================================================== */
+
+.quiz-navigation {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: 10px;
+}
+
+
+/* =====================================================
+   QUIZ NAVIGATION BUTTONS
+===================================================== */
+
+.quiz-navigation button {
+
+  min-width: 120px;
+}
+
+
+/* =====================================================
+   DISABLED BUTTONS
+===================================================== */
+
+.quiz-navigation button:disabled {
+
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   QUIZ LANGUAGE SECTION
+===================================================== */
+
+#quizLanguageContainer {
+
+  background: var(--bg-main);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 10px;
+
+  padding: 12px;
+}
+
+
+/* =====================================================
+   LANGUAGE CHECKBOXES
+===================================================== */
+
+#quizLanguageContainer label {
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   QUIZ RESULT
+===================================================== */
+
+.quiz-result {
+
+  text-align: center;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+
+/* =====================================================
+   QUIZ SCORE
+===================================================== */
+
+.quiz-score {
+
+  font-size: 32px;
+
+  font-weight: 700;
+
+  color: var(--primary);
+}

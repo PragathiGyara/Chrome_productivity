@@ -27,6 +27,12 @@ let selectedQuizLanguage = "All";
 let quizWords = [];
 let currentQuizIndex = 0;
 
+let quizQuestions = [];
+
+let quizAnswers = [];
+
+let currentQuestionIndex = 0;
+
 
 // =====================================================
 // OPEN QUIZ
@@ -364,41 +370,30 @@ function startQuiz() {
           )
         );
 
-      if (!quizWords.length) {
+      const learnedWords =
+        quizWords.filter(
+          word =>
+            word.status === "learned"
+        );
 
-        const content =
-          document.getElementById(
-            "quizContent"
-          );
+      if (learnedWords.length < 5) {
 
-        content.innerHTML = `
-          <h3>No words found</h3>
-
-          <p>
-            No words available for the
-            selected languages.
-          </p>
-
-          <button
-            id="backToQuizHomeBtn"
-          >
-            Back
-          </button>
-        `;
-
-        document
-          .getElementById(
-            "backToQuizHomeBtn"
-          )
-          .addEventListener(
-            "click",
-            renderQuizHome
-          );
+        alert(
+          "Need at least 5 learned words."
+        );
 
         return;
       }
 
-      currentQuizIndex = 0;
+      quizQuestions =
+        shuffleArray(
+          [...learnedWords]
+        ).slice(0, 5);
+
+      quizAnswers =
+        new Array(5).fill(null);
+
+      currentQuestionIndex = 0;
 
       renderQuizQuestion();
     }
@@ -413,39 +408,16 @@ function startQuiz() {
 function renderQuizQuestion() {
 
   const content =
-    document.getElementById("quizContent");
+    document.getElementById(
+      "quizContent"
+    );
 
   if (!content) return;
 
   const question =
-    generateQuestion();
-
-  if (!question) {
-
-    content.innerHTML = `
-      <h3>
-        No learned words yet
-      </h3>
-
-      <p>
-        Mark some words as learned
-        before taking quizzes.
-      </p>
-
-      <button id="backToQuizHomeBtn">
-        Back
-      </button>
-    `;
-
-    document
-      .getElementById("backToQuizHomeBtn")
-      .addEventListener(
-        "click",
-        renderQuizHome
-      );
-
-    return;
-  }
+    quizQuestions[
+      currentQuestionIndex
+    ];
 
   const options =
     generateOptions(question);
@@ -556,10 +528,18 @@ function renderMCQQuestion(
 ) {
 
   const content =
-    document.getElementById("quizContent");
+    document.getElementById(
+      "quizContent"
+    );
+
+  const selectedAnswer =
+    quizAnswers[
+      currentQuestionIndex
+    ];
 
   const questionText =
-    currentQuizType === "wordToMeaning"
+    currentQuizType ===
+    "wordToMeaning"
       ? question.word
       : question.meaning;
 
@@ -567,13 +547,24 @@ function renderMCQQuestion(
     options.map(option => {
 
       const label =
-        currentQuizType === "wordToMeaning"
+        currentQuizType ===
+        "wordToMeaning"
           ? option.meaning
           : option.word;
 
+      const selected =
+        selectedAnswer ===
+        option.word;
+
       return `
         <button
-          class="quiz-option"
+          class="quiz-option
+            ${
+              selected
+              ? "selected-option"
+              : ""
+            }
+          "
           data-answer="${option.word}"
         >
           ${label}
@@ -582,13 +573,21 @@ function renderMCQQuestion(
     }).join("");
 
   content.innerHTML = `
+
     <div class="quiz-question-container">
+
+      <div class="quiz-progress">
+        Question
+        ${currentQuestionIndex + 1}
+        / 5
+      </div>
 
       <h3>
         ${
-          currentQuizType === "wordToMeaning"
-            ? "What does this word mean?"
-            : "Which word matches this meaning?"
+          currentQuizType ===
+          "wordToMeaning"
+          ? "What does this word mean?"
+          : "Which word matches this meaning?"
         }
       </h3>
 
@@ -600,32 +599,111 @@ function renderMCQQuestion(
         ${optionsHTML}
       </div>
 
+      <div class="quiz-navigation">
+
+        ${
+          currentQuestionIndex > 0
+          ? `
+            <button
+              id="quizPrevBtn"
+            >
+              ← Previous
+            </button>
+          `
+          : ""
+        }
+
+        ${
+          currentQuestionIndex < 4
+          ? `
+            <button
+              id="quizNextBtn"
+              ${
+                selectedAnswer
+                ? ""
+                : "disabled"
+              }
+            >
+              Next →
+            </button>
+          `
+          : `
+            <button
+              id="finishQuizBtn"
+              ${
+                selectedAnswer
+                ? ""
+                : "disabled"
+              }
+            >
+              Finish
+            </button>
+          `
+        }
+
+      </div>
+
     </div>
   `;
 
-  content
-    .querySelectorAll(".quiz-option")
-    .forEach(button => {
+  attachQuestionEvents(
+    question
+  );
+}
 
-      button.addEventListener(
-        "click",
-        () => {
 
-          const isCorrect =
-            button.dataset.answer ===
-            question.word;
+function finishQuiz() {
 
-          alert(
-            isCorrect
-              ? "Correct!"
-              : `Wrong!\nCorrect answer: ${question.word}`
-          );
+  let score = 0;
 
-          renderQuizQuestion();
-        }
-      );
+  quizQuestions.forEach(
+    (question, index) => {
 
-    });
+      if (
+        quizAnswers[index] ===
+        question.word
+      ) {
+        score++;
+      }
+
+    }
+  );
+
+  const content =
+    document.getElementById(
+      "quizContent"
+    );
+
+  content.innerHTML = `
+
+    <div class="quiz-result">
+
+    <h2>
+        Quiz Complete 🎉
+    </h2>
+
+    <div class="quiz-score">
+        ${score}/5
+    </div>
+
+    </div>
+
+    <button
+      id="backToQuizHomeBtn"
+    >
+      Back
+    </button>
+
+  `;
+
+  document
+    .getElementById(
+      "backToQuizHomeBtn"
+    )
+    .addEventListener(
+      "click",
+      renderQuizHome
+    );
 }
 
 
@@ -670,6 +748,72 @@ function showQuizHistory() {
 // =====================================================
 // EVENT BINDING
 // =====================================================
+
+
+
+function attachQuestionEvents(
+  question
+) {
+
+  document
+    .querySelectorAll(
+      ".quiz-option"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          quizAnswers[
+            currentQuestionIndex
+          ] =
+            button.dataset.answer;
+
+          renderQuizQuestion();
+        }
+      );
+
+    });
+
+  document
+    .getElementById(
+      "quizPrevBtn"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        currentQuestionIndex--;
+
+        renderQuizQuestion();
+      }
+    );
+
+  document
+    .getElementById(
+      "quizNextBtn"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        currentQuestionIndex++;
+
+        renderQuizQuestion();
+      }
+    );
+
+  document
+    .getElementById(
+      "finishQuizBtn"
+    )
+    ?.addEventListener(
+      "click",
+      finishQuiz
+    );
+}
+
 
 function attachQuizEvents() {
 
