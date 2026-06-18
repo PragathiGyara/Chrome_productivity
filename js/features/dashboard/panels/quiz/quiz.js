@@ -33,6 +33,8 @@ let quizAnswers = [];
 
 let currentQuestionIndex = 0;
 
+let quizResults = [];
+
 
 // =====================================================
 // OPEN QUIZ
@@ -393,6 +395,9 @@ function startQuiz() {
       quizAnswers =
         new Array(5).fill(null);
 
+      quizResults =
+        new Array(5).fill(null);
+
       currentQuestionIndex = 0;
 
       renderQuizQuestion();
@@ -537,6 +542,11 @@ function renderMCQQuestion(
       currentQuestionIndex
     ];
 
+  const result =
+    quizResults[
+      currentQuestionIndex
+    ];
+
   const questionText =
     currentQuizType ===
     "wordToMeaning"
@@ -552,20 +562,35 @@ function renderMCQQuestion(
           ? option.meaning
           : option.word;
 
-      const selected =
-        selectedAnswer ===
-        option.word;
+      let extraClass = "";
+
+      if (result !== null) {
+
+        if (
+          option.word === question.word
+        ) {
+          extraClass = "correct-option";
+        }
+
+        else if (
+          option.word === selectedAnswer
+        ) {
+          extraClass = "wrong-option";
+        }
+      }
 
       return `
         <button
-          class="quiz-option
-            ${
-              selected
-              ? "selected-option"
-              : ""
-            }
+          class="
+            quiz-option
+            ${extraClass}
           "
           data-answer="${option.word}"
+          ${
+            result !== null
+              ? "disabled"
+              : ""
+          }
         >
           ${label}
         </button>
@@ -586,8 +611,8 @@ function renderMCQQuestion(
         ${
           currentQuizType ===
           "wordToMeaning"
-          ? "What does this word mean?"
-          : "Which word matches this meaning?"
+            ? "What does this word mean?"
+            : "Which word matches this meaning?"
         }
       </h3>
 
@@ -599,18 +624,35 @@ function renderMCQQuestion(
         ${optionsHTML}
       </div>
 
-      <div class="quiz-navigation">
+      ${
+        result === true
+          ? `
+            <div class="quiz-feedback correct">
+              ✓ Correct
+            </div>
+          `
+          : result === false
+          ? `
+            <div class="quiz-feedback wrong">
+              ✗ Wrong
+            </div>
+          `
+          : ""
+      }
+
+      <div class="quiz-arrow-nav">
 
         ${
           currentQuestionIndex > 0
           ? `
             <button
               id="quizPrevBtn"
+              class="quiz-arrow"
             >
-              ← Previous
+              ←
             </button>
           `
-          : ""
+          : `<div></div>`
         }
 
         ${
@@ -618,25 +660,27 @@ function renderMCQQuestion(
           ? `
             <button
               id="quizNextBtn"
+              class="quiz-arrow"
               ${
-                selectedAnswer
-                ? ""
-                : "disabled"
+                result === null
+                  ? "disabled"
+                  : ""
               }
             >
-              Next →
+              →
             </button>
           `
           : `
             <button
               id="finishQuizBtn"
+              class="quiz-arrow"
               ${
-                selectedAnswer
-                ? ""
-                : "disabled"
+                result === null
+                  ? "disabled"
+                  : ""
               }
             >
-              Finish
+              ✓
             </button>
           `
         }
@@ -650,7 +694,6 @@ function renderMCQQuestion(
     question
   );
 }
-
 
 function finishQuiz() {
 
@@ -750,7 +793,6 @@ function showQuizHistory() {
 // =====================================================
 
 
-
 function attachQuestionEvents(
   question
 ) {
@@ -765,10 +807,27 @@ function attachQuestionEvents(
         "click",
         () => {
 
+          if (
+            quizResults[
+              currentQuestionIndex
+            ] !== null
+          ) {
+            return;
+          }
+
+          const answer =
+            button.dataset.answer;
+
+          const isCorrect =
+            answer === question.word;
+
           quizAnswers[
             currentQuestionIndex
-          ] =
-            button.dataset.answer;
+          ] = answer;
+
+          quizResults[
+            currentQuestionIndex
+          ] = isCorrect;
 
           renderQuizQuestion();
         }

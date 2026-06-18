@@ -213,3 +213,68 @@
 
   color: var(--primary);
 }
+
+
+.correct-option {
+
+  background: #14532d !important;
+
+  border-color: #22c55e !important;
+}
+
+.wrong-option {
+
+  background: #7f1d1d !important;
+
+  border-color: #ef4444 !important;
+}
+
+.quiz-feedback {
+
+  text-align: center;
+
+  font-weight: 600;
+
+  margin-top: 8px;
+}
+
+.quiz-feedback.correct {
+
+  color: #22c55e;
+}
+
+.quiz-feedback.wrong {
+
+  color: #ef4444;
+}
+
+.quiz-arrow-nav {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-top: 20px;
+}
+
+.quiz-arrow {
+
+  background: none;
+
+  border: none;
+
+  font-size: 28px;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.quiz-arrow:disabled {
+
+  opacity: 0.3;
+
+  cursor: not-allowed;
+}
