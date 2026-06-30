@@ -470,10 +470,103 @@ function addTaskSection(doc, track, y) {
 
 function addDeadlineSection(doc, track, y) {
 
-    doc.setFontSize(16);
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    y = checkPageBreak(doc, y, 20);
+
+    // ------------------------------------------
+    // Section Heading
+    // ------------------------------------------
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+
     doc.text("Deadlines", 20, y);
 
-    return y + 15;
+    y += 8;
+
+    // ------------------------------------------
+    // Empty State
+    // ------------------------------------------
+
+    if (track.deadlines.length === 0) {
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+
+        doc.text("No deadlines.", 20, y);
+
+        return y + 12;
+
+    }
+
+    // ------------------------------------------
+    // Table Header
+    // ------------------------------------------
+
+    const titleX = 20;
+    const dateX = 100;
+    const statusX = 165;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+
+    doc.text("Deadline", titleX, y);
+    doc.text("Due Date", dateX, y);
+    doc.text("Status", statusX, y);
+
+    y += 4;
+
+    doc.line(20, y, pageWidth - 20, y);
+
+    y += 8;
+
+    // ------------------------------------------
+    // Rows
+    // ------------------------------------------
+
+    doc.setFont("helvetica", "normal");
+
+    track.deadlines.forEach((deadline, index) => {
+
+        y = checkPageBreak(doc, y, 8);
+
+        doc.text(
+            `${index + 1}. ${deadline.title}`,
+            titleX,
+            y
+        );
+
+        const dueDate = new Date(deadline.datetime);
+
+        doc.text(
+            dueDate.toLocaleString(
+                "en-GB",
+                {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                }
+            ),
+            dateX,
+            y
+        );
+
+        doc.text(
+            deadline.status || "Pending",
+            statusX,
+            y
+        );
+
+        y += 8;
+
+    });
+
+    return y + 10;
+
 }
 
 // =====================================================
