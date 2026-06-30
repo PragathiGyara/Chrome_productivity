@@ -23,6 +23,30 @@ function formatBackupDate(date = new Date()) {
 }
 
 
+// =====================================================
+// PAGE HELPERS
+// =====================================================
+
+function checkPageBreak(doc, y, requiredHeight = 10) {
+
+    const pageHeight =
+        doc.internal.pageSize.getHeight();
+
+    const bottomMargin = 20;
+
+    if (y + requiredHeight > pageHeight - bottomMargin) {
+
+        doc.addPage();
+
+        return 20;
+
+    }
+
+    return y;
+
+}
+
+
 function generateTrackBackupPDF(track) {
 
     const { jsPDF } = window.jspdf;
@@ -174,6 +198,14 @@ function addReadingSection(doc, track, y) {
     doc.setFontSize(11);
 
     track.reading.forEach((item, index) => {
+    const estimatedHeight =
+        Math.max(8, (item.links?.length || 1) * 6 + 4);
+
+    y = checkPageBreak(
+        doc,
+        y,
+        estimatedHeight
+    );
 
     // -------------------------------
     // Reading Item
@@ -251,6 +283,8 @@ function addTaskSection(doc, track, y) {
     // Section Heading
     // ------------------------------------------
 
+    y = checkPageBreak(doc, y, 20);
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
 
@@ -279,7 +313,11 @@ function addTaskSection(doc, track, y) {
 
     track.tasks.forEach((task, index) => {
 
+        y = checkPageBreak(doc, y, 70);
+
+        // -----------------------------
         // Task Name
+        // -----------------------------
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
@@ -292,52 +330,73 @@ function addTaskSection(doc, track, y) {
 
         y += 7;
 
+        // -----------------------------
         // Description
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
+        // -----------------------------
 
         if (task.description) {
+
+            y = checkPageBreak(doc, y, 15);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
 
             doc.text("Description", 20, y);
 
             y += 6;
 
+            doc.setFont("helvetica", "normal");
+
             const descriptionLines =
                 doc.splitTextToSize(
                     task.description,
-                    pageWidth - 40
+                    pageWidth - 45
                 );
 
-            doc.text(
-                descriptionLines,
-                25,
-                y
-            );
+            descriptionLines.forEach(line => {
 
-            y += descriptionLines.length * 6 + 3;
+                y = checkPageBreak(doc, y, 6);
+
+                doc.text(line, 25, y);
+
+                y += 6;
+
+            });
+
+            y += 3;
 
         }
 
+        // -----------------------------
         // Prerequisite
+        // -----------------------------
 
         if (task.prereq) {
 
+            y = checkPageBreak(doc, y, 15);
+
             doc.setFont("helvetica", "bold");
+
             doc.text("Prerequisite", 20, y);
 
             y += 6;
 
             doc.setFont("helvetica", "normal");
+
             doc.text(task.prereq, 25, y);
 
             y += 9;
 
         }
 
+        // -----------------------------
         // Progress
+        // -----------------------------
+
+        y = checkPageBreak(doc, y, 20);
 
         doc.setFont("helvetica", "bold");
+
         doc.text("Progress", 20, y);
 
         y += 6;
@@ -353,16 +412,21 @@ function addTaskSection(doc, track, y) {
         y += 6;
 
         doc.text(
-            `Task         : ${formatHours(task.taskSpent || 0)} / ${formatHours(task.taskTime)}`,
+            `Task : ${formatHours(task.taskSpent || 0)} / ${formatHours(task.taskTime)}`,
             25,
             y
         );
 
         y += 8;
 
+        // -----------------------------
         // Status
+        // -----------------------------
+
+        y = checkPageBreak(doc, y, 15);
 
         doc.setFont("helvetica", "bold");
+
         doc.text("Status", 20, y);
 
         y += 6;
@@ -379,7 +443,11 @@ function addTaskSection(doc, track, y) {
 
         y += 10;
 
+        // -----------------------------
         // Divider
+        // -----------------------------
+
+        y = checkPageBreak(doc, y, 2);
 
         doc.line(
             20,
