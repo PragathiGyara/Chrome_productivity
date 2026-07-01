@@ -575,8 +575,58 @@ function addDeadlineSection(doc, track, y) {
 
 function addNotesSection(doc, track, y) {
 
-    doc.setFontSize(16);
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    y = checkPageBreak(doc, y, 20);
+
+    // ------------------------------------------
+    // Section Heading
+    // ------------------------------------------
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+
     doc.text("Notes", 20, y);
 
-    return y + 15;
+    y += 8;
+
+    // ------------------------------------------
+    // Empty State
+    // ------------------------------------------
+
+    if (!track.notes || track.notes.trim() === "") {
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+
+        doc.text("No notes.", 20, y);
+
+        return y + 12;
+
+    }
+
+    // ------------------------------------------
+    // Notes
+    // ------------------------------------------
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+
+    const lines = doc.splitTextToSize(
+        track.notes,
+        pageWidth - 40
+    );
+
+    lines.forEach(line => {
+
+        y = checkPageBreak(doc, y, 6);
+
+        doc.text(line, 20, y);
+
+        y += 6;
+
+    });
+
+    return y + 10;
+
 }

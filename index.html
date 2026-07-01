@@ -210,17 +210,56 @@
           </div>
       </div>
   </div>
-  <!-- ================= DELETE CONFIRMATION MODAL ================= -->
-  <div id="deleteConfirmModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Delete Track</h3>
-      <p id="deleteConfirmText"></p>
-      <div class="confirm-actions">
-        <button id="confirmDeleteBtn">Yes, Delete</button>
-        <button id="cancelDeleteBtn">Cancel</button>
-      </div>
+    <!-- ================= DELETE TRACK MODAL ================= -->
+
+    <div id="deleteConfirmModal" class="modal hidden">
+
+        <div class="modal-content">
+
+            <h3>
+                Delete Track
+            </h3>
+
+            <p id="deleteConfirmText"></p>
+
+            <p class="delete-warning-text">
+
+                This action is permanent and cannot be undone.
+
+                <br><br>
+
+                Would you like to create a PDF backup before deleting this track?
+
+            </p>
+
+            <div class="confirm-actions vertical-actions">
+
+                <button
+                    id="backupDeleteBtn"
+                    class="primary-btn"
+                >
+                    📄 Back Up & Delete
+                </button>
+
+                <button
+                    id="confirmDeleteBtn"
+                    class="danger-btn"
+                >
+                    🗑 Delete Without Backup
+                </button>
+
+                <button
+                    id="cancelDeleteBtn"
+                    class="neutral-btn"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
-  </div>
   <div id="toastMessage" class="toast hidden"></div>
   
 <!-- CORE -->

@@ -38,10 +38,17 @@ function attachTrackEvents() {
   const modal = document.getElementById("trackSettingsModal");
   const closeBtn = document.getElementById("closeTrackModalBtn");
   const modalContent = modal.querySelector(".modal-content");
+  const deleteModal =
+    document.getElementById("deleteConfirmModal");
 
-  const deleteModal = document.getElementById("deleteConfirmModal");
-  const confirmBtn = document.getElementById("confirmDeleteBtn");
-  const cancelBtn = document.getElementById("cancelDeleteBtn");
+  const backupDeleteBtn =
+    document.getElementById("backupDeleteBtn");
+
+  const confirmBtn =
+    document.getElementById("confirmDeleteBtn");
+
+  const cancelBtn =
+    document.getElementById("cancelDeleteBtn");
 
   const addTrackModal =
   document.getElementById("addTrackModal");
@@ -110,16 +117,46 @@ function attachTrackEvents() {
   document.getElementById("addTrackInlineBtn")
     .addEventListener("click", openInlineAdd);
 
+
+  backupDeleteBtn.addEventListener("click", () => {
+
+      if (!trackPendingDeletion) return;
+
+      generateTrackBackupPDF(
+          trackPendingDeletion
+      );
+
+      deleteTrack(
+          trackPendingDeletion.id
+      );
+
+      showToast(
+          `Track "${trackPendingDeletion.name}" backed up and deleted`
+      );
+
+      trackPendingDeletion = null;
+
+      closeModal("deleteConfirmModal");
+
+  });
   // Delete Confirm Buttons
   confirmBtn.addEventListener("click", () => {
-    if (trackPendingDeletion) {
-      deleteTrack(trackPendingDeletion.id);
-      showToast(`Track "${trackPendingDeletion.name}" deleted`);
-      trackPendingDeletion = null;
-    }
-    closeModal("deleteConfirmModal");
-  });
 
+      if (!trackPendingDeletion) return;
+
+      deleteTrack(
+          trackPendingDeletion.id
+      );
+
+      showToast(
+          `Track "${trackPendingDeletion.name}" deleted`
+      );
+
+      trackPendingDeletion = null;
+
+      closeModal("deleteConfirmModal");
+
+  });
   cancelBtn.addEventListener("click", () => {
     trackPendingDeletion = null;
     closeModal("deleteConfirmModal");
