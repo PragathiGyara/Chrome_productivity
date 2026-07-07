@@ -49,3 +49,44 @@ function getLocalDateKey() {
 
   return `${year}-${month}-${day}`;
 }
+
+// =====================================================
+// TIME FORMAT
+// =====================================================
+
+function formatHours(
+  hours
+) {
+
+  const totalMinutes =
+    Math.round(
+      hours * 60
+    );
+
+  const wholeHours =
+    Math.floor(
+      totalMinutes / 60
+    );
+
+  const minutes =
+    totalMinutes % 60;
+
+  if (
+    wholeHours === 0
+  ) {
+
+    return `${minutes}m`;
+
+  }
+
+  if (
+    minutes === 0
+  ) {
+
+    return `${wholeHours}h`;
+
+  }
+
+  return `${wholeHours}h ${minutes}m`;
+
+}

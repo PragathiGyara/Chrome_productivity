@@ -411,11 +411,15 @@ function renderProjectsStats() {
           class="analytics-hours"
         >
 
-          ${analytics.actualHours.toFixed(1)}h
+        ${formatHours(
+          analytics.actualHours
+        )}
 
-          /
+        /
 
-          ${analytics.expectedHours.toFixed(1)}h
+        ${formatHours(
+          analytics.expectedHours
+        )}
 
         </div>
       `;

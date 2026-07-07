@@ -372,9 +372,9 @@ function renderProjects() {
             class="project-hours"
           >
 
-            ${todayHours.toFixed(1)}h
-            /
-            ${project.targetHoursPerDay}h
+          ${formatHours(todayHours)}
+          /
+          ${formatHours(project.targetHoursPerDay)}
 
           </div>
 
@@ -758,7 +758,7 @@ function updateProjectSlider(
     )
     .textContent =
 
-      `${hours.toFixed(1)}h / ${draggedProject.targetHoursPerDay}h`;
+      `${formatHours(hours)} / ${formatHours(draggedProject.targetHoursPerDay)}`;
 
 }
 
