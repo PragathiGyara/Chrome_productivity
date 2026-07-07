@@ -677,20 +677,30 @@
 
   justify-content: space-between;
 
-  align-items: center;
+  align-items: flex-start;
 
-  padding: 14px 16px;
+  gap: 20px;
 
-  border-radius: 12px;
+  padding: 18px;
+
+  border-radius: 14px;
 
   background: rgba(255,255,255,0.04);
 
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .manage-project-name {
 
+  flex: 1;
+
+  font-size: 17px;
+
   font-weight: 600;
+
+  line-height: 1.4;
+
+  word-break: break-word;
 }
 
 
@@ -702,9 +712,14 @@
 
   display: flex;
 
-  gap: 10px;
-}
+  align-items: center;
 
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  justify-content: flex-end;
+}
 
 /* =====================================================
    DELETE PROJECT BUTTON

@@ -30,9 +30,12 @@ function refreshProjectsUI() {
 
   renderProjectsStats();
 
+  renderProjectsAnalytics();
+
   updateManageProjectsCounts();
 
   renderManageProjectsContent();
+
 }
 
 
