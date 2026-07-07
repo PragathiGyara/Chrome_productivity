@@ -72,18 +72,24 @@
 
 .project-progress {
 
+  position: relative;
+
   height: 10px;
 
   background: rgba(255,255,255,0.08);
 
   border-radius: 999px;
 
-  overflow: hidden;
+  overflow: visible;
 
   margin-bottom: 12px;
+
+  cursor: pointer;
 }
 
 .project-progress-fill {
+
+  position: relative;
 
   height: 100%;
 
@@ -92,6 +98,31 @@
   border-radius: 999px;
 
   transition: width 0.2s ease;
+}
+
+/* =====================================================
+   PROJECT PROGRESS THUMB
+===================================================== */
+
+.project-progress-thumb {
+
+  position: absolute;
+
+  right: -7px;
+
+  top: 50%;
+
+  width: 14px;
+
+  height: 14px;
+
+  border-radius: 50%;
+
+  background: white;
+
+  transform: translateY(-50%);
+
+  cursor: grab;
 }
 
 

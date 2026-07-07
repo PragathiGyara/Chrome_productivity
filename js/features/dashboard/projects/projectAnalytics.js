@@ -132,57 +132,97 @@ function getExpectedDaysForRange(
   project
 ) {
 
-  const today =
-    new Date();
+  const {
+    startDate,
+    endDate
+  } =
+    getAnalyticsDateRange();
 
-  switch (
-    currentAnalyticsRange
+  // =====================================
+  // OVERALL
+  // =====================================
+
+  if (
+    !startDate &&
+    !endDate
   ) {
 
-    case "thisWeek":
-
-      return (
-        today.getDay() + 1
+    const createdDate =
+      parseLocalDate(
+        project.createdAt
       );
 
-    case "previousWeek":
-
-      return 7;
-
-    case "thisMonth":
-
-      return today.getDate();
-
-    case "overall":
-
-      const createdDate =
-        new Date(
-          project.createdAt
-        );
-
-      const diffDays =
-        Math.floor(
-          (
-            today -
-            createdDate
-          ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          )
-        ) + 1;
-
-      return Math.max(
-        diffDays,
-        1
+    const today =
+      parseLocalDate(
+        getLocalDateKey()
       );
 
-    default:
+    const diffDays =
+      Math.floor(
+        (
+          today -
+          createdDate
+        ) /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        )
+      ) + 1;
 
-      return 1;
+    return Math.max(
+      diffDays,
+      1
+    );
   }
+
+  // =====================================
+  // RANGE BASED
+  // =====================================
+
+  const createdDate =
+    parseLocalDate(
+      project.createdAt
+    );
+
+  // Project did not exist
+  // during this range
+
+  if (
+    createdDate > endDate
+  ) {
+
+    return 0;
+  }
+
+  const effectiveStart =
+
+    createdDate > startDate
+
+      ? createdDate
+
+      : startDate;
+
+  const diffDays =
+    Math.floor(
+      (
+        endDate -
+        effectiveStart
+      ) /
+      (
+        1000 *
+        60 *
+        60 *
+        24
+      )
+    ) + 1;
+
+  return Math.max(
+    diffDays,
+    0
+  );
+
 }
 
 
@@ -429,11 +469,124 @@ function renderOverviewAnalytics() {
 
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="analytics-placeholder">
-      Overview Analytics
-    </div>
-  `;
+  container.innerHTML = "";
+
+  const activeProjects =
+    projects.filter(
+      project =>
+        project.status ===
+        "active"
+    );
+
+  if (
+    activeProjects.length === 0
+  ) {
+
+    container.innerHTML = `
+      <div class="analytics-placeholder">
+        No active projects.
+      </div>
+    `;
+
+    return;
+  }
+
+  activeProjects.forEach(
+    project => {
+
+      const analytics =
+        calculateProjectAnalytics(
+          project
+        );
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.classList.add(
+        "analytics-card"
+      );
+
+      card.innerHTML = `
+
+        <!-- =============================
+             PROJECT TITLE
+        ============================== -->
+
+        <div
+          class="analytics-card-title"
+        >
+          ${project.name}
+        </div>
+
+        <!-- =============================
+             EXPECTED
+        ============================== -->
+
+        <div
+          class="overview-label"
+        >
+          Expected
+        </div>
+
+        <div
+          class="analytics-bar"
+        >
+
+          <div
+            class="analytics-bar-green"
+            style="
+              width:100%;
+            "
+          ></div>
+
+        </div>
+
+        <div
+          class="overview-hours"
+        >
+          ${analytics.expectedHours.toFixed(1)}h
+        </div>
+
+        <!-- =============================
+             ACTUAL
+        ============================== -->
+
+        <div
+          class="overview-label"
+        >
+          Actual
+        </div>
+
+        <div
+          class="analytics-bar"
+        >
+
+          <div
+            class="analytics-bar-green"
+            style="
+              width:${analytics.completionPercent}%;
+            "
+          ></div>
+
+        </div>
+
+        <div
+          class="overview-hours"
+        >
+          ${analytics.actualHours.toFixed(1)}h
+        </div>
+
+      `;
+
+      container.appendChild(
+        card
+      );
+
+    }
+  );
+
 }
 
 

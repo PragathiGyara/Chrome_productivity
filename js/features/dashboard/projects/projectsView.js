@@ -391,7 +391,13 @@ function renderProjects() {
               width:
               ${progress}%
             "
-          ></div>
+          >
+
+            <div
+              class="project-progress-thumb"
+            ></div>
+
+          </div>
 
         </div>
 
@@ -606,6 +612,183 @@ function attachProjectRowEvents(
           project.id
         )
     );
+
+    // =====================================
+    // DRAG SLIDER
+    // =====================================
+
+    row
+      .querySelector(
+        ".project-progress"
+      )
+      ?.addEventListener(
+        "mousedown",
+        e => {
+
+        startProjectSliderDrag(
+          e,
+          project,
+          todayKey,
+          row
+        );
+
+        }
+      );
+}
+
+// =====================================================
+// PROJECT SLIDER
+// =====================================================
+
+let draggedProject = null;
+
+let draggedDateKey = null;
+
+let draggedProgressBar = null;
+
+let draggedRow = null;
+
+
+// =====================================================
+// START DRAG
+// =====================================================
+
+function startProjectSliderDrag(
+  e,
+  project,
+  todayKey,
+  row
+) {
+
+  draggedProject =
+    project;
+
+  draggedDateKey =
+    todayKey;
+
+  draggedProgressBar =
+    row.querySelector(
+      ".project-progress"
+    );
+
+  draggedRow =
+    row;
+
+  updateProjectSlider(e);
+
+  document.addEventListener(
+    "mousemove",
+    updateProjectSlider
+  );
+
+  document.addEventListener(
+    "mouseup",
+    finishProjectSliderDrag
+  );
+
+}
+
+
+// =====================================================
+// UPDATE SLIDER
+// =====================================================
+
+function updateProjectSlider(
+  e
+) {
+
+  if (
+    !draggedProject ||
+    !draggedProgressBar ||
+    !draggedRow
+  ) {
+    return;
+  }
+
+  const rect =
+    draggedProgressBar.getBoundingClientRect();
+
+  let percent =
+    (
+      (e.clientX - rect.left) /
+      rect.width
+    ) * 100;
+
+  percent =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        percent
+      )
+    );
+
+  const hours =
+    (
+      percent / 100
+    ) *
+    draggedProject.targetHoursPerDay;
+
+  if (
+    !draggedProject.logs
+  ) {
+
+    draggedProject.logs = {};
+
+  }
+
+  draggedProject.logs[
+    draggedDateKey
+  ] = hours;
+
+  // Update fill
+
+  draggedRow
+    .querySelector(
+      ".project-progress-fill"
+    )
+    .style.width =
+      `${percent}%`;
+
+  // Update hours text
+
+  draggedRow
+    .querySelector(
+      ".project-hours"
+    )
+    .textContent =
+
+      `${hours.toFixed(1)}h / ${draggedProject.targetHoursPerDay}h`;
+
+}
+
+
+// =====================================================
+// FINISH DRAG
+// =====================================================
+
+function finishProjectSliderDrag() {
+
+  document.removeEventListener(
+    "mousemove",
+    updateProjectSlider
+  );
+
+  document.removeEventListener(
+    "mouseup",
+    finishProjectSliderDrag
+  );
+
+  refreshProjectsUI();
+
+  draggedProject = null;
+
+  draggedDateKey = null;
+
+  draggedProgressBar = null;
+
+  draggedRow = null;
+
 }
 
 

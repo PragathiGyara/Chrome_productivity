@@ -1,0 +1,1 @@
+console.log("jsPDF:", window.jspdf);

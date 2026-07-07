@@ -122,7 +122,7 @@ function saveProject() {
       targetHours,
 
     createdAt:
-      new Date().toISOString(),
+      getLocalDatekey(),
 
     status:
       "active",
