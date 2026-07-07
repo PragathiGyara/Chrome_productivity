@@ -503,12 +503,49 @@ function renderOverviewAnalytics() {
 
   container.innerHTML = "";
 
+  const {
+    startDate,
+    endDate
+  } =
+    getAnalyticsDateRange();
+
   const activeProjects =
-    projects.filter(
-      project =>
-        project.status ===
+    projects.filter(project => {
+
+      if (
+        project.status !==
         "active"
-    );
+      ) {
+
+        return false;
+
+      }
+
+      // Overall
+      if (
+        !startDate &&
+        !endDate
+      ) {
+
+        return true;
+
+      }
+
+      const createdDate =
+        new Date(
+          project.createdAt
+        );
+
+      createdDate.setHours(
+        0, 0, 0, 0
+      );
+
+      return (
+        createdDate <=
+        endDate
+      );
+
+    });
 
   if (
     activeProjects.length === 0
