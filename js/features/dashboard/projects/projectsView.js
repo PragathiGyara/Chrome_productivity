@@ -194,6 +194,11 @@ function renderProjectsView() {
       </div>
 
       <div
+        id="analyticsDateRange"
+        class="analytics-date-range"
+      ></div>
+
+      <div
         id="projectsAnalyticsContent"
       ></div>
 
@@ -825,6 +830,7 @@ function attachProjectEvents() {
           e.target.value;
 
         renderProjectsStats();
+        renderProjectsAnalytics();
       }
     );
 

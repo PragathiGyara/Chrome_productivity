@@ -90,3 +90,22 @@ function formatHours(
   return `${wholeHours}h ${minutes}m`;
 
 }
+
+// =====================================================
+// DATE FORMAT
+// =====================================================
+
+function formatDate(
+  date
+) {
+
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    }
+  );
+
+}

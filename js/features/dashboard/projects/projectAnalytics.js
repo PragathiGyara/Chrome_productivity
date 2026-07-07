@@ -148,14 +148,12 @@ function getExpectedDaysForRange(
   ) {
 
     const createdDate =
-      parseLocalDate(
+      new Date(
         project.createdAt
       );
 
     const today =
-      parseLocalDate(
-        getLocalDateKey()
-      );
+      new Date();
 
     const diffDays =
       Math.floor(
@@ -175,6 +173,7 @@ function getExpectedDaysForRange(
       diffDays,
       1
     );
+
   }
 
   // =====================================
@@ -182,32 +181,59 @@ function getExpectedDaysForRange(
   // =====================================
 
   const createdDate =
-    parseLocalDate(
+    new Date(
       project.createdAt
     );
 
-  // Project did not exist
-  // during this range
+  // Normalize time
+
+  createdDate.setHours(
+    0, 0, 0, 0
+  );
+
+  const rangeStart =
+    new Date(startDate);
+
+  rangeStart.setHours(
+    0, 0, 0, 0
+  );
+
+  const rangeEnd =
+    new Date(endDate);
+
+  rangeEnd.setHours(
+    0, 0, 0, 0
+  );
+
+  // =====================================
+  // PROJECT DID NOT EXIST
+  // DURING THIS RANGE
+  // =====================================
 
   if (
-    createdDate > endDate
+    createdDate > rangeEnd
   ) {
 
     return 0;
+
   }
+
+  // =====================================
+  // EFFECTIVE START
+  // =====================================
 
   const effectiveStart =
 
-    createdDate > startDate
+    createdDate > rangeStart
 
       ? createdDate
 
-      : startDate;
+      : rangeStart;
 
   const diffDays =
     Math.floor(
       (
-        endDate -
+        rangeEnd -
         effectiveStart
       ) /
       (
@@ -434,6 +460,8 @@ function renderProjectsStats() {
 
 function renderProjectsAnalytics() {
 
+  renderAnalyticsDateRange();
+
   switch (
     currentAnalyticsView
   ) {
@@ -515,24 +543,38 @@ function renderOverviewAnalytics() {
       card.innerHTML = `
 
         <!-- =============================
-             PROJECT TITLE
+             HEADER
         ============================== -->
 
         <div
-          class="analytics-card-title"
+          class="analytics-card-header"
         >
-          ${project.name}
+
+          <div
+            class="analytics-card-title"
+          >
+            ${project.name}
+          </div>
+
+          <div
+            class="analytics-hours"
+          >
+            ${formatHours(
+              analytics.actualHours
+            )}
+
+            /
+
+            ${formatHours(
+              analytics.expectedHours
+            )}
+          </div>
+
         </div>
 
         <!-- =============================
-             EXPECTED
+             PROGRESS
         ============================== -->
-
-        <div
-          class="overview-label"
-        >
-          Expected
-        </div>
 
         <div
           class="analytics-bar"
@@ -541,45 +583,11 @@ function renderOverviewAnalytics() {
           <div
             class="analytics-bar-green"
             style="
-              width:100%;
+              width:
+              ${analytics.completionPercent}%
             "
           ></div>
 
-        </div>
-
-        <div
-          class="overview-hours"
-        >
-          ${analytics.expectedHours.toFixed(1)}h
-        </div>
-
-        <!-- =============================
-             ACTUAL
-        ============================== -->
-
-        <div
-          class="overview-label"
-        >
-          Actual
-        </div>
-
-        <div
-          class="analytics-bar"
-        >
-
-          <div
-            class="analytics-bar-green"
-            style="
-              width:${analytics.completionPercent}%;
-            "
-          ></div>
-
-        </div>
-
-        <div
-          class="overview-hours"
-        >
-          ${analytics.actualHours.toFixed(1)}h
         </div>
 
       `;
@@ -642,4 +650,40 @@ function renderInsightsAnalytics() {
       Insights Analytics
     </div>
   `;
+}
+
+// =====================================================
+// ANALYTICS DATE RANGE
+// =====================================================
+
+function renderAnalyticsDateRange() {
+
+  const label =
+    document.getElementById(
+      "analyticsDateRange"
+    );
+
+  if (!label) return;
+
+  const {
+    startDate,
+    endDate
+  } =
+    getAnalyticsDateRange();
+
+  if (
+    !startDate &&
+    !endDate
+  ) {
+
+    label.textContent =
+      "From project creation to today";
+
+    return;
+
+  }
+
+  label.textContent =
+    `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
 }
