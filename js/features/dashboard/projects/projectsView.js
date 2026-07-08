@@ -224,6 +224,7 @@ function renderProjects() {
   ) {
     return;
   }
+
   const list =
     document.getElementById(
       "projectsList"
@@ -259,9 +260,6 @@ function renderProjects() {
           )
         );
 
-      // Safe because YYYY-MM-DD
-      // strings sort correctly
-
       if (
         selectedProjectDate <
         createdDateKey
@@ -271,30 +269,6 @@ function renderProjects() {
       }
 
       return true;
-    })
-
-    // =====================================
-    // ACTIVE FIRST
-    // =====================================
-
-    .sort((a, b) => {
-
-      const aPaused =
-        (
-          a.status ||
-          "active"
-        ) === "paused";
-
-      const bPaused =
-        (
-          b.status ||
-          "active"
-        ) === "paused";
-
-      return (
-        aPaused -
-        bPaused
-      );
     })
 
     // =====================================
@@ -334,6 +308,19 @@ function renderProjects() {
         "project-row"
       );
 
+      // =====================================
+      // DRAG ENABLED
+      // =====================================
+
+      if (
+        project.status ===
+        "active"
+      ) {
+
+        row.draggable = true;
+
+      }
+
       if (
         project.status ===
         "paused"
@@ -342,7 +329,11 @@ function renderProjects() {
         row.classList.add(
           "paused-project-row"
         );
+
       }
+
+      row.dataset.projectId =
+        project.id;
 
       row.innerHTML = `
 
@@ -377,14 +368,13 @@ function renderProjects() {
             class="project-hours"
           >
 
-          ${formatHours(todayHours)}
-          /
-          ${formatHours(project.targetHoursPerDay)}
+            ${formatHours(todayHours)}
+            /
+            ${formatHours(project.targetHoursPerDay)}
 
           </div>
 
         </div>
-
 
         <div
           class="project-progress"
@@ -405,7 +395,6 @@ function renderProjects() {
           </div>
 
         </div>
-
 
         <div
           class="project-actions"
@@ -488,7 +477,11 @@ function renderProjects() {
       list.appendChild(
         row
       );
+
     });
+
+  initializeProjectDragDrop();
+
 }
 
 

@@ -125,7 +125,7 @@ function saveProject() {
       targetHours,
 
     createdAt:
-      getLocalDatekey(),
+      getLocalDateKey(),
 
     status:
       "active",
