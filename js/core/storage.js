@@ -125,22 +125,53 @@ function loadTodos() {
   if (!stored) {
 
     return {
-      daily: [],
-      global: [],
-      lastMigrationDate: null
+      current: [],
+      allTime: []
     };
   }
 
   const parsed = JSON.parse(stored);
 
-  // Backward compatibility
+  // =====================================
+  // BACKWARD COMPATIBILITY
+  // =====================================
+
+  // Old format:
+  // [
+  //   { date, items }
+  // ]
+
   if (Array.isArray(parsed)) {
 
     return {
-      daily: parsed,
-      global: [],
-      lastMigrationDate: null
+      current: parsed.flatMap(day => day.items),
+      allTime: []
     };
+  }
+
+  // Previous object format
+
+  if (parsed.daily || parsed.global) {
+
+    return {
+      current:
+        parsed.daily
+          ? parsed.daily.flatMap(day => day.items)
+          : [],
+
+      allTime:
+        parsed.global || []
+    };
+  }
+
+  // Current format
+
+  if (!parsed.current) {
+    parsed.current = [];
+  }
+
+  if (!parsed.allTime) {
+    parsed.allTime = [];
   }
 
   return parsed;
@@ -166,42 +197,38 @@ function getTodayKey() {
 }
 
 
-function getTodayTodos() {
+function getCurrentTodos() {
 
   const todoData = loadTodos();
 
-  const todayKey = getTodayKey();
+  if (!todoData.current) {
 
-  let today =
-    todoData.daily.find(
-      t => t.date === todayKey
-    );
-
-  if (!today) {
-
-    today = {
-      date: todayKey,
-      items: []
-    };
-
-    todoData.daily.push(today);
+    todoData.current = [];
 
     persistTodos(todoData);
   }
 
   return {
     todoData,
-    today
+    current: todoData.current
   };
 }
 
-function getGlobalTodos() {
+
+function getAllTimeTodos() {
 
   const todoData = loadTodos();
 
+  if (!todoData.allTime) {
+
+    todoData.allTime = [];
+
+    persistTodos(todoData);
+  }
+
   return {
     todoData,
-    global: todoData.global
+    allTime: todoData.allTime
   };
 }
 

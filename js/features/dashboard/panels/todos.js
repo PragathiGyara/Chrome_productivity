@@ -1,4 +1,4 @@
-let currentTodoView = "today";
+let currentTodoView = "current";
 
 function initializeTodoToggle() {
 
@@ -44,235 +44,307 @@ function initializeTodoToggle() {
 
 function renderTodoSection() {
 
-    updateTodoDateDisplay();
+  // Close any open edit form
+  document
+    .querySelector(".todo-edit-form")
+    ?.remove();
 
-    if (
-        currentTodoView === "today"
-    ) {
+  updateTodoDateDisplay();
 
-        renderTodayTodos();
+  if (currentTodoView === "current") {
 
-    } else {
+    renderTodayTodos();
 
-        renderGlobalTodos();
+  } else {
 
-    }
-    const addBtn =
-      document.getElementById(
-          "addTodoBtn"
+    renderGlobalTodos();
+
+  }
+
+  // Update toggle buttons
+
+  document
+    .querySelectorAll(".todo-toggle-btn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.view === currentTodoView
       );
-
-    if (addBtn) {
-
-        addBtn.textContent =
-            currentTodoView === "today"
-                ? "+ Add Today Task"
-                : "+ Add Global Task";
-    }
-}
-
-function renderTodayTodos() {
-  const container = document.getElementById("todayTodoList");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const { todoData, today } = getTodayTodos();
-
-  // Optional summary
-  const summary = document.createElement("div");
-  summary.classList.add("todo-summary");
-
-  const completed = today.items.filter(i => i.done).length;
-  summary.textContent = `${completed}/${today.items.length} done`;
-
-  container.appendChild(summary);
-
-  // Items
-  today.items.forEach(item => {
-    const div = document.createElement("div");
-    div.classList.add("todo-item");
-
-    div.innerHTML = `
-      <div class="todo-card ${item.done ? "done" : ""}">
-        <input type="checkbox" ${item.done ? "checked" : ""} />
-        <span class="todo-text">${item.text}</span>
-      </div>
-    `;
-
-    div.querySelector("input").addEventListener("change", (e) => {
-      item.done = e.target.checked;
-      persistTodos(todoData);
-      renderTodayTodos();
-    })
-    const textEl =
-        div.querySelector(".todo-text");
-
-    textEl.addEventListener(
-        "click",
-        (e) => {
-
-            e.stopPropagation();
-
-            openEditTodoForm(
-                item,
-                "today"
-            );
-
-        }
-    );
-
-    container.appendChild(div);
-  });
-}
-
-function renderGlobalTodos() {
-
-    const container =
-        document.getElementById(
-            "todayTodoList"
-        );
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    const {
-        todoData,
-        global
-    } = getGlobalTodos();
-
-    if (global.length === 0) {
-
-        container.innerHTML = `
-            <div class="todo-empty-state">
-                No global tasks
-            </div>
-        `;
-
-        return;
-    }
-
-    global.forEach(item => {
-
-        const div =
-            document.createElement("div");
-
-        div.classList.add(
-            "todo-item"
-        );
-
-        div.innerHTML = `
-            <div
-                class="todo-card
-                ${item.done ? "done" : ""}"
-            >
-
-                <input
-                    type="checkbox"
-                    ${item.done ? "checked" : ""}
-                />
-
-                <div>
-
-                    <div class="todo-text">
-                        ${item.text}
-                    </div>
-
-                    <div class="todo-date">
-                        Added ${formatTodoDate(item.createdAt)}
-                    </div>
-
-                </div>
-
-            </div>
-        `;
-
-        div.querySelector("input")
-            .addEventListener(
-                "change",
-                (e) => {
-
-                    item.done =
-                        e.target.checked;
-
-                    persistTodos(
-                        todoData
-                    );
-
-                    renderGlobalTodos();
-                }
-            );
-        const textEl =
-            div.querySelector(".todo-text");
-
-        textEl.addEventListener(
-            "click",
-            (e) => {
-
-                e.stopPropagation();
-
-                openEditTodoForm(
-                    item,
-                    "global"
-                );
-
-            }
-        );
-        container.appendChild(div);
 
     });
 
 }
 
-function openSidebarTodoForm() {
-  const container = document.getElementById("todayTodoList");
+function renderTodayTodos() {
+
+  const container =
+    document.getElementById("todayTodoList");
+
   if (!container) return;
 
-  if (container.querySelector(".todo-form")) return;
+  container.innerHTML = "";
 
-  const form = document.createElement("div");
+  const {
+    todoData,
+    current
+  } = getCurrentTodos();
+
+  // Summary
+  const summary =
+    document.createElement("div");
+
+  summary.classList.add("todo-summary");
+
+  const completed =
+    current.filter(
+      item => item.done
+    ).length;
+
+  summary.textContent =
+    `${completed}/${current.length} done`;
+
+  container.appendChild(summary);
+
+  // Items
+  current.forEach(item => {
+
+    const div =
+      document.createElement("div");
+
+    div.classList.add("todo-item");
+
+    div.innerHTML = `
+      <div class="todo-card ${item.done ? "done" : ""}">
+        <input
+          type="checkbox"
+          ${item.done ? "checked" : ""}
+        />
+        <span class="todo-text">
+          ${item.text}
+        </span>
+      </div>
+    `;
+
+    // Checkbox
+    div
+      .querySelector("input")
+      .addEventListener(
+        "change",
+        (e) => {
+
+          item.done =
+            e.target.checked;
+
+          persistTodos(todoData);
+
+          renderTodayTodos();
+
+        }
+      );
+
+    // Edit
+    div
+      .querySelector(".todo-text")
+      .addEventListener(
+        "click",
+        (e) => {
+
+          e.stopPropagation();
+
+          openEditTodoForm(
+            item,
+            "current"
+          );
+
+        }
+      );
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function renderGlobalTodos() {
+
+  const container =
+    document.getElementById("todayTodoList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const {
+    todoData,
+    allTime
+  } = getAllTimeTodos();
+
+  // Summary
+  const summary =
+    document.createElement("div");
+
+  summary.classList.add("todo-summary");
+
+  const completed =
+    allTime.filter(
+      item => item.done
+    ).length;
+
+  summary.textContent =
+    `${completed}/${allTime.length} done`;
+
+  container.appendChild(summary);
+
+  // Items
+  allTime.forEach(item => {
+
+    const div =
+      document.createElement("div");
+
+    div.classList.add("todo-item");
+
+    div.innerHTML = `
+      <div class="todo-card ${item.done ? "done" : ""}">
+        <input
+          type="checkbox"
+          ${item.done ? "checked" : ""}
+        />
+
+        <div class="todo-content">
+
+          <span class="todo-text">
+            ${item.text}
+          </span>
+
+          ${item.createdAt ? `
+            <div class="todo-date">
+              Added ${formatTodoDate(item.createdAt)}
+            </div>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `;
+
+    // Checkbox
+
+    div
+      .querySelector("input")
+      .addEventListener(
+        "change",
+        (e) => {
+
+          item.done =
+            e.target.checked;
+
+          persistTodos(todoData);
+
+          renderGlobalTodos();
+
+        }
+      );
+
+    // Edit
+
+    div
+      .querySelector(".todo-text")
+      .addEventListener(
+        "click",
+        (e) => {
+
+          e.stopPropagation();
+
+          openEditTodoForm(
+            item,
+            "allTime"
+          );
+
+        }
+      );
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function openSidebarTodoForm() {
+
+  const container =
+    document.getElementById("todayTodoList");
+
+  if (!container) return;
+
+  if (container.querySelector(".todo-form"))
+    return;
+
+  const form =
+    document.createElement("div");
+
   form.classList.add("todo-form");
 
   form.innerHTML = `
-    <input type="text" id="todoInput" placeholder="${
-        currentTodoView === "today"
-            ? "What needs to be done today?"
-            : "What should not be forgotten?"
-    }" />
+
+    <input
+      type="text"
+      id="todoInput"
+      placeholder="What needs to be done?"
+    />
 
     <div class="deadline-form-actions">
-      <button id="saveTodoBtn" class="primary-btn">Add</button>
-      <button id="cancelTodoBtn" class="neutral-btn">Cancel</button>
+
+      <button
+        id="saveTodoBtn"
+        class="primary-btn"
+      >
+        Add
+      </button>
+
+      <button
+        id="cancelTodoBtn"
+        class="neutral-btn"
+      >
+        Cancel
+      </button>
+
     </div>
+
   `;
 
   container.prepend(form);
 
-  const input = form.querySelector("#todoInput");
+  const input =
+    form.querySelector("#todoInput");
 
-  form.querySelector("#saveTodoBtn").addEventListener("click", () => {
-    const text =
-        input.value.trim();
+  form
+    .querySelector("#saveTodoBtn")
+    .addEventListener(
+      "click",
+      () => {
 
-    if (!text) return;
+        const text =
+          input.value.trim();
 
-    if (
-        currentTodoView === "today"
-    ) {
+        if (!text)
+          return;
 
         const {
-            todoData,
-            today
-        } = getTodayTodos();
+          todoData,
+          current
+        } = getCurrentTodos();
 
-        today.items.push({
+        current.push({
 
-            id: Date.now(),
+          id: Date.now(),
 
-            text,
+          text,
 
-            done: false
+          done: false,
+
+          createdAt:
+            new Date().toISOString()
 
         });
 
@@ -280,37 +352,22 @@ function openSidebarTodoForm() {
 
         renderTodayTodos();
 
-    } else {
+        form.remove();
 
-        const {
-            todoData,
-            global
-        } = getGlobalTodos();
+      }
+    );
 
-        global.push({
+  form
+    .querySelector("#cancelTodoBtn")
+    .addEventListener(
+      "click",
+      () => {
 
-            id: Date.now(),
+        form.remove();
 
-            text,
+      }
+    );
 
-            done: false,
-
-            createdAt:
-                new Date().toISOString()
-
-        });
-
-        persistTodos(todoData);
-
-        renderGlobalTodos();
-    }
-
-    form.remove();
-  });
-
-  form.querySelector("#cancelTodoBtn").addEventListener("click", () => {
-    form.remove();
-  });
 }
 
 function openEditTodoForm(item, source) {
@@ -320,9 +377,11 @@ function openEditTodoForm(item, source) {
 
   if (!container) return;
 
-  if (container.querySelector(".todo-edit-form")) return;
+  if (container.querySelector(".todo-edit-form"))
+    return;
 
-  const form = document.createElement("div");
+  const form =
+    document.createElement("div");
 
   form.classList.add(
     "deadline-form",
@@ -364,6 +423,7 @@ function openEditTodoForm(item, source) {
       </button>
 
     </div>
+
   `;
 
   container.prepend(form);
@@ -385,100 +445,133 @@ function openEditTodoForm(item, source) {
 
   updateBtn.disabled = true;
 
-  input.addEventListener("input", () => {
+  input.addEventListener(
+    "input",
+    () => {
 
-    updateBtn.disabled =
-      input.value.trim() === originalText;
-
-  });
-
-  updateBtn.addEventListener("click", () => {
-
-    const newText =
-      input.value.trim();
-
-    if (!newText) {
-      alert("Task cannot be empty.");
-      return;
-    }
-
-    item.text = newText;
-
-    let todoData;
-
-    if (source === "today") {
-
-      ({ todoData } =
-        getTodayTodos());
-
-    } else {
-
-      ({ todoData } =
-        getGlobalTodos());
+      updateBtn.disabled =
+        input.value.trim() ===
+        originalText;
 
     }
+  );
 
-    persistTodos(todoData);
+  // ==========================
+  // UPDATE
+  // ==========================
 
-    form.remove();
+  updateBtn.addEventListener(
+    "click",
+    () => {
 
-    renderTodoSection();
+      const newText =
+        input.value.trim();
 
-    showToast("Task updated");
+      if (!newText) {
 
-  });
-
-  deleteBtn.addEventListener("click", () => {
-
-    const confirmed = confirm(
-      `Delete "${item.text}"?`
-    );
-
-    if (!confirmed) return;
-
-    if (source === "today") {
-
-      const {
-        todoData,
-        today
-      } = getTodayTodos();
-
-      today.items =
-        today.items.filter(
-          t => t.id !== item.id
+        alert(
+          "Task cannot be empty."
         );
 
+        return;
+      }
+
+      item.text = newText;
+
+      let todoData;
+
+      if (source === "current") {
+
+        ({ todoData } =
+          getCurrentTodos());
+
+      } else {
+
+        ({ todoData } =
+          getAllTimeTodos());
+
+      }
+
       persistTodos(todoData);
 
-    } else {
+      form.remove();
 
-      const {
-          todoData,
-          global
-      } = getGlobalTodos();
+      renderTodoSection();
 
-      todoData.global =
-          global.filter(
-              t => t.id !== item.id
-          );
-
-      persistTodos(todoData);
+      showToast("Task updated");
 
     }
+  );
 
-    form.remove();
+  // ==========================
+  // DELETE
+  // ==========================
 
-    renderTodoSection();
+  deleteBtn.addEventListener(
+    "click",
+    () => {
 
-    showToast("Task deleted");
+      const confirmed =
+        confirm(
+          `Delete "${item.text}"?`
+        );
 
-  });
+      if (!confirmed)
+        return;
 
-  cancelBtn.addEventListener("click", () => {
+      if (source === "current") {
 
-    form.remove();
+        const {
+          todoData,
+          current
+        } = getCurrentTodos();
 
-  });
+        todoData.current =
+          current.filter(
+            t =>
+              t.id !== item.id
+          );
+
+        persistTodos(todoData);
+
+      } else {
+
+        const {
+          todoData,
+          allTime
+        } = getAllTimeTodos();
+
+        todoData.allTime =
+          allTime.filter(
+            t =>
+              t.id !== item.id
+          );
+
+        persistTodos(todoData);
+
+      }
+
+      form.remove();
+
+      renderTodoSection();
+
+      showToast("Task deleted");
+
+    }
+  );
+
+  // ==========================
+  // CANCEL
+  // ==========================
+
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
+    }
+  );
 
 }
 
@@ -491,24 +584,7 @@ function updateTodoDateDisplay() {
 
     if (!el) return;
 
-    if (
-        currentTodoView === "today"
-    ) {
-
-        el.textContent =
-            new Date().toLocaleDateString(
-                undefined,
-                {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short"
-                }
-            );
-
-    } else {
-
-        el.textContent = "";
-    }
+    el.textContent = "";
 
 }
 
