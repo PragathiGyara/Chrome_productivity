@@ -78,500 +78,568 @@ function renderTodoSection() {
 
 function renderTodayTodos() {
 
-  const container =
-    document.getElementById("todayTodoList");
+    const container =
+        document.getElementById(
+            "todayTodoList"
+        );
 
-  if (!container) return;
+    if (!container) return;
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  const {
-    todoData,
-    current
-  } = getCurrentTodos();
+    const {
+        todoData,
+        current
+    } = getCurrentTodos();
 
-  // Summary
-  const summary =
-    document.createElement("div");
+    const summary =
+        document.createElement("div");
 
-  summary.classList.add("todo-summary");
+    summary.classList.add(
+        "todo-summary"
+    );
 
-  const completed =
-    current.filter(
-      item => item.done
-    ).length;
+    const completed =
+        current.filter(
+            item => item.completed
+        ).length;
 
-  summary.textContent =
-    `${completed}/${current.length} done`;
+    summary.textContent =
+        `${completed}/${current.length} done`;
 
-  container.appendChild(summary);
+    container.appendChild(
+        summary
+    );
 
-  // Items
-  current.forEach(item => {
+    current.forEach(item => {
 
-    const div =
-      document.createElement("div");
+        const div =
+            document.createElement("div");
 
-    div.classList.add("todo-item");
+        div.classList.add(
+            "todo-item"
+        );
 
-    div.innerHTML = `
-      <div class="todo-card ${item.done ? "done" : ""}">
-        <input
-          type="checkbox"
-          ${item.done ? "checked" : ""}
-        />
-        <span class="todo-text">
-          ${item.text}
-        </span>
-      </div>
-    `;
+        div.innerHTML = `
 
-    // Checkbox
-    div
-      .querySelector("input")
-      .addEventListener(
-        "change",
-        (e) => {
+            <div class="todo-card ${item.completed ? "done" : ""}">
 
-          item.done =
-            e.target.checked;
+                <input
+                    type="checkbox"
+                    ${item.completed ? "checked" : ""}
+                />
 
-          persistTodos(todoData);
+                <span class="todo-text">
 
-          renderTodayTodos();
+                    ${item.text}
 
-        }
-      );
+                </span>
 
-    // Edit
-    div
-      .querySelector(".todo-text")
-      .addEventListener(
-        "click",
-        (e) => {
+            </div>
 
-          e.stopPropagation();
+        `;
 
-          openEditTodoForm(
-            item,
-            "current"
-          );
+        div
+            .querySelector("input")
+            .addEventListener(
+                "change",
+                e => {
 
-        }
-      );
+                    const task =
+                        todoData.tasks.find(
+                            t => t.id === item.id
+                        );
 
-    container.appendChild(div);
+                    if (!task) return;
 
-  });
+                    task.completed =
+                        e.target.checked;
+
+                    task.completedAt =
+                        task.completed
+                            ? new Date().toISOString()
+                            : null;
+
+                    persistTodos(
+                        todoData
+                    );
+
+                    renderTodayTodos();
+
+                }
+            );
+
+        div
+            .querySelector(".todo-text")
+            .addEventListener(
+                "click",
+                e => {
+
+                    e.stopPropagation();
+
+                    openEditTodoForm(
+                        item,
+                        "current"
+                    );
+
+                }
+            );
+
+        container.appendChild(
+            div
+        );
+
+    });
 
 }
 
 function renderGlobalTodos() {
 
-  const container =
-    document.getElementById("todayTodoList");
+    const container =
+        document.getElementById(
+            "todayTodoList"
+        );
 
-  if (!container) return;
+    if (!container) return;
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  const {
-    todoData,
-    allTime
-  } = getAllTimeTodos();
+    const {
+        todoData,
+        allTime
+    } = getAllTimeTodos();
 
-  // Summary
-  const summary =
-    document.createElement("div");
+    const summary =
+        document.createElement("div");
 
-  summary.classList.add("todo-summary");
+    summary.classList.add(
+        "todo-summary"
+    );
 
-  const completed =
-    allTime.filter(
-      item => item.done
-    ).length;
+    const completed =
+        allTime.filter(
+            item => item.completed
+        ).length;
 
-  summary.textContent =
-    `${completed}/${allTime.length} done`;
+    summary.textContent =
+        `${completed}/${allTime.length} done`;
 
-  container.appendChild(summary);
+    container.appendChild(
+        summary
+    );
 
-  // Items
-  allTime.forEach(item => {
+    allTime.forEach(item => {
 
-    const div =
-      document.createElement("div");
+        const div =
+            document.createElement("div");
 
-    div.classList.add("todo-item");
+        div.classList.add(
+            "todo-item"
+        );
 
-    div.innerHTML = `
-      <div class="todo-card ${item.done ? "done" : ""}">
-        <input
-          type="checkbox"
-          ${item.done ? "checked" : ""}
-        />
+        div.innerHTML = `
 
-        <div class="todo-content">
+            <div class="todo-card ${item.completed ? "done" : ""}">
 
-          <span class="todo-text">
-            ${item.text}
-          </span>
+                <input
+                    type="checkbox"
+                    ${item.completed ? "checked" : ""}
+                />
 
-          ${item.createdAt ? `
-            <div class="todo-date">
-              Added ${formatTodoDate(item.createdAt)}
+                <div class="todo-content">
+
+                    <span class="todo-text">
+
+                        ${item.text}
+
+                    </span>
+
+                    ${
+                        item.createdAt
+                            ? `
+                            <div class="todo-date">
+                                Added ${formatTodoDate(item.createdAt)}
+                            </div>
+                            `
+                            : ""
+                    }
+
+                </div>
+
             </div>
-          ` : ""}
 
-        </div>
+        `;
 
-      </div>
-    `;
+        div
+            .querySelector("input")
+            .addEventListener(
+                "change",
+                e => {
 
-    // Checkbox
+                    const task =
+                        todoData.tasks.find(
+                            t => t.id === item.id
+                        );
 
-    div
-      .querySelector("input")
-      .addEventListener(
-        "change",
-        (e) => {
+                    if (!task) return;
 
-          item.done =
-            e.target.checked;
+                    task.completed =
+                        e.target.checked;
 
-          persistTodos(todoData);
+                    task.completedAt =
+                        task.completed
+                            ? new Date().toISOString()
+                            : null;
 
-          renderGlobalTodos();
+                    persistTodos(
+                        todoData
+                    );
 
-        }
-      );
+                    renderGlobalTodos();
 
-    // Edit
+                }
+            );
 
-    div
-      .querySelector(".todo-text")
-      .addEventListener(
-        "click",
-        (e) => {
+        div
+            .querySelector(".todo-text")
+            .addEventListener(
+                "click",
+                e => {
 
-          e.stopPropagation();
+                    e.stopPropagation();
 
-          openEditTodoForm(
-            item,
-            "allTime"
-          );
+                    openEditTodoForm(
+                        item,
+                        "allTime"
+                    );
 
-        }
-      );
+                }
+            );
 
-    container.appendChild(div);
+        container.appendChild(
+            div
+        );
 
-  });
+    });
 
 }
 
 function openSidebarTodoForm() {
 
-  const container =
-    document.getElementById("todayTodoList");
+    const container =
+        document.getElementById(
+            "todayTodoList"
+        );
 
-  if (!container) return;
+    if (!container) return;
 
-  if (container.querySelector(".todo-form"))
-    return;
+    if (
+        container.querySelector(
+            ".todo-form"
+        )
+    ) {
+        return;
+    }
 
-  const form =
-    document.createElement("div");
+    const form =
+        document.createElement("div");
 
-  form.classList.add("todo-form");
-
-  form.innerHTML = `
-
-    <input
-      type="text"
-      id="todoInput"
-      placeholder="What needs to be done?"
-    />
-
-    <div class="deadline-form-actions">
-
-      <button
-        id="saveTodoBtn"
-        class="primary-btn"
-      >
-        Add
-      </button>
-
-      <button
-        id="cancelTodoBtn"
-        class="neutral-btn"
-      >
-        Cancel
-      </button>
-
-    </div>
-
-  `;
-
-  container.prepend(form);
-
-  const input =
-    form.querySelector("#todoInput");
-
-  form
-    .querySelector("#saveTodoBtn")
-    .addEventListener(
-      "click",
-      () => {
-
-        const text =
-          input.value.trim();
-
-        if (!text)
-          return;
-
-        const {
-          todoData,
-          current
-        } = getCurrentTodos();
-
-        current.push({
-
-          id: Date.now(),
-
-          text,
-
-          done: false,
-
-          createdAt:
-            new Date().toISOString()
-
-        });
-
-        persistTodos(todoData);
-
-        renderTodayTodos();
-
-        form.remove();
-
-      }
+    form.classList.add(
+        "todo-form"
     );
 
-  form
-    .querySelector("#cancelTodoBtn")
-    .addEventListener(
-      "click",
-      () => {
+    form.innerHTML = `
 
-        form.remove();
+        <input
+            type="text"
+            id="todoInput"
+            placeholder="What needs to be done?"
+        />
 
-      }
-    );
+        <div class="deadline-form-actions">
+
+            <button
+                id="saveTodoBtn"
+                class="primary-btn"
+            >
+                Add
+            </button>
+
+            <button
+                id="cancelTodoBtn"
+                class="neutral-btn"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    `;
+
+    container.prepend(form);
+
+    const input =
+        form.querySelector(
+            "#todoInput"
+        );
+
+    form
+        .querySelector("#saveTodoBtn")
+        .addEventListener(
+            "click",
+            () => {
+
+                const text =
+                    input.value.trim();
+
+                if (!text) {
+                    return;
+                }
+
+                const todoData =
+                    loadTodos();
+
+                todoData.tasks.push({
+
+                    id: Date.now(),
+
+                    text,
+
+                    completed: false,
+
+                    archived: false,
+
+                    createdAt:
+                        new Date().toISOString(),
+
+                    completedAt: null
+
+                });
+
+                persistTodos(todoData);
+
+                renderTodoSection();
+
+                form.remove();
+
+            }
+        );
+
+    form
+        .querySelector("#cancelTodoBtn")
+        .addEventListener(
+            "click",
+            () => {
+
+                form.remove();
+
+            }
+        );
 
 }
 
 function openEditTodoForm(item, source) {
 
-  const container =
-    document.getElementById("todayTodoList");
-
-  if (!container) return;
-
-  if (container.querySelector(".todo-edit-form"))
-    return;
-
-  const form =
-    document.createElement("div");
-
-  form.classList.add(
-    "deadline-form",
-    "todo-edit-form"
-  );
-
-  form.innerHTML = `
-
-    <input
-      type="text"
-      id="editTodoText"
-      value="${item.text}"
-    />
-
-    <div class="deadline-form-actions">
-
-      <button
-        type="button"
-        class="neutral-btn"
-        id="cancelTodoEditBtn"
-      >
-        Cancel
-      </button>
-
-      <button
-        type="button"
-        class="primary-btn"
-        id="updateTodoBtn"
-      >
-        Update
-      </button>
-
-      <button
-        type="button"
-        class="danger-btn"
-        id="deleteTodoBtn"
-      >
-        Delete
-      </button>
-
-    </div>
-
-  `;
-
-  container.prepend(form);
-
-  const input =
-    form.querySelector("#editTodoText");
-
-  const updateBtn =
-    form.querySelector("#updateTodoBtn");
-
-  const cancelBtn =
-    form.querySelector("#cancelTodoEditBtn");
-
-  const deleteBtn =
-    form.querySelector("#deleteTodoBtn");
-
-  const originalText =
-    item.text;
-
-  updateBtn.disabled = true;
-
-  input.addEventListener(
-    "input",
-    () => {
-
-      updateBtn.disabled =
-        input.value.trim() ===
-        originalText;
-
-    }
-  );
-
-  // ==========================
-  // UPDATE
-  // ==========================
-
-  updateBtn.addEventListener(
-    "click",
-    () => {
-
-      const newText =
-        input.value.trim();
-
-      if (!newText) {
-
-        alert(
-          "Task cannot be empty."
+    const container =
+        document.getElementById(
+            "todayTodoList"
         );
 
+    if (!container) return;
+
+    if (
+        container.querySelector(
+            ".todo-edit-form"
+        )
+    ) {
         return;
-      }
-
-      item.text = newText;
-
-      let todoData;
-
-      if (source === "current") {
-
-        ({ todoData } =
-          getCurrentTodos());
-
-      } else {
-
-        ({ todoData } =
-          getAllTimeTodos());
-
-      }
-
-      persistTodos(todoData);
-
-      form.remove();
-
-      renderTodoSection();
-
-      showToast("Task updated");
-
     }
-  );
 
-  // ==========================
-  // DELETE
-  // ==========================
+    const form =
+        document.createElement("div");
 
-  deleteBtn.addEventListener(
-    "click",
-    () => {
+    form.classList.add(
+        "deadline-form",
+        "todo-edit-form"
+    );
 
-      const confirmed =
-        confirm(
-          `Delete "${item.text}"?`
+    form.innerHTML = `
+
+        <input
+            type="text"
+            id="editTodoText"
+            value="${item.text}"
+        />
+
+        <div class="deadline-form-actions">
+
+            <button
+                type="button"
+                class="neutral-btn"
+                id="cancelTodoEditBtn"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="updateTodoBtn"
+            >
+                Update
+            </button>
+
+            <button
+                type="button"
+                class="danger-btn"
+                id="deleteTodoBtn"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    `;
+
+    container.prepend(form);
+
+    const input =
+        form.querySelector(
+            "#editTodoText"
         );
 
-      if (!confirmed)
-        return;
+    const updateBtn =
+        form.querySelector(
+            "#updateTodoBtn"
+        );
 
-      if (source === "current") {
+    const cancelBtn =
+        form.querySelector(
+            "#cancelTodoEditBtn"
+        );
 
-        const {
-          todoData,
-          current
-        } = getCurrentTodos();
+    const deleteBtn =
+        form.querySelector(
+            "#deleteTodoBtn"
+        );
 
-        todoData.current =
-          current.filter(
-            t =>
-              t.id !== item.id
-          );
+    const originalText =
+        item.text;
 
-        persistTodos(todoData);
+    updateBtn.disabled = true;
 
-      } else {
+    input.addEventListener(
+        "input",
+        () => {
 
-        const {
-          todoData,
-          allTime
-        } = getAllTimeTodos();
+            updateBtn.disabled =
+                input.value.trim() ===
+                originalText;
 
-        todoData.allTime =
-          allTime.filter(
-            t =>
-              t.id !== item.id
-          );
+        }
+    );
 
-        persistTodos(todoData);
+    // ==========================
+    // UPDATE
+    // ==========================
 
-      }
+    updateBtn.addEventListener(
+        "click",
+        () => {
 
-      form.remove();
+            const newText =
+                input.value.trim();
 
-      renderTodoSection();
+            if (!newText) {
 
-      showToast("Task deleted");
+                alert(
+                    "Task cannot be empty."
+                );
 
-    }
-  );
+                return;
 
-  // ==========================
-  // CANCEL
-  // ==========================
+            }
 
-  cancelBtn.addEventListener(
-    "click",
-    () => {
+            const todoData =
+                loadTodos();
 
-      form.remove();
+            const task =
+                todoData.tasks.find(
+                    t => t.id === item.id
+                );
 
-    }
-  );
+            if (!task) return;
+
+            task.text =
+                newText;
+
+            persistTodos(
+                todoData
+            );
+
+            form.remove();
+
+            renderTodoSection();
+
+            showToast(
+                "Task updated"
+            );
+
+        }
+    );
+
+    // ==========================
+    // DELETE
+    // ==========================
+
+    deleteBtn.addEventListener(
+        "click",
+        () => {
+
+            const confirmed =
+                confirm(
+                    `Delete "${item.text}"?`
+                );
+
+            if (!confirmed)
+                return;
+
+            const todoData =
+                loadTodos();
+
+            todoData.tasks =
+                todoData.tasks.filter(
+                    task =>
+                        task.id !== item.id
+                );
+
+            persistTodos(
+                todoData
+            );
+
+            form.remove();
+
+            renderTodoSection();
+
+            showToast(
+                "Task deleted"
+            );
+
+        }
+    );
+
+    // ==========================
+    // CANCEL
+    // ==========================
+
+    cancelBtn.addEventListener(
+        "click",
+        () => {
+
+            form.remove();
+
+        }
+    );
 
 }
 

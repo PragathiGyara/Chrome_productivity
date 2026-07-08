@@ -122,67 +122,167 @@ function loadTodos() {
   const stored =
     localStorage.getItem(TODO_STORAGE_KEY);
 
+  // =====================================
+  // FIRST RUN
+  // =====================================
+
   if (!stored) {
 
     return {
-      current: [],
-      allTime: []
+      tasks: []
     };
+
   }
 
-  const parsed = JSON.parse(stored);
+  const parsed =
+    JSON.parse(stored);
 
   // =====================================
-  // BACKWARD COMPATIBILITY
-  // =====================================
-
-  // Old format:
+  // OLD FORMAT
   // [
   //   { date, items }
   // ]
+  // =====================================
 
   if (Array.isArray(parsed)) {
 
     return {
-      current: parsed.flatMap(day => day.items),
-      allTime: []
+
+      tasks:
+
+        parsed.flatMap(day =>
+
+          day.items.map(item => ({
+
+            id: item.id,
+
+            text: item.text,
+
+            completed: item.completed,
+
+            archived: false,
+
+            createdAt:
+              item.createdAt ??
+              `${day.date}T00:00:00`,
+
+            completedAt:
+              item.completed
+                ? `${day.date}T00:00:00`
+                : null
+
+          }))
+
+        )
+
     };
+
   }
 
-  // Previous object format
+  // =====================================
+  // CURRENT FORMAT
+  // {
+  //   current: [],
+  //   allTime: []
+  // }
+  // =====================================
 
-  if (parsed.daily || parsed.global) {
+  if (parsed.current || parsed.allTime) {
+
+    const current =
+
+      (parsed.current || []).map(task => ({
+
+        id: task.id,
+
+        text: task.text,
+
+        completed:
+          task.done,
+
+        archived: false,
+
+        createdAt:
+          task.createdAt ??
+          new Date().toISOString(),
+
+        completedAt:
+          task.done
+            ? (
+                task.completedAt ??
+                new Date().toISOString()
+              )
+            : null
+
+      }));
+
+
+    const archived =
+
+      (parsed.allTime || []).map(task => ({
+
+        id: task.id,
+
+        text: task.text,
+
+        completed:
+          task.done,
+
+        archived: true,
+
+        createdAt:
+          task.createdAt ??
+          new Date().toISOString(),
+
+        completedAt:
+          task.done
+            ? (
+                task.completedAt ??
+                new Date().toISOString()
+              )
+            : null
+
+      }));
+
 
     return {
-      current:
-        parsed.daily
-          ? parsed.daily.flatMap(day => day.items)
-          : [],
 
-      allTime:
-        parsed.global || []
+      tasks: [
+
+        ...current,
+
+        ...archived
+
+      ]
+
     };
+
   }
 
-  // Current format
+  // =====================================
+  // NEW FORMAT
+  // =====================================
 
-  if (!parsed.current) {
-    parsed.current = [];
-  }
+  if (!parsed.tasks) {
 
-  if (!parsed.allTime) {
-    parsed.allTime = [];
+    parsed.tasks = [];
+
   }
 
   return parsed;
+
 }
 
-function persistTodos(todos) {
+function persistTodos(todoData) {
 
   localStorage.setItem(
+
     TODO_STORAGE_KEY,
-    JSON.stringify(todos)
+
+    JSON.stringify(todoData)
+
   );
+
 }
 
 // =====================================================
@@ -199,37 +299,37 @@ function getTodayKey() {
 
 function getCurrentTodos() {
 
-  const todoData = loadTodos();
+    const todoData =
+        loadTodos();
 
-  if (!todoData.current) {
+    return {
 
-    todoData.current = [];
+        todoData,
 
-    persistTodos(todoData);
-  }
+        current:
+            todoData.tasks.filter(
+                task => !task.archived
+            )
 
-  return {
-    todoData,
-    current: todoData.current
-  };
+    };
+
 }
 
 
 function getAllTimeTodos() {
 
-  const todoData = loadTodos();
+    const todoData =
+        loadTodos();
 
-  if (!todoData.allTime) {
+    return {
 
-    todoData.allTime = [];
+        todoData,
 
-    persistTodos(todoData);
-  }
+        allTime:
+            todoData.tasks
 
-  return {
-    todoData,
-    allTime: todoData.allTime
-  };
+    };
+
 }
 
 
