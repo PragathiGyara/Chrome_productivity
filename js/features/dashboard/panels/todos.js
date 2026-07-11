@@ -185,7 +185,7 @@ function renderTodoSection() {
 
 }
 
-function renderTodayTodos() {
+function renderTodoList(tasks, source) {
 
     const container =
         document.getElementById(
@@ -196,17 +196,16 @@ function renderTodayTodos() {
 
     container.innerHTML = "";
 
-    const {
-        todoData,
-        current
-    } = getCurrentTodos();
-
     const visibleTasks =
         todoDisplaySettings.showCompleted
-            ? current
-            : current.filter(
-                item => !item.completed
+            ? tasks
+            : tasks.filter(
+                task => !task.completed
             );
+
+    // ==========================
+    // SUMMARY
+    // ==========================
 
     const summary =
         document.createElement("div");
@@ -216,16 +215,20 @@ function renderTodayTodos() {
     );
 
     const completed =
-        current.filter(
-            item => item.completed
+        tasks.filter(
+            task => task.completed
         ).length;
 
     summary.textContent =
-        `${completed}/${current.length} done`;
+        `${completed}/${tasks.length} done`;
 
     container.appendChild(
         summary
     );
+
+    // ==========================
+    // TASKS
+    // ==========================
 
     visibleTasks.forEach(item => {
 
@@ -237,15 +240,22 @@ function renderTodayTodos() {
         );
 
         div.innerHTML = `
+
             <div class="todo-card ${item.completed ? "done" : ""}">
+
                 <input
                     type="checkbox"
                     ${item.completed ? "checked" : ""}
                 />
+
                 <div class="todo-content">
+
                     <span class="todo-text">
+
                         ${item.text}
+
                     </span>
+
                     ${
                         todoDisplaySettings.showDates &&
                         item.createdAt
@@ -256,15 +266,25 @@ function renderTodayTodos() {
                             `
                             : ""
                     }
+
                 </div>
+
             </div>
+
         `;
+
+        // ==========================
+        // COMPLETE
+        // ==========================
 
         div
             .querySelector("input")
             .addEventListener(
                 "change",
                 e => {
+
+                    const todoData =
+                        loadTodos();
 
                     const task =
                         todoData.tasks.find(
@@ -285,10 +305,14 @@ function renderTodayTodos() {
                         todoData
                     );
 
-                    renderTodayTodos();
+                    renderTodoSection();
 
                 }
             );
+
+        // ==========================
+        // EDIT
+        // ==========================
 
         div
             .querySelector(".todo-text")
@@ -300,7 +324,7 @@ function renderTodayTodos() {
 
                     openEditTodoForm(
                         item,
-                        "current"
+                        source
                     );
 
                 }
@@ -311,147 +335,36 @@ function renderTodayTodos() {
         );
 
     });
+
+}
+
+function renderTodayTodos() {
+
+    const {
+        current
+    } = getCurrentTodos();
+
+    renderTodoList(
+        current,
+        "current"
+    );
 
 }
 
 function renderGlobalTodos() {
 
-    const container =
-        document.getElementById(
-            "todayTodoList"
-        );
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
     const {
-        todoData,
         allTime
     } = getAllTimeTodos();
 
-    const visibleTasks =
-        todoDisplaySettings.showCompleted
-            ? allTime
-            : allTime.filter(
-                item => !item.completed
-            );
-
-    const summary =
-        document.createElement("div");
-
-    summary.classList.add(
-        "todo-summary"
+    renderTodoList(
+        allTime,
+        "allTime"
     );
-
-    const completed =
-        allTime.filter(
-            item => item.completed
-        ).length;
-
-    summary.textContent =
-        `${completed}/${allTime.length} done`;
-
-    container.appendChild(
-        summary
-    );
-
-    visibleTasks.forEach(item => {
-
-        const div =
-            document.createElement("div");
-
-        div.classList.add(
-            "todo-item"
-        );
-
-        div.innerHTML = `
-
-            <div class="todo-card ${item.completed ? "done" : ""}">
-
-                <input
-                    type="checkbox"
-                    ${item.completed ? "checked" : ""}
-                />
-
-                <div class="todo-content">
-
-                    <span class="todo-text">
-
-                        ${item.text}
-
-                    </span>
-
-                    ${
-                        todoDisplaySettings.showDates &&
-                        item.createdAt
-                            ? `
-                            <div class="todo-date">
-                                Added ${formatTodoDate(item.createdAt)}
-                            </div>
-                            `
-                            : ""
-                    }
-
-                </div>
-
-            </div>
-
-        `;
-
-        div
-            .querySelector("input")
-            .addEventListener(
-                "change",
-                e => {
-
-                    const task =
-                        todoData.tasks.find(
-                            t => t.id === item.id
-                        );
-
-                    if (!task) return;
-
-                    task.completed =
-                        e.target.checked;
-
-                    task.completedAt =
-                        task.completed
-                            ? new Date().toISOString()
-                            : null;
-
-                    persistTodos(
-                        todoData
-                    );
-
-                    renderGlobalTodos();
-
-                }
-            );
-
-        div
-            .querySelector(".todo-text")
-            .addEventListener(
-                "click",
-                e => {
-
-                    e.stopPropagation();
-
-                    openEditTodoForm(
-                        item,
-                        "allTime"
-                    );
-
-                }
-            );
-
-        container.appendChild(
-            div
-        );
-
-    });
 
 }
+
+
 function openSidebarTodoForm() {
 
     const container =
