@@ -1,4 +1,6 @@
 let currentTodoView = "current";
+let todoDisplaySettings =
+    loadTodoDisplaySettings();
 
 function initializeTodoToggle() {
 
@@ -40,6 +42,113 @@ function initializeTodoToggle() {
             renderTodoSection();
         }
     );
+}
+
+function initializeTodoSettings() {
+
+    const settingsBtn =
+        document.getElementById(
+            "todoSettingsBtn"
+        );
+
+    const menu =
+        document.getElementById(
+            "todoSettingsMenu"
+        );
+
+    const showCompleted =
+        document.getElementById(
+            "showCompletedToggle"
+        );
+
+    const showDates =
+        document.getElementById(
+            "showDatesToggle"
+        );
+
+    if (!settingsBtn || !menu) {
+        return;
+    }
+
+    // Restore UI
+
+    showCompleted.checked =
+        todoDisplaySettings.showCompleted;
+
+    showDates.checked =
+        todoDisplaySettings.showDates;
+
+    // Toggle popup
+
+    settingsBtn.addEventListener(
+        "click",
+        e => {
+
+            e.stopPropagation();
+
+            menu.classList.toggle(
+                "hidden"
+            );
+
+        }
+    );
+
+    // Close on outside click
+
+    document.addEventListener(
+        "click",
+        () => {
+
+            menu.classList.add(
+                "hidden"
+            );
+
+        }
+    );
+
+    menu.addEventListener(
+        "click",
+        e => {
+
+            e.stopPropagation();
+
+        }
+    );
+
+    // Save settings
+
+    showCompleted.addEventListener(
+        "change",
+        () => {
+
+            todoDisplaySettings.showCompleted =
+                showCompleted.checked;
+
+            persistTodoDisplaySettings(
+                todoDisplaySettings
+            );
+
+            renderTodoSection();
+
+        }
+    );
+
+    showDates.addEventListener(
+        "change",
+        () => {
+
+            todoDisplaySettings.showDates =
+                showDates.checked;
+
+            persistTodoDisplaySettings(
+                todoDisplaySettings
+            );
+
+            renderTodoSection();
+
+        }
+    );
+
 }
 
 function renderTodoSection() {
@@ -92,6 +201,13 @@ function renderTodayTodos() {
         current
     } = getCurrentTodos();
 
+    const visibleTasks =
+        todoDisplaySettings.showCompleted
+            ? current
+            : current.filter(
+                item => !item.completed
+            );
+
     const summary =
         document.createElement("div");
 
@@ -111,7 +227,7 @@ function renderTodayTodos() {
         summary
     );
 
-    current.forEach(item => {
+    visibleTasks.forEach(item => {
 
         const div =
             document.createElement("div");
@@ -121,22 +237,27 @@ function renderTodayTodos() {
         );
 
         div.innerHTML = `
-
             <div class="todo-card ${item.completed ? "done" : ""}">
-
                 <input
                     type="checkbox"
                     ${item.completed ? "checked" : ""}
                 />
-
-                <span class="todo-text">
-
-                    ${item.text}
-
-                </span>
-
+                <div class="todo-content">
+                    <span class="todo-text">
+                        ${item.text}
+                    </span>
+                    ${
+                        todoDisplaySettings.showDates &&
+                        item.createdAt
+                            ? `
+                            <div class="todo-date">
+                                Added ${formatTodoDate(item.createdAt)}
+                            </div>
+                            `
+                            : ""
+                    }
+                </div>
             </div>
-
         `;
 
         div
@@ -209,6 +330,13 @@ function renderGlobalTodos() {
         allTime
     } = getAllTimeTodos();
 
+    const visibleTasks =
+        todoDisplaySettings.showCompleted
+            ? allTime
+            : allTime.filter(
+                item => !item.completed
+            );
+
     const summary =
         document.createElement("div");
 
@@ -228,7 +356,7 @@ function renderGlobalTodos() {
         summary
     );
 
-    allTime.forEach(item => {
+    visibleTasks.forEach(item => {
 
         const div =
             document.createElement("div");
@@ -255,6 +383,7 @@ function renderGlobalTodos() {
                     </span>
 
                     ${
+                        todoDisplaySettings.showDates &&
                         item.createdAt
                             ? `
                             <div class="todo-date">
@@ -323,7 +452,6 @@ function renderGlobalTodos() {
     });
 
 }
-
 function openSidebarTodoForm() {
 
     const container =

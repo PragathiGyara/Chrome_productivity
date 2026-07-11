@@ -21,6 +21,7 @@ function initializeLeftPanel() {
         );
 
     initializeTodoToggle();
+    initializeTodoSettings();
     initializeSectionCollapse();
     updateSectionCollapseUI();
     renderLeftPanel();

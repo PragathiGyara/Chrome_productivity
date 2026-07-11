@@ -51,22 +51,49 @@
             </section>
             <section class="left-panel-section">
 
-                <div class="left-section-header">
-
-                    <div class="section-title-row">
-
-                        <button
-                            id="toggleTodosBtn"
-                            class="section-collapse-btn"
-                        >
-                            ▼
-                        </button>
-
-                        <h4>To Do</h4>
-
-                    </div>
+            <div class="left-section-header">
+                <div class="section-title-row">
+                    <button
+                        id="toggleTodosBtn"
+                        class="section-collapse-btn"
+                    >
+                        ▼
+                    </button>
+                    <h4>To Do</h4>
 
                 </div>
+                <div class="todo-settings-wrapper">
+                    <button
+                        id="todoSettingsBtn"
+                        class="todo-settings-btn"
+                        title="Display Options"
+                    >
+                        ⚙
+                    </button>
+                    <div
+                        id="todoSettingsMenu"
+                        class="todo-settings-menu hidden"
+                    >
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="showCompletedToggle"
+                                checked
+                            >
+                            Show completed tasks
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="showDatesToggle"
+                                checked
+                            >
+                            Show dates
+                        </label>
+                    </div>
+                </div>
+
+            </div>
                 <div id="todosSectionBody" class="section-body">
                     <div
                         id="todoDateDisplay"

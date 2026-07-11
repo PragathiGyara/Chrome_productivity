@@ -5,6 +5,7 @@
 const TRACK_STORAGE_KEY = "dashboardTracks";
 const TODO_STORAGE_KEY = "dailyTodos";
 const PROJECT_STORAGE_KEY = "dashboardProjects";
+const TODO_DISPLAY_SETTINGS_KEY = "todoDisplaySettings";
 
 
 // =====================================================
@@ -282,6 +283,45 @@ function persistTodos(todoData) {
     JSON.stringify(todoData)
 
   );
+
+}
+
+// =====================================================
+// TODO DISPLAY SETTINGS
+// =====================================================
+
+function loadTodoDisplaySettings() {
+
+    const stored =
+        localStorage.getItem(
+            TODO_DISPLAY_SETTINGS_KEY
+        );
+
+    if (!stored) {
+
+        return {
+
+            showCompleted: true,
+
+            showDates: true
+
+        };
+
+    }
+
+    return JSON.parse(stored);
+
+}
+
+function persistTodoDisplaySettings(settings) {
+
+    localStorage.setItem(
+
+        TODO_DISPLAY_SETTINGS_KEY,
+
+        JSON.stringify(settings)
+
+    );
 
 }
 
