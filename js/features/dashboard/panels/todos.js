@@ -197,12 +197,17 @@ function renderTodoList(tasks, source) {
     container.innerHTML = "";
 
     const visibleTasks =
-        todoDisplaySettings.showCompleted
-            ? tasks
-            : tasks.filter(
-                task => !task.completed
-            );
-
+        (
+            todoDisplaySettings.showCompleted
+                ? [...tasks]
+                : tasks.filter(
+                    task => !task.completed
+                )
+        ).sort(
+            (a, b) =>
+                new Date(b.createdAt) -
+                new Date(a.createdAt)
+        );
     // ==========================
     // SUMMARY
     // ==========================
