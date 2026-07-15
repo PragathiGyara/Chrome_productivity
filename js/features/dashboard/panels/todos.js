@@ -423,6 +423,11 @@ function openSidebarTodoForm() {
     `;
 
     container.prepend(form);
+    
+    revealTodoForm(
+        form,
+        input
+    );
 
     const input =
         form.querySelector(
@@ -686,6 +691,42 @@ function openEditTodoForm(item, source) {
 
         }
     );
+
+}
+
+// =====================================================
+// TODO FORM HELPERS
+// =====================================================
+
+function revealTodoForm(form) {
+
+    if (!form) return;
+
+    form.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "nearest"
+
+    });
+
+    form.classList.add(
+        "todo-form-highlight"
+    );
+
+    setTimeout(() => {
+
+        form.classList.remove(
+            "todo-form-highlight"
+        );
+
+    }, 2000);
+
+    form
+        .querySelector(
+            "input, textarea, select"
+        )
+        ?.focus();
 
 }
 

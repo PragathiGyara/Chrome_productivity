@@ -196,3 +196,49 @@
     margin: 0;
 
 }
+
+/* =====================================================
+   TODO FORM REVEAL
+===================================================== */
+
+.todo-form-highlight {
+
+    animation:
+        todoFormReveal
+        2s
+        ease;
+}
+
+@keyframes todoFormReveal {
+
+    0% {
+
+        transform: scale(1);
+
+        box-shadow:
+            0 0 0 0
+            rgba(74,144,226,0.9);
+
+    }
+
+    20% {
+
+        transform: scale(1.01);
+
+        box-shadow:
+            0 0 0 6px
+            rgba(74,144,226,0.25);
+
+    }
+
+    100% {
+
+        transform: scale(1);
+
+        box-shadow:
+            0 0 0 0
+            rgba(74,144,226,0);
+
+    }
+
+}
