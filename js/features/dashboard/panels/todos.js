@@ -1,4 +1,5 @@
 let currentTodoView = "current";
+let draggedTodoId = null;
 let todoDisplaySettings =
     loadTodoDisplaySettings();
 
@@ -205,8 +206,7 @@ function renderTodoList(tasks, source) {
                 )
         ).sort(
             (a, b) =>
-                new Date(b.createdAt) -
-                new Date(a.createdAt)
+                a.order - b.order
         );
 
     // ==========================
@@ -245,34 +245,50 @@ function renderTodoList(tasks, source) {
             "todo-item"
         );
 
-        // --------------------------
-        // Decide action button
-        // --------------------------
+        // ==========================
+        // ACTION BUTTON
+        // ==========================
 
         let action = null;
 
         if (item.completed) {
 
             action = {
+
                 icon: "✕",
+
                 title: "Delete Task",
+
                 type: "delete"
+
             };
 
-        } else if (source === "current") {
+        }
+
+        else if (source === "current") {
 
             action = {
+
                 icon: "→",
+
                 title: "Move to Archived",
+
                 type: "archive"
+
             };
 
-        } else {
+        }
+
+        else {
 
             action = {
+
                 icon: "←",
+
                 title: "Move to Current",
+
                 type: "restore"
+
             };
 
         }
@@ -459,6 +475,16 @@ function renderTodoList(tasks, source) {
                 }
             );
 
+        // ==========================
+        // DRAG & DROP
+        // ==========================
+
+        attachTodoDragEvents(
+            div,
+            item,
+            source
+        );
+
         container.appendChild(
             div
         );
@@ -489,6 +515,171 @@ function renderGlobalTodos() {
     renderTodoList(
         allTime,
         "allTime"
+    );
+
+}
+
+// =====================================================
+// TODO DRAG & DROP
+// =====================================================
+
+function attachTodoDragEvents(
+    div,
+    item,
+    source
+) {
+
+    // Only current, unfinished tasks are draggable
+
+    if (
+        source !== "current" ||
+        item.completed
+    ) {
+        return;
+    }
+
+    div.draggable = true;
+
+    div.dataset.id = item.id;
+
+    // ==========================
+    // DRAG START
+    // ==========================
+
+    div.addEventListener(
+        "dragstart",
+        () => {
+
+            draggedTodoId =
+                item.id;
+
+            div.classList.add(
+                "dragging"
+            );
+
+        }
+    );
+
+    // ==========================
+    // DRAG END
+    // ==========================
+
+    div.addEventListener(
+        "dragend",
+        () => {
+
+            draggedTodoId =
+                null;
+
+            div.classList.remove(
+                "dragging"
+            );
+
+        }
+    );
+
+    // ==========================
+    // DRAG OVER
+    // ==========================
+
+    div.addEventListener(
+        "dragover",
+        e => {
+
+            e.preventDefault();
+
+        }
+    );
+
+    // ==========================
+    // DROP
+    // ==========================
+
+    div.addEventListener(
+        "drop",
+        () => {
+
+            if (
+                draggedTodoId === item.id
+            ) {
+                return;
+            }
+
+            const todoData =
+                loadTodos();
+
+            const currentTasks =
+                todoData.tasks.filter(
+                    task => !task.archived
+                );
+
+            const fromIndex =
+                currentTasks.findIndex(
+                    task =>
+                        task.id ===
+                        draggedTodoId
+                );
+
+            const toIndex =
+                currentTasks.findIndex(
+                    task =>
+                        task.id ===
+                        item.id
+                );
+
+            if (
+                fromIndex === -1 ||
+                toIndex === -1
+            ) {
+                return;
+            }
+
+            const [movedTask] =
+                currentTasks.splice(
+                    fromIndex,
+                    1
+                );
+
+            currentTasks.splice(
+                toIndex,
+                0,
+                movedTask
+            );
+
+            // Update order
+
+            currentTasks.forEach(
+                (
+                    task,
+                    index
+                ) => {
+
+                    task.order =
+                        index;
+
+                }
+            );
+
+            // Merge back with archived tasks
+
+            todoData.tasks = [
+
+                ...currentTasks,
+
+                ...todoData.tasks.filter(
+                    task =>
+                        task.archived
+                )
+
+            ];
+
+            persistTodos(
+                todoData
+            );
+
+            renderTodoSection();
+
+        }
     );
 
 }
@@ -580,6 +771,12 @@ function openSidebarTodoForm() {
                     completed: false,
 
                     archived: false,
+
+                    order:
+
+                        todoData.tasks.filter(
+                            task => !task.archived
+                        ).length,
 
                     createdAt:
                         new Date().toISOString(),

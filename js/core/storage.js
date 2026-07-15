@@ -120,157 +120,184 @@ function getDefaultTracks() {
 
 function loadTodos() {
 
-  const stored =
-    localStorage.getItem(TODO_STORAGE_KEY);
+    const stored =
+        localStorage.getItem(
+            TODO_STORAGE_KEY
+        );
 
-  // =====================================
-  // FIRST RUN
-  // =====================================
+    if (!stored) {
 
-  if (!stored) {
+        return {
+            tasks: []
+        };
 
-    return {
-      tasks: []
-    };
+    }
 
-  }
+    const parsed =
+        JSON.parse(stored);
 
-  const parsed =
-    JSON.parse(stored);
+    // =====================================
+    // OLD ARRAY FORMAT
+    // =====================================
 
-  // =====================================
-  // OLD FORMAT
-  // [
-  //   { date, items }
-  // ]
-  // =====================================
+    if (Array.isArray(parsed)) {
 
-  if (Array.isArray(parsed)) {
+        let order = 0;
 
-    return {
+        return {
 
-      tasks:
+            tasks:
 
-        parsed.flatMap(day =>
+                parsed.flatMap(day =>
 
-          day.items.map(item => ({
+                    day.items.map(item => ({
 
-            id: item.id,
+                        id: item.id,
 
-            text: item.text,
+                        text: item.text,
 
-            completed: item.completed,
+                        completed:
+                            item.completed ??
+                            item.done ??
+                            false,
 
-            archived: false,
+                        archived: false,
 
-            createdAt:
-              item.createdAt ??
-              `${day.date}T00:00:00`,
+                        order: order++,
 
-            completedAt:
-              item.completed
-                ? `${day.date}T00:00:00`
-                : null
+                        createdAt:
+                            item.createdAt ??
+                            `${day.date}T00:00:00`,
 
-          }))
+                        completedAt:
+                            item.completed
+                                ? `${day.date}T00:00:00`
+                                : null
 
-        )
+                    }))
 
-    };
+                )
 
-  }
+        };
 
-  // =====================================
-  // CURRENT FORMAT
-  // {
-  //   current: [],
-  //   allTime: []
-  // }
-  // =====================================
+    }
 
-  if (parsed.current || parsed.allTime) {
+    // =====================================
+    // PREVIOUS CURRENT / ALLTIME FORMAT
+    // =====================================
 
-    const current =
+    if (parsed.current || parsed.allTime) {
 
-      (parsed.current || []).map(task => ({
+        let currentOrder = 0;
+        let archivedOrder = 0;
 
-        id: task.id,
+        const current =
 
-        text: task.text,
+            (parsed.current || []).map(task => ({
 
-        completed:
-          task.done,
+                id: task.id,
 
-        archived: false,
+                text: task.text,
 
-        createdAt:
-          task.createdAt ??
-          new Date().toISOString(),
+                completed:
+                    task.completed ??
+                    task.done ??
+                    false,
 
-        completedAt:
-          task.done
-            ? (
-                task.completedAt ??
-                new Date().toISOString()
-              )
-            : null
+                archived: false,
 
-      }));
+                order:
+                    currentOrder++,
 
+                createdAt:
+                    task.createdAt ??
+                    new Date().toISOString(),
 
-    const archived =
+                completedAt:
+                    task.completed
+                        ? (
+                            task.completedAt ??
+                            new Date().toISOString()
+                        )
+                        : null
 
-      (parsed.allTime || []).map(task => ({
+            }));
 
-        id: task.id,
+        const archived =
 
-        text: task.text,
+            (parsed.allTime || []).map(task => ({
 
-        completed:
-          task.done,
+                id: task.id,
 
-        archived: true,
+                text: task.text,
 
-        createdAt:
-          task.createdAt ??
-          new Date().toISOString(),
+                completed:
+                    task.completed ??
+                    task.done ??
+                    false,
 
-        completedAt:
-          task.done
-            ? (
-                task.completedAt ??
-                new Date().toISOString()
-              )
-            : null
+                archived: true,
 
-      }));
+                order:
+                    archivedOrder++,
 
+                createdAt:
+                    task.createdAt ??
+                    new Date().toISOString(),
 
-    return {
+                completedAt:
+                    task.completed
+                        ? (
+                            task.completedAt ??
+                            new Date().toISOString()
+                        )
+                        : null
 
-      tasks: [
+            }));
 
-        ...current,
+        return {
 
-        ...archived
+            tasks: [
 
-      ]
+                ...current,
 
-    };
+                ...archived
 
-  }
+            ]
 
-  // =====================================
-  // NEW FORMAT
-  // =====================================
+        };
 
-  if (!parsed.tasks) {
+    }
 
-    parsed.tasks = [];
+    // =====================================
+    // CURRENT FORMAT
+    // =====================================
 
-  }
+    if (!parsed.tasks) {
 
-  return parsed;
+        parsed.tasks = [];
+
+    }
+
+    // Ensure every task has an order
+
+    let currentOrder = 0;
+    let archivedOrder = 0;
+
+    parsed.tasks.forEach(task => {
+
+        if (task.order == null) {
+
+            task.order =
+                task.archived
+                    ? archivedOrder++
+                    : currentOrder++;
+
+        }
+
+    });
+
+    return parsed;
 
 }
 
