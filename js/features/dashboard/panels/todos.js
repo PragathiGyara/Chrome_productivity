@@ -245,6 +245,38 @@ function renderTodoList(tasks, source) {
             "todo-item"
         );
 
+        // --------------------------
+        // Decide action button
+        // --------------------------
+
+        let action = null;
+
+        if (item.completed) {
+
+            action = {
+                icon: "✕",
+                title: "Delete Task",
+                type: "delete"
+            };
+
+        } else if (source === "current") {
+
+            action = {
+                icon: "→",
+                title: "Move to Archived",
+                type: "archive"
+            };
+
+        } else {
+
+            action = {
+                icon: "←",
+                title: "Move to Current",
+                type: "restore"
+            };
+
+        }
+
         div.innerHTML = `
 
             <div class="todo-card ${item.completed ? "done" : ""}">
@@ -275,18 +307,13 @@ function renderTodoList(tasks, source) {
 
                 </div>
 
-                ${
-                    item.completed
-                        ? `
-                        <button
-                            class="todo-delete-btn"
-                            title="Delete Task"
-                        >
-                            🗑
-                        </button>
-                        `
-                        : ""
-                }
+                <button
+                    class="todo-action-btn"
+                    data-action="${action.type}"
+                    title="${action.title}"
+                >
+                    ${action.icon}
+                </button>
 
             </div>
 
@@ -354,39 +381,74 @@ function renderTodoList(tasks, source) {
         }
 
         // ==========================
-        // DELETE
+        // ACTION BUTTON
         // ==========================
 
-        const deleteBtn =
-            div.querySelector(
-                ".todo-delete-btn"
-            );
-
-        if (deleteBtn) {
-
-            deleteBtn.addEventListener(
+        div
+            .querySelector(".todo-action-btn")
+            .addEventListener(
                 "click",
                 e => {
 
                     e.stopPropagation();
 
-                    const confirmed =
-                        confirm(
-                            `Delete "${item.text}"?`
-                        );
-
-                    if (!confirmed) {
-                        return;
-                    }
-
                     const todoData =
                         loadTodos();
 
-                    todoData.tasks =
-                        todoData.tasks.filter(
-                            task =>
-                                task.id !== item.id
+                    const task =
+                        todoData.tasks.find(
+                            t => t.id === item.id
                         );
+
+                    if (!task) return;
+
+                    switch (
+                        e.target.dataset.action
+                    ) {
+
+                        case "archive":
+
+                            task.archived = true;
+
+                            showToast(
+                                "Task archived"
+                            );
+
+                            break;
+
+                        case "restore":
+
+                            task.archived = false;
+
+                            showToast(
+                                "Task moved to Current"
+                            );
+
+                            break;
+
+                        case "delete":
+
+                            if (
+                                !confirm(
+                                    `Delete "${task.text}"?`
+                                )
+                            ) {
+                                return;
+                            }
+
+                            todoData.tasks =
+                                todoData.tasks.filter(
+                                    t =>
+                                        t.id !== task.id
+                                );
+
+                            showToast(
+                                "Task deleted"
+                            );
+
+                            break;
+
+                    }
 
                     persistTodos(
                         todoData
@@ -394,14 +456,8 @@ function renderTodoList(tasks, source) {
 
                     renderTodoSection();
 
-                    showToast(
-                        "Task deleted"
-                    );
-
                 }
             );
-
-        }
 
         container.appendChild(
             div
