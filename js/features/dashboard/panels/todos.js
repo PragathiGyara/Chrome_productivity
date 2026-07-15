@@ -423,16 +423,13 @@ function openSidebarTodoForm() {
     `;
 
     container.prepend(form);
-    
-    revealTodoForm(
-        form,
-        input
-    );
 
     const input =
         form.querySelector(
             "#todoInput"
         );
+
+    revealTodoForm(form);
 
     form
         .querySelector("#saveTodoBtn")
@@ -702,31 +699,60 @@ function revealTodoForm(form) {
 
     if (!form) return;
 
+    const rect =
+        form.getBoundingClientRect();
+
+    const isVisible =
+
+        rect.top >= 0 &&
+
+        rect.bottom <= window.innerHeight;
+
+    const highlight = () => {
+
+        form.classList.add(
+            "todo-form-highlight"
+        );
+
+        setTimeout(() => {
+
+            form.classList.remove(
+                "todo-form-highlight"
+            );
+
+        }, 2000);
+
+        form
+            .querySelector(
+                "input, textarea, select"
+            )
+            ?.focus();
+
+    };
+
+    if (isVisible) {
+
+        highlight();
+
+        return;
+
+    }
+
     form.scrollIntoView({
 
         behavior: "smooth",
 
-        block: "nearest"
+        block: "start"
 
     });
 
-    form.classList.add(
-        "todo-form-highlight"
+    setTimeout(
+
+        highlight,
+
+        350
+
     );
-
-    setTimeout(() => {
-
-        form.classList.remove(
-            "todo-form-highlight"
-        );
-
-    }, 2000);
-
-    form
-        .querySelector(
-            "input, textarea, select"
-        )
-        ?.focus();
 
 }
 
