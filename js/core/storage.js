@@ -366,7 +366,9 @@ function getAllTimeTodos() {
         todoData,
 
         allTime:
-            todoData.tasks
+            todoData.tasks.filter(
+                task => task.archived
+            )
 
     };
 
