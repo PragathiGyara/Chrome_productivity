@@ -208,6 +208,7 @@ function renderTodoList(tasks, source) {
                 new Date(b.createdAt) -
                 new Date(a.createdAt)
         );
+
     // ==========================
     // SUMMARY
     // ==========================
@@ -274,12 +275,25 @@ function renderTodoList(tasks, source) {
 
                 </div>
 
+                ${
+                    item.completed
+                        ? `
+                        <button
+                            class="todo-delete-btn"
+                            title="Delete Task"
+                        >
+                            🗑
+                        </button>
+                        `
+                        : ""
+                }
+
             </div>
 
         `;
 
         // ==========================
-        // COMPLETE
+        // COMPLETE / UNCOMPLETE
         // ==========================
 
         div
@@ -319,21 +333,75 @@ function renderTodoList(tasks, source) {
         // EDIT
         // ==========================
 
-        div
-            .querySelector(".todo-text")
-            .addEventListener(
+        if (!item.completed) {
+
+            div
+                .querySelector(".todo-text")
+                .addEventListener(
+                    "click",
+                    e => {
+
+                        e.stopPropagation();
+
+                        openEditTodoForm(
+                            item,
+                            source
+                        );
+
+                    }
+                );
+
+        }
+
+        // ==========================
+        // DELETE
+        // ==========================
+
+        const deleteBtn =
+            div.querySelector(
+                ".todo-delete-btn"
+            );
+
+        if (deleteBtn) {
+
+            deleteBtn.addEventListener(
                 "click",
                 e => {
 
                     e.stopPropagation();
 
-                    openEditTodoForm(
-                        item,
-                        source
+                    const confirmed =
+                        confirm(
+                            `Delete "${item.text}"?`
+                        );
+
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    const todoData =
+                        loadTodos();
+
+                    todoData.tasks =
+                        todoData.tasks.filter(
+                            task =>
+                                task.id !== item.id
+                        );
+
+                    persistTodos(
+                        todoData
+                    );
+
+                    renderTodoSection();
+
+                    showToast(
+                        "Task deleted"
                     );
 
                 }
             );
+
+        }
 
         container.appendChild(
             div
