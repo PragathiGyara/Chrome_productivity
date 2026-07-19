@@ -30,24 +30,25 @@ function parseLocalDate(dateString) {
   );
 }
 
-function getLocalDateKey() {
-
-  const now = new Date();
+function getLocalDateKey(
+  date = new Date()
+) {
 
   const year =
-    now.getFullYear();
+    date.getFullYear();
 
   const month =
     String(
-      now.getMonth() + 1
+      date.getMonth() + 1
     ).padStart(2, "0");
 
   const day =
     String(
-      now.getDate()
+      date.getDate()
     ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+
 }
 
 // =====================================================
@@ -110,14 +111,15 @@ function formatDate(
 
 }
 
-function getLocalTime() {
+function getLocalTime(
+  date = new Date()
+) {
 
-  return new Date()
-    .toLocaleTimeString(
-      "en-IN",
-      {
-        hour12: false
-      }
-    );
+  return date.toLocaleTimeString(
+    "en-IN",
+    {
+      hour12: false
+    }
+  );
 
 }

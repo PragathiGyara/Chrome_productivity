@@ -107,42 +107,70 @@ function getAnalyticsDateRange() {
 
     // =====================================
     // OVERALL
+    // Earliest project → Today
     // =====================================
 
     case "overall":
 
-      startDate = null;
-      endDate = null;
+      if (
+        projects.length > 0
+      ) {
+
+        const earliestProject =
+          projects.reduce(
+
+            (
+              earliest,
+              project
+            ) =>
+
+              project.createdAt <
+              earliest.createdAt
+
+                ? project
+                : earliest
+
+          );
+
+        startDate =
+          new Date(
+            earliestProject.createdAt
+          );
+
+      }
+
+      else {
+
+        startDate =
+          new Date(today);
+
+      }
+
+      endDate =
+        new Date(today);
 
       break;
+
   }
 
   // =====================================
   // NORMALIZE RANGE TO WHOLE DAYS
   // =====================================
 
-  if (startDate) {
+  startDate.setHours(
+    0, 0, 0, 0
+  );
 
-    startDate.setHours(
-      0, 0, 0, 0
-    );
-
-  }
-
-  if (endDate) {
-
-    endDate.setHours(
-      23, 59, 59, 999
-    );
-
-  }
+  endDate.setHours(
+    23, 59, 59, 999
+  );
 
   return {
     startDate,
     endDate
   };
-}
 
+}
 
 // =====================================================
 // EXPECTED DAYS
@@ -357,6 +385,115 @@ function calculateProjectAnalytics(
       100 -
       completionPercent
   };
+}
+
+// =====================================================
+// PROJECT STATUS
+// =====================================================
+
+function getProjectStatusOnDate(
+  project,
+  dateKey
+) {
+
+  // Project didn't exist yet
+  if (dateKey < project.createdAt) {
+    return null;
+  }
+
+  let status = "active";
+
+  // Walk through history in order
+  for (const entry of project.statusHistory) {
+
+    if (entry.date > dateKey) {
+      break;
+    }
+
+    status = entry.status;
+
+  }
+
+  return status;
+
+}
+
+function wasProjectActiveInRange(
+  project,
+  startDateKey,
+  endDateKey
+) {
+
+  // Project didn't exist yet
+  if (project.createdAt > endDateKey) {
+    return false;
+  }
+
+  let activeStart = null;
+
+  for (
+    let i = 0;
+    i < project.statusHistory.length;
+    i++
+  ) {
+
+    const entry =
+      project.statusHistory[i];
+
+    if (
+      entry.status === "active"
+    ) {
+
+      activeStart =
+        entry.date;
+
+    }
+
+    else if (
+
+      (entry.status === "paused" ||
+       entry.status === "completed")
+
+      &&
+
+      activeStart
+
+    ) {
+
+      const activeEnd =
+        entry.date;
+
+      // Does the active interval overlap
+      // the selected range?
+      if (
+
+        activeStart <= endDateKey &&
+
+        activeEnd >= startDateKey
+
+      ) {
+
+        return true;
+
+      }
+
+      activeStart = null;
+
+    }
+
+  }
+
+  // Still active after the last status change
+  if (activeStart) {
+
+    return (
+      activeStart <= endDateKey
+    );
+
+  }
+
+  return false;
+
 }
 
 
@@ -668,11 +805,62 @@ function renderTrendAnalytics() {
 
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="analytics-placeholder">
-      Trend Analytics
-    </div>
-  `;
+  const {
+    startDate,
+    endDate
+  } = getAnalyticsDateRange();
+
+  const startDateKey =
+    getLocalDateKey(startDate);
+
+  const endDateKey =
+    getLocalDateKey(endDate);
+
+  
+  console.log(
+    "Range:",
+    currentAnalyticsRange,
+    "Start Key:",
+    startDateKey,
+    "End Key:",
+    endDateKey
+  );
+  const activeProjects =
+    projects.filter(project => {
+
+      const isActive =
+        wasProjectActiveInRange(
+          project,
+          startDateKey,
+          endDateKey
+        );
+
+      console.log(
+        project.name,
+        isActive,
+        project.statusHistory
+      );
+
+      return isActive;
+
+    });
+
+  container.innerHTML =
+
+    activeProjects.length
+
+      ? activeProjects
+          .map(project =>
+            `<div>${project.name}</div>`
+          )
+          .join("")
+
+      : `
+          <div class="analytics-placeholder">
+            No active projects
+          </div>
+        `;
+
 }
 
 

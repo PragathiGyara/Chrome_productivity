@@ -426,27 +426,77 @@ function loadProjects() {
     ? JSON.parse(stored)
     : [];
 
+  let dataChanged = false;
+
   // =========================================
   // NORMALIZE PROJECTS
   // =========================================
 
-    projects.forEach(project => {
+  projects.forEach(project => {
 
     if (!project.logs) {
-        project.logs = {};
+
+      project.logs = {};
+      dataChanged = true;
+
     }
 
     if (!project.createdAt) {
 
-        project.createdAt =
+      project.createdAt =
         new Date().toISOString();
-    }
 
-    if (!project.statusHistory) {
-
-        project.statusHistory = [];
+      dataChanged = true;
 
     }
 
-    });
+    if (
+
+      !project.statusHistory ||
+
+      project.statusHistory.length === 0
+
+    ) {
+
+      const createdAt =
+        new Date(
+          project.createdAt
+        );
+
+      project.statusHistory = [
+
+        {
+
+          status: "active",
+
+          date:
+            getLocalDateKey(
+              createdAt
+            ),
+
+          time:
+            getLocalTime(
+              createdAt
+            )
+
+        }
+
+      ];
+
+      dataChanged = true;
+
+    }
+
+  });
+
+  // =========================================
+  // SAVE MIGRATED PROJECTS
+  // =========================================
+
+  if (dataChanged) {
+
+    persistProjects();
+
+  }
+
 }
