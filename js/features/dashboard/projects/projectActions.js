@@ -130,7 +130,20 @@ function saveProject() {
     status:
       "active",
 
-    logs: {}
+    logs: {},
+
+    statusHistory: [
+
+      {
+        status: "active",
+        date:
+          getLocalDateKey(),
+
+        time:
+          getLocalTime()
+      }
+
+    ]
 
   });
 
@@ -205,6 +218,19 @@ function pauseProject(projectId) {
   project.status =
     "paused";
 
+  project.statusHistory.push({
+
+    status:
+      "paused",
+
+    date:
+      getLocalDateKey(),
+
+    time:
+      getLocalTime()
+
+  });
+
   refreshProjectsUI();
 
   showToast(
@@ -228,6 +254,19 @@ function resumeProject(projectId) {
 
   project.status =
     "active";
+
+  project.statusHistory.push({
+
+    status:
+      "active",
+
+    date:
+      getLocalDateKey(),
+
+    time:
+      getLocalTime()
+
+  });
 
   refreshProjectsUI();
 
@@ -266,6 +305,19 @@ but its analytics history will be preserved.`
 
   project.status =
     "completed";
+
+  project.statusHistory.push({
+
+    status:
+      "completed",
+
+    date:
+      getLocalDateKey(),
+
+    time:
+      getLocalTime()
+
+  });
 
   refreshProjectsUI();
 

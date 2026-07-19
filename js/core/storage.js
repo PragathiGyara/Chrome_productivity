@@ -430,17 +430,23 @@ function loadProjects() {
   // NORMALIZE PROJECTS
   // =========================================
 
-  projects.forEach(project => {
+    projects.forEach(project => {
 
     if (!project.logs) {
-      project.logs = {};
+        project.logs = {};
     }
 
     if (!project.createdAt) {
 
-      project.createdAt =
+        project.createdAt =
         new Date().toISOString();
     }
 
-  });
+    if (!project.statusHistory) {
+
+        project.statusHistory = [];
+
+    }
+
+    });
 }

@@ -109,3 +109,15 @@ function formatDate(
   );
 
 }
+
+function getLocalTime() {
+
+  return new Date()
+    .toLocaleTimeString(
+      "en-IN",
+      {
+        hour12: false
+      }
+    );
+
+}
