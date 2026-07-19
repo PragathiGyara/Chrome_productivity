@@ -21,17 +21,24 @@
             <section class="left-panel-section">
                 <div class="left-section-header">
                     <div class="section-title-row">
-
                         <button
                             id="toggleDeadlinesBtn"
                             class="section-collapse-btn"
                         >
                             ▼
                         </button>
-
                         <h4>Deadlines</h4>
-
                     </div>
+                    <select
+                        id="globalDeadlineFilter"
+                        class="vault-language-filter"
+                    >
+                        <option value="unfinished">Unfinished</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="missed">Missed</option>
+                        <option value="finished">Finished</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
                 </div>
                 <div id="deadlinesSectionBody">
 

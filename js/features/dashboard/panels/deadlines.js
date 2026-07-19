@@ -1,3 +1,5 @@
+let globalDeadlineFilter = "unfinished";
+
 // --------------------------
 // Render Deadlines
 // --------------------------
@@ -11,77 +13,121 @@ function renderGlobalDeadlines() {
 
   container.innerHTML = "";
 
-  const allDeadlines = tracks.flatMap(track =>
+  let allDeadlines = tracks.flatMap(track =>
 
-    (track.deadlines || [])
+    (track.deadlines || []).map(dl => ({
 
-      .filter(dl => dl.status !== "finished")
+      deadline: dl,
 
-      .map(dl => ({
+      track,
 
-        deadline: dl,
+      status: getDeadlineStatus(dl)
 
-        track
-
-      }))
+    }))
 
   );
 
-  allDeadlines
+  // --------------------------
+  // Filter
+  // --------------------------
 
-    .sort(
-      (a, b) =>
-        new Date(a.deadline.datetime) -
-        new Date(b.deadline.datetime)
-    )
+  if (globalDeadlineFilter === "unfinished") {
 
-    .forEach(({ deadline, track }) => {
+    allDeadlines = allDeadlines.filter(item =>
 
-      const status =
-        getDeadlineStatus(deadline);
+      item.status === "upcoming" ||
+      item.status === "due-today" ||
+      item.status === "missed"
 
-      const div =
-        document.createElement("div");
+    );
 
-      div.classList.add("deadline-item");
+  } else {
 
-      div.innerHTML = `
+    allDeadlines = allDeadlines.filter(item => {
 
-        <div class="global-deadline-content">
+      switch (globalDeadlineFilter) {
+
+        case "upcoming":
+          return (
+            item.status === "upcoming" ||
+            item.status === "due-today"
+          );
+
+        case "missed":
+          return item.status === "missed";
+
+        case "finished":
+          return item.status === "finished";
+
+        case "cancelled":
+          return item.status === "cancelled";
+
+        default:
+          return true;
+
+      }
+
+    });
+
+  }
+
+  // --------------------------
+  // Sort
+  // --------------------------
+
+  allDeadlines.sort(
+    (a, b) =>
+      new Date(a.deadline.datetime) -
+      new Date(b.deadline.datetime)
+  );
+
+  // --------------------------
+  // Render
+  // --------------------------
+
+  allDeadlines.forEach(({ deadline, track, status }) => {
+
+    const div = document.createElement("div");
+
+    div.classList.add("deadline-item");
+
+    div.innerHTML = `
+
+      <div class="global-deadline-content">
+
+        <div>
+
+          <strong>${deadline.title}</strong>
 
           <div>
-
-            <strong>${deadline.title}</strong>
-
-            <div>
-              ${new Date(deadline.datetime).toLocaleString()}
-            </div>
-
-            <small>${track.name}</small>
-
+            ${new Date(deadline.datetime).toLocaleString()}
           </div>
 
-          <div class="deadline-status ${status}">
-            ${status.replace("-", " ")}
-          </div>
+          <small>${track.name}</small>
 
         </div>
 
-      `;
+        <div class="deadline-status ${status}">
+          ${status.replace("-", " ").toUpperCase()}
+        </div>
 
-      div.addEventListener("click", () => {
+      </div>
 
-        openEditDeadlineForm(
-          track,
-          deadline,
-          "global"
-        );
+    `;
 
-      });
+    div.addEventListener("click", () => {
 
-      container.appendChild(div);
+      openEditDeadlineForm(
+        track,
+        deadline,
+        "global"
+      );
 
     });
+
+    container.appendChild(div);
+
+  });
 
 }
 

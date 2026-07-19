@@ -20,6 +20,20 @@ function initializeLeftPanel() {
             openSidebarTodoForm
         );
 
+    document
+        .getElementById("globalDeadlineFilter")
+        ?.addEventListener(
+            "change",
+            (e) => {
+
+                globalDeadlineFilter =
+                    e.target.value;
+
+                renderGlobalDeadlines();
+
+            }
+        );
+
     initializeTodoToggle();
     initializeTodoSettings();
     initializeSectionCollapse();
@@ -27,7 +41,6 @@ function initializeLeftPanel() {
     renderLeftPanel();
 
 }
-
 
 function initializeSectionCollapse() {
 
