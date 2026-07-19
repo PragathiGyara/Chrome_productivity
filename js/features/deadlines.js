@@ -13,13 +13,22 @@ function getDeadlineStatus(deadline) {
   }
 
   const now = new Date();
+  const due = new Date(deadline.datetime);
 
-  const dueDate =
-    new Date(deadline.datetime);
+  const isSameDay =
+    due.getFullYear() === now.getFullYear() &&
+    due.getMonth() === now.getMonth() &&
+    due.getDate() === now.getDate();
 
-  return dueDate < now
-    ? "missed"
-    : "upcoming";
+  if (isSameDay && due >= now) {
+    return "due-today";
+  }
+
+  if (due < now) {
+    return "missed";
+  }
+
+  return "upcoming";
 }
 
 

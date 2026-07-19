@@ -107,6 +107,13 @@
   background: #6b7280;
 }
 
+.deadline-status.due-today {
+
+  background: #f59e0b;
+
+  color: white;
+}
+
 
 /* =====================================================
    FINISHED STATUS

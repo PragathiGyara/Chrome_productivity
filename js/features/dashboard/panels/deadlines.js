@@ -3,41 +3,86 @@
 // --------------------------
 
 function renderGlobalDeadlines() {
-  const container = document.getElementById("globalDeadlineList");
+
+  const container =
+    document.getElementById("globalDeadlineList");
+
   if (!container) return;
 
   container.innerHTML = "";
 
   const allDeadlines = tracks.flatMap(track =>
+
     (track.deadlines || [])
-      .filter(dl => dl.status !== "finished")  
+
+      .filter(dl => dl.status !== "finished")
+
       .map(dl => ({
+
         deadline: dl,
-        track: track
+
+        track
+
       }))
+
   );
 
   allDeadlines
-    .sort((a, b) => new Date(a.deadline.datetime) - new Date(b.deadline.datetime))
+
+    .sort(
+      (a, b) =>
+        new Date(a.deadline.datetime) -
+        new Date(b.deadline.datetime)
+    )
+
     .forEach(({ deadline, track }) => {
 
-      const div = document.createElement("div");
+      const status =
+        getDeadlineStatus(deadline);
+
+      const div =
+        document.createElement("div");
+
       div.classList.add("deadline-item");
 
       div.innerHTML = `
-        <div>
-          <strong>${deadline.title}</strong>
-          <div>${new Date(deadline.datetime).toLocaleString()}</div>
-          <small>${track.name}</small>
+
+        <div class="global-deadline-content">
+
+          <div>
+
+            <strong>${deadline.title}</strong>
+
+            <div>
+              ${new Date(deadline.datetime).toLocaleString()}
+            </div>
+
+            <small>${track.name}</small>
+
+          </div>
+
+          <div class="deadline-status ${status}">
+            ${status.replace("-", " ")}
+          </div>
+
         </div>
+
       `;
 
       div.addEventListener("click", () => {
-        openEditDeadlineForm(track, deadline,"global");
+
+        openEditDeadlineForm(
+          track,
+          deadline,
+          "global"
+        );
+
       });
 
       container.appendChild(div);
+
     });
+
 }
 
 function openSidebarDeadlineForm() {

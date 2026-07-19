@@ -262,17 +262,6 @@ function renderDeadlines(track) {
     });
 }
 
-function getDeadlineStatus(deadline) {
-  if (deadline.status === "finished") return "finished";
-  if (deadline.status === "cancelled") return "cancelled";
-
-  const now = new Date();
-  const due = new Date(deadline.datetime);
-
-  return due < now ? "missed" : "upcoming";
-}
-
-
 // =====================================================
 // DEADLINE FORM
 // =====================================================
