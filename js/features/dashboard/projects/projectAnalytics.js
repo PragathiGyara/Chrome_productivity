@@ -117,6 +117,26 @@ function getAnalyticsDateRange() {
       break;
   }
 
+  // =====================================
+  // NORMALIZE RANGE TO WHOLE DAYS
+  // =====================================
+
+  if (startDate) {
+
+    startDate.setHours(
+      0, 0, 0, 0
+    );
+
+  }
+
+  if (endDate) {
+
+    endDate.setHours(
+      23, 59, 59, 999
+    );
+
+  }
+
   return {
     startDate,
     endDate
