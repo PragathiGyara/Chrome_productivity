@@ -26,6 +26,8 @@ let currentAnalyticsView =
 let currentTrendProjectFilter =
   "active";
 
+let selectedTrendProjectId =
+  null;
 
 // =====================================================
 // DATE RANGE
@@ -926,6 +928,9 @@ function renderTrendAnalytics() {
     activeProjects.length === 0
   ) {
 
+    selectedTrendProjectId =
+      null;
+
     container.innerHTML = `
       <div class="analytics-placeholder">
         No projects
@@ -936,6 +941,14 @@ function renderTrendAnalytics() {
 
   }
 
+  const selectedProject =
+    activeProjects.find(project =>
+
+      project.id ===
+      selectedTrendProjectId
+
+    );
+
   container.innerHTML = `
 
     <div class="trend-project-list">
@@ -943,7 +956,14 @@ function renderTrendAnalytics() {
       ${activeProjects.map(project => `
 
         <button
-          class="trend-project-chip"
+          class="trend-project-chip
+            ${
+              project.id ===
+              selectedTrendProjectId
+                ? "active"
+                : ""
+            }
+          "
           data-project-id="${project.id}"
           type="button"
         >
@@ -961,13 +981,25 @@ function renderTrendAnalytics() {
       class="trend-graph-container"
     >
 
-      <div class="analytics-placeholder">
-        Select a project to view its trend.
-      </div>
+      ${
+        selectedProject
+
+        ? ""
+
+        : `
+          <div
+            class="analytics-placeholder"
+          >
+            Select a project to view its trend.
+          </div>
+        `
+      }
 
     </div>
 
   `;
+
+
 
 }
 

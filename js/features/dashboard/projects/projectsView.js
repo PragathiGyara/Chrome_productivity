@@ -902,5 +902,35 @@ function attachProjectEvents() {
 
     }
   );
+  document.addEventListener(
+    "click",
+    (e) => {
+
+      const chip =
+        e.target.closest(
+          ".trend-project-chip"
+        );
+
+      if (!chip) {
+
+        return;
+
+      }
+
+      selectedTrendProjectId =
+        Number(
+          chip.dataset.projectId
+        );
+      const clickedProject =
+        projects.find(project =>
+
+          String(project.id) ===
+          chip.dataset.projectId
+
+        );
+      renderTrendAnalytics();
+    }
+  );
+
 
 }
