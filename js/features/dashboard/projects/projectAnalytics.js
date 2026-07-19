@@ -23,6 +23,9 @@ let currentAnalyticsRange =
 let currentAnalyticsView =
   "overview";
 
+let currentTrendProjectFilter =
+  "active";
+
 
 // =====================================================
 // DATE RANGE
@@ -496,7 +499,6 @@ function wasProjectActiveInRange(
 
 }
 
-
 // =====================================================
 // RENDER ANALYTICS
 // =====================================================
@@ -614,10 +616,20 @@ function renderProjectsStats() {
     });
 }
 
-
 function renderProjectsAnalytics() {
 
   renderAnalyticsDateRange();
+
+  const filterContainer =
+    document.getElementById(
+      "trendProjectFilterContainer"
+    );
+
+  if (filterContainer) {
+
+    filterContainer.innerHTML = "";
+
+  }
 
   switch (
     currentAnalyticsView
@@ -645,6 +657,42 @@ function renderProjectsAnalytics() {
       renderOverviewAnalytics();
       break;
   }
+
+}
+
+// =====================================================
+// ANALYTICS DATE RANGE
+// =====================================================
+
+function renderAnalyticsDateRange() {
+
+  const label =
+    document.getElementById(
+      "analyticsDateRange"
+    );
+
+  if (!label) return;
+
+  const {
+    startDate,
+    endDate
+  } =
+    getAnalyticsDateRange();
+
+  if (
+    !startDate &&
+    !endDate
+  ) {
+
+    label.textContent =
+      "From project creation to today";
+
+    return;
+
+  }
+
+  label.textContent =
+    `${formatDate(startDate)} - ${formatDate(endDate)}`;
 
 }
 
@@ -795,7 +843,6 @@ function renderOverviewAnalytics() {
 
 }
 
-
 function renderTrendAnalytics() {
 
   const container =
@@ -804,6 +851,45 @@ function renderTrendAnalytics() {
     );
 
   if (!container) return;
+
+  const filterContainer =
+    document.getElementById(
+      "trendProjectFilterContainer"
+    );
+
+  if (filterContainer) {
+
+    filterContainer.innerHTML = `
+
+      <select
+        id="trendProjectFilter"
+        class="analytics-range-select"
+      >
+
+        <option value="active">
+          Active Projects
+        </option>
+
+        <option value="paused">
+          Paused Projects
+        </option>
+
+        <option value="completed">
+          Completed Projects
+        </option>
+
+      </select>
+
+    `;
+
+    filterContainer
+      .querySelector(
+        "#trendProjectFilter"
+      )
+      .value =
+        currentTrendProjectFilter;
+
+  }
 
   const {
     startDate,
@@ -816,53 +902,74 @@ function renderTrendAnalytics() {
   const endDateKey =
     getLocalDateKey(endDate);
 
-  
-  console.log(
-    "Range:",
-    currentAnalyticsRange,
-    "Start Key:",
-    startDateKey,
-    "End Key:",
-    endDateKey
-  );
   const activeProjects =
     projects.filter(project => {
 
-      const isActive =
-        wasProjectActiveInRange(
-          project,
-          startDateKey,
-          endDateKey
-        );
+      if (
+        project.status !==
+        currentTrendProjectFilter
+      ) {
 
-      console.log(
-        project.name,
-        isActive,
-        project.statusHistory
+        return false;
+
+      }
+
+      return wasProjectActiveInRange(
+        project,
+        startDateKey,
+        endDateKey
       );
-
-      return isActive;
 
     });
 
-  container.innerHTML =
+  if (
+    activeProjects.length === 0
+  ) {
 
-    activeProjects.length
+    container.innerHTML = `
+      <div class="analytics-placeholder">
+        No projects
+      </div>
+    `;
 
-      ? activeProjects
-          .map(project =>
-            `<div>${project.name}</div>`
-          )
-          .join("")
+    return;
 
-      : `
-          <div class="analytics-placeholder">
-            No active projects
-          </div>
-        `;
+  }
+
+  container.innerHTML = `
+
+    <div class="trend-project-list">
+
+      ${activeProjects.map(project => `
+
+        <button
+          class="trend-project-chip"
+          data-project-id="${project.id}"
+          type="button"
+        >
+
+          ${project.name}
+
+        </button>
+
+      `).join("")}
+
+    </div>
+
+    <div
+      id="trendGraphContainer"
+      class="trend-graph-container"
+    >
+
+      <div class="analytics-placeholder">
+        Select a project to view its trend.
+      </div>
+
+    </div>
+
+  `;
 
 }
-
 
 function renderDistributionAnalytics() {
 
@@ -880,7 +987,6 @@ function renderDistributionAnalytics() {
   `;
 }
 
-
 function renderInsightsAnalytics() {
 
   const container =
@@ -895,40 +1001,4 @@ function renderInsightsAnalytics() {
       Insights Analytics
     </div>
   `;
-}
-
-// =====================================================
-// ANALYTICS DATE RANGE
-// =====================================================
-
-function renderAnalyticsDateRange() {
-
-  const label =
-    document.getElementById(
-      "analyticsDateRange"
-    );
-
-  if (!label) return;
-
-  const {
-    startDate,
-    endDate
-  } =
-    getAnalyticsDateRange();
-
-  if (
-    !startDate &&
-    !endDate
-  ) {
-
-    label.textContent =
-      "From project creation to today";
-
-    return;
-
-  }
-
-  label.textContent =
-    `${formatDate(startDate)} - ${formatDate(endDate)}`;
-
 }

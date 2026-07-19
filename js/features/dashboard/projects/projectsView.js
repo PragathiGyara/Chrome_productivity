@@ -199,6 +199,10 @@ function renderProjectsView() {
       ></div>
 
       <div
+        id="trendProjectFilterContainer"
+      ></div>
+
+      <div
         id="projectsAnalyticsContent"
       ></div>
 
@@ -844,37 +848,59 @@ function attachProjectEvents() {
     );
 
   document
-  .querySelectorAll(
-    ".analytics-tab"
-  )
-  .forEach(tab => {
+    .querySelectorAll(
+      ".analytics-tab"
+    )
+    .forEach(tab => {
 
-    tab.addEventListener(
-      "click",
-      () => {
+      tab.addEventListener(
+        "click",
+        () => {
 
-        currentAnalyticsView =
-          tab.dataset.view;
+          currentAnalyticsView =
+            tab.dataset.view;
 
-        document
-          .querySelectorAll(
-            ".analytics-tab"
-          )
-          .forEach(btn => {
+          document
+            .querySelectorAll(
+              ".analytics-tab"
+            )
+            .forEach(btn => {
 
-            btn.classList.remove(
-              "active"
-            );
+              btn.classList.remove(
+                "active"
+              );
 
-          });
+            });
 
-        tab.classList.add(
-          "active"
-        );
+          tab.classList.add(
+            "active"
+          );
 
-        renderProjectsAnalytics();
+          renderProjectsAnalytics();
+        }
+      );
+
+    });
+
+  document.addEventListener(
+    "change",
+    (e) => {
+
+      if (
+        e.target.id !==
+        "trendProjectFilter"
+      ) {
+
+        return;
+
       }
-    );
 
-  });
+      currentTrendProjectFilter =
+        e.target.value;
+
+      renderTrendAnalytics();
+
+    }
+  );
+
 }
