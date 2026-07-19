@@ -417,7 +417,7 @@ function findTrackByDeadline(deadlineId) {
   );
 }
 
-function openEditDeadlineForm(track, deadline, source="track") {
+function openEditDeadlineForm(track, deadline, source = "track") {
 
   let container;
 
@@ -443,12 +443,26 @@ function openEditDeadlineForm(track, deadline, source="track") {
 
   form.innerHTML = `
 
-    <!-- 🔥 STATUS ACTIONS -->
-    ${deadline.status !== "finished" ? `
+    <!-- STATUS ACTIONS -->
+    ${deadline.status !== "finished" && deadline.status !== "cancelled" ? `
       <div class="deadline-status-actions">
-        <button type="button" class="status-btn complete-btn" id="markFinishedBtn">
+
+        <button
+          type="button"
+          class="status-btn complete-btn"
+          id="markFinishedBtn"
+        >
           ✓ Mark Finished
         </button>
+
+        <button
+          type="button"
+          class="status-btn cancel-btn"
+          id="markCancelledBtn"
+        >
+          ✕ Mark Cancelled
+        </button>
+
       </div>
     ` : ""}
 
@@ -460,9 +474,17 @@ function openEditDeadlineForm(track, deadline, source="track") {
     </div>
 
     <div class="deadline-form-actions">
-      <button type="button" class="neutral-btn" id="cancelEditBtn">Cancel</button>
-      <button type="button" class="primary-btn" id="updateDeadlineBtn">Update</button>
-      <button type="button" class="danger-btn" id="deleteDeadlineBtn">Delete</button>
+      <button type="button" class="neutral-btn" id="cancelEditBtn">
+        Cancel
+      </button>
+
+      <button type="button" class="primary-btn" id="updateDeadlineBtn">
+        Update
+      </button>
+
+      <button type="button" class="danger-btn" id="deleteDeadlineBtn">
+        Delete
+      </button>
     </div>
   `;
 
@@ -471,10 +493,13 @@ function openEditDeadlineForm(track, deadline, source="track") {
   const titleInput = form.querySelector("#editTitle");
   const dateInput = form.querySelector("#editDate");
   const timeInput = form.querySelector("#editTime");
+
   const updateBtn = form.querySelector("#updateDeadlineBtn");
   const cancelBtn = form.querySelector("#cancelEditBtn");
   const deleteBtn = form.querySelector("#deleteDeadlineBtn");
+
   const finishBtn = form.querySelector("#markFinishedBtn");
+  const cancelStatusBtn = form.querySelector("#markCancelledBtn");
 
   updateBtn.disabled = true;
 
@@ -482,6 +507,7 @@ function openEditDeadlineForm(track, deadline, source="track") {
   const originalDatetime = deadline.datetime;
 
   function checkForChanges() {
+
     const newTitle = titleInput.value.trim();
     const newDate = dateInput.value;
     const newTime = timeInput.value;
@@ -495,15 +521,17 @@ function openEditDeadlineForm(track, deadline, source="track") {
       newDatetime !== originalDatetime;
 
     updateBtn.disabled = !isChanged;
+
   }
+
   titleInput.addEventListener("input", checkForChanges);
   dateInput.addEventListener("input", checkForChanges);
   timeInput.addEventListener("input", checkForChanges);
 
   if (finishBtn) {
+
     finishBtn.addEventListener("click", () => {
 
-      // 🔥 FIND CORRECT TRACK
       const correctTrack = findTrackByDeadline(deadline.id);
 
       if (!correctTrack) return;
@@ -516,14 +544,36 @@ function openEditDeadlineForm(track, deadline, source="track") {
 
       form.remove();
 
-      // 🔥 ONLY UPDATE CORRECT TRACK
       renderDeadlines(correctTrack);
-
       renderGlobalDeadlines();
-
-      // Optional but safe
       refreshCurrentView();
+
     });
+
+  }
+
+  if (cancelStatusBtn) {
+
+    cancelStatusBtn.addEventListener("click", () => {
+
+      const correctTrack = findTrackByDeadline(deadline.id);
+
+      if (!correctTrack) return;
+
+      deadline.status = "cancelled";
+
+      persistTracks();
+
+      showToast(`"${deadline.title}" marked as cancelled`);
+
+      form.remove();
+
+      renderDeadlines(correctTrack);
+      renderGlobalDeadlines();
+      refreshCurrentView();
+
+    });
+
   }
 
   updateBtn.addEventListener("click", () => {
@@ -544,7 +594,6 @@ function openEditDeadlineForm(track, deadline, source="track") {
       return;
     }
 
-    // Update the object directly
     deadline.title = newTitle;
     deadline.datetime = newDatetime.toISOString();
 
@@ -555,42 +604,51 @@ function openEditDeadlineForm(track, deadline, source="track") {
     persistTracks();
 
     renderGlobalDeadlines();
-  const correctTrack = findTrackByDeadline(deadline.id);
 
-  renderDeadlines(correctTrack);
-    refreshCurrentView();  
+    const correctTrack = findTrackByDeadline(deadline.id);
+
+    renderDeadlines(correctTrack);
+
+    refreshCurrentView();
 
     showToast("Deadline updated");
 
     form.remove();
+
   });
 
   deleteBtn.addEventListener("click", () => {
 
     const confirmed = confirm(
-        `Are you sure you want to delete "${deadline.title}"?`
+      `Are you sure you want to delete "${deadline.title}"?`
     );
 
     if (!confirmed) return;
 
     track.deadlines = track.deadlines.filter(
-        dl => dl.id !== deadline.id
+      dl => dl.id !== deadline.id
     );
 
     persistTracks();
+
     renderGlobalDeadlines();
+
     showToast(`Deadline "${deadline.title}" deleted`);
 
     form.remove();
-  const correctTrack = findTrackByDeadline(deadline.id);
 
-  renderDeadlines(correctTrack);
-    });
+    const correctTrack = findTrackByDeadline(deadline.id);
 
+    renderDeadlines(correctTrack);
+
+  });
 
   cancelBtn.addEventListener("click", () => {
+
     form.remove();
+
   });
+
 }
 
 // =====================================================
