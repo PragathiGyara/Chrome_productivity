@@ -22,46 +22,35 @@ const DISTRIBUTION_COLORS = [
 // HOUR DISTRIBUTION
 // =====================================================
 
+function renderHourDistribution() {
+
+  renderExpectedHourDistribution();
+
+}
+
+
 function renderExpectedHourDistribution() {
 
   const totalElement =
-    document.getElementById(
-      "expectedHoursTotal"
-    );
+    document.getElementById("expectedHoursTotal");
 
   const canvas =
-    document.getElementById(
-      "expectedHourDistributionCanvas"
-    );
+    document.getElementById("expectedHourDistributionCanvas");
 
   const legend =
-    document.getElementById(
-      "expectedHourDistributionLegend"
-    );
+    document.getElementById("expectedHourDistributionLegend");
 
-  if (
-    !totalElement ||
-    !canvas ||
-    !legend
-  ) {
+  if (!totalElement || !canvas || !legend) {
     return;
   }
 
   const activeProjects =
-    projects.filter(
-      project =>
-        project.status === "active"
-    );
+    getProjectsForSelectedDate();
 
   const data =
     activeProjects.map(project => ({
-
-      name:
-        project.name,
-
-      value:
-        project.targetHoursPerDay
-
+      name: project.name,
+      value: project.targetHoursPerDay
     }));
 
   const totalHours =
@@ -72,19 +61,11 @@ function renderExpectedHourDistribution() {
     );
 
   totalElement.textContent =
-    formatHours(
-      totalHours
-    );
+    formatHours(totalHours);
 
-  drawPieChart(
-    canvas,
-    data
-  );
+  drawPieChart(canvas, data);
 
-  renderPieLegend(
-    legend,
-    data
-  );
+  renderPieLegend(legend, data);
 
 }
 

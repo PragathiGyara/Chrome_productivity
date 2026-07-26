@@ -356,7 +356,7 @@ function renderProjectsView() {
 
   renderProjectsAnalytics();
 
-  renderExpectedHourDistribution();
+  renderHourDistribution();
 
   attachProjectEvents();
 
@@ -366,6 +366,40 @@ function renderProjectsView() {
 // =====================================================
 // RENDER PROJECT ROWS
 // =====================================================
+
+function getProjectsForSelectedDate() {
+
+  return projects.filter(project => {
+
+    const status =
+      project.status ||
+      "active";
+
+    if (
+      status === "completed"
+    ) {
+      return false;
+    }
+
+    const createdDateKey =
+      getDateKey(
+        new Date(
+          project.createdAt
+        )
+      );
+
+    if (
+      selectedProjectDate <
+      createdDateKey
+    ) {
+      return false;
+    }
+
+    return true;
+
+  });
+
+}
 
 function renderProjects() {
 
@@ -384,42 +418,7 @@ function renderProjects() {
 
   list.innerHTML = "";
 
-  projects
-
-    // =====================================
-    // FILTER
-    // =====================================
-
-    .filter(project => {
-
-      const status =
-        project.status ||
-        "active";
-
-      if (
-        status === "completed"
-      ) {
-
-        return false;
-      }
-
-      const createdDateKey =
-        getDateKey(
-          new Date(
-            project.createdAt
-          )
-        );
-
-      if (
-        selectedProjectDate <
-        createdDateKey
-      ) {
-
-        return false;
-      }
-
-      return true;
-    })
+  getProjectsForSelectedDate()
 
     // =====================================
     // RENDER
@@ -633,7 +632,6 @@ function renderProjects() {
   initializeProjectDragDrop();
 
 }
-
 
 // =====================================================
 // PROJECT ROW EVENTS
@@ -958,6 +956,9 @@ function attachProjectEvents() {
           e.target.value;
 
         renderProjects();
+
+        renderHourDistribution();
+
       }
     );
 
@@ -1085,13 +1086,12 @@ function attachProjectEvents() {
           chip.dataset.projectId
         );
 
-      const clickedProject =
-        projects.find(project =>
+      projects.find(project =>
 
-          String(project.id) ===
-          chip.dataset.projectId
+        String(project.id) ===
+        chip.dataset.projectId
 
-        );
+      );
 
       renderTrendAnalytics();
 

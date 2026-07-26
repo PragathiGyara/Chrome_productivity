@@ -28,6 +28,8 @@ function refreshProjectsUI() {
 
   renderProjects();
 
+  renderHourDistribution();
+
   renderProjectsStats();
 
   renderProjectsAnalytics();
