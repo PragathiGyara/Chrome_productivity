@@ -54,61 +54,59 @@ function renderProjectsView() {
         class="projects-tracker-header"
       >
 
-      <div
-        class="projects-section-title
-              tracker-collapse-toggle"
-        id="trackerCollapseToggle"
-      >
-
-        <span
-          class="tracker-collapse-icon"
+        <div
+          class="projects-section-title
+                 tracker-collapse-toggle"
+          id="trackerCollapseToggle"
         >
-          ${
-            isProjectsTrackerCollapsed
-              ? "▶"
-              : "▼"
-          }
-        </span>
 
-        Project Time Tracker
+          <span
+            class="tracker-collapse-icon"
+          >
+            ${
+              isProjectsTrackerCollapsed
+                ? "▶"
+                : "▼"
+            }
+          </span>
 
-      </div>
+          Project Time Tracker
 
-      ${
-        !isProjectsTrackerCollapsed
-          ? `
-            <div
-              class="projects-date-picker"
-            >
+        </div>
 
-              <span
-                class="projects-date-icon"
+        ${
+          !isProjectsTrackerCollapsed
+            ? `
+              <div
+                class="projects-date-picker"
               >
-                📅
-              </span>
 
-              <input
-                type="date"
-                id="projectsDateInput"
-                value="${selectedProjectDate}"
-              />
+                <span
+                  class="projects-date-icon"
+                >
+                  📅
+                </span>
 
-            </div>
-          `
-          : ""
-      }
+                <input
+                  type="date"
+                  id="projectsDateInput"
+                  value="${selectedProjectDate}"
+                />
+
+              </div>
+            `
+            : ""
+        }
 
       </div>
 
       <div
         id="projectsTrackerContent"
-        class="
-          ${
-            isProjectsTrackerCollapsed
-              ? "tracker-collapsed"
-              : ""
-          }
-        "
+        class="${
+          isProjectsTrackerCollapsed
+            ? "tracker-collapsed"
+            : ""
+        }"
       >
 
         <div id="projectsList"></div>
@@ -154,16 +152,106 @@ function renderProjectsView() {
 
       <div
         id="hourDistributionContent"
-        class="
-          ${
-            isHourDistributionCollapsed
-              ? "tracker-collapsed"
-              : ""
-          }
-        "
+        class="${
+          isHourDistributionCollapsed
+            ? "tracker-collapsed"
+            : ""
+        }"
       >
 
-        <!-- Will be implemented later -->
+        <div
+          class="hour-distribution-grid"
+        >
+
+          <!-- Expected -->
+
+          <div
+            class="hour-distribution-card"
+          >
+
+            <div
+              class="hour-distribution-header"
+            >
+
+              <div
+                class="hour-distribution-title"
+              >
+                Expected Time
+              </div>
+
+              <div
+                id="expectedHoursTotal"
+                class="hour-distribution-total"
+              >
+                0h
+              </div>
+
+            </div>
+
+            <div
+              class="hour-distribution-body"
+            >
+
+              <canvas
+                id="expectedHourDistributionCanvas"
+                width="260"
+                height="260"
+              ></canvas>
+
+              <div
+                id="expectedHourDistributionLegend"
+                class="hour-distribution-legend"
+              ></div>
+
+            </div>
+
+          </div>
+
+          <!-- Actual -->
+
+          <div
+            class="hour-distribution-card"
+          >
+
+            <div
+              class="hour-distribution-header"
+            >
+
+              <div
+                class="hour-distribution-title"
+              >
+                Actual Time
+              </div>
+
+              <div
+                id="actualHoursTotal"
+                class="hour-distribution-total"
+              >
+                0h
+              </div>
+
+            </div>
+
+            <div
+              class="hour-distribution-body"
+            >
+
+              <canvas
+                id="actualHourDistributionCanvas"
+                width="260"
+                height="260"
+              ></canvas>
+
+              <div
+                id="actualHourDistributionLegend"
+                class="hour-distribution-legend"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -261,13 +349,17 @@ function renderProjectsView() {
       ></div>
 
     </div>
+
   `;
 
   renderProjects();
 
   renderProjectsAnalytics();
 
+  renderExpectedHourDistribution();
+
   attachProjectEvents();
+
 }
 
 

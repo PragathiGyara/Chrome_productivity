@@ -1000,3 +1000,151 @@
   height: 320px;
 
 }
+
+/* =====================================================
+   HOUR DISTRIBUTION GRID
+===================================================== */
+
+.hour-distribution-grid {
+
+  display: flex;
+
+  gap: 24px;
+
+  align-items: stretch;
+
+}
+
+
+
+/* =====================================================
+   HOUR DISTRIBUTION CARD
+===================================================== */
+
+.hour-distribution-card {
+
+  flex: 1;
+
+  background: rgba(255,255,255,0.04);
+
+  border-radius: 14px;
+
+  padding: 20px;
+
+}
+
+
+/* =====================================================
+   HOUR DISTRIBUTION TITLE
+===================================================== */
+
+.hour-distribution-title {
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   HOUR DISTRIBUTION BODY
+===================================================== */
+
+.hour-distribution-body {
+
+  min-height: 160px;
+}
+
+.hour-distribution-body {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+/* =====================================================
+   HOUR DISTRIBUTION HEADER
+===================================================== */
+
+.hour-distribution-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   HOUR DISTRIBUTION TOTAL
+===================================================== */
+
+.hour-distribution-total {
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #38bdf8;
+}
+
+/* =====================================================
+   HOUR DISTRIBUTION LEGEND
+===================================================== */
+
+.hour-distribution-legend {
+
+  margin-top: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+}
+
+
+.hour-distribution-legend-item {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  font-size: 14px;
+
+}
+
+
+.hour-distribution-legend-left {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+.hour-distribution-legend-color {
+
+  width: 12px;
+
+  height: 12px;
+
+  border-radius: 50%;
+
+  flex-shrink: 0;
+
+}
