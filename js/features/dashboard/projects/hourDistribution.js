@@ -26,8 +26,9 @@ function renderHourDistribution() {
 
   renderExpectedHourDistribution();
 
-}
+  renderActualHourDistribution();
 
+}
 
 function renderExpectedHourDistribution() {
 
@@ -66,6 +67,55 @@ function renderExpectedHourDistribution() {
   drawPieChart(canvas, data);
 
   renderPieLegend(legend, data);
+
+}
+
+function renderActualHourDistribution() {
+
+  const totalElement =
+    document.getElementById("actualHoursTotal");
+
+  const canvas =
+    document.getElementById("actualHourDistributionCanvas");
+
+  const legend =
+    document.getElementById("actualHourDistributionLegend");
+
+  if (!totalElement || !canvas || !legend) {
+    return;
+  }
+
+  const visibleProjects =
+    getProjectsForSelectedDate();
+
+  const data =
+    visibleProjects.map(project => ({
+      name: project.name,
+      value:
+        project.logs?.[
+          selectedProjectDate
+        ] || 0
+    }));
+
+  const totalHours =
+    data.reduce(
+      (sum, project) =>
+        sum + project.value,
+      0
+    );
+
+  totalElement.textContent =
+    formatHours(totalHours);
+
+  drawPieChart(
+    canvas,
+    data
+  );
+
+  renderPieLegend(
+    legend,
+    data
+  );
 
 }
 
