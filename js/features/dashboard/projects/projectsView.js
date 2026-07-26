@@ -24,6 +24,8 @@ let selectedProjectDate =
 let isProjectsTrackerCollapsed =
   false;
 
+let isHourDistributionCollapsed =
+  false;
 
 // =====================================================
 // RENDER PROJECTS VIEW
@@ -110,6 +112,58 @@ function renderProjectsView() {
       >
 
         <div id="projectsList"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =============================
+         HOUR DISTRIBUTION
+    ============================== -->
+
+    <div
+      class="projects-hour-distribution-section"
+    >
+
+      <div
+        class="projects-tracker-header"
+      >
+
+        <div
+          class="projects-section-title
+                 tracker-collapse-toggle"
+          id="hourDistributionCollapseToggle"
+        >
+
+          <span
+            class="tracker-collapse-icon"
+          >
+            ${
+              isHourDistributionCollapsed
+                ? "▶"
+                : "▼"
+            }
+          </span>
+
+          Hour Distribution
+
+        </div>
+
+      </div>
+
+      <div
+        id="hourDistributionContent"
+        class="
+          ${
+            isHourDistributionCollapsed
+              ? "tracker-collapsed"
+              : ""
+          }
+        "
+      >
+
+        <!-- Will be implemented later -->
 
       </div>
 
@@ -848,6 +902,22 @@ function attachProjectEvents() {
     );
 
   document
+    .getElementById(
+      "hourDistributionCollapseToggle"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        isHourDistributionCollapsed =
+          !isHourDistributionCollapsed;
+
+        renderProjectsView();
+
+      }
+    );
+
+  document
     .querySelectorAll(
       ".analytics-tab"
     )
@@ -902,6 +972,7 @@ function attachProjectEvents() {
 
     }
   );
+
   document.addEventListener(
     "click",
     (e) => {
@@ -921,6 +992,7 @@ function attachProjectEvents() {
         Number(
           chip.dataset.projectId
         );
+
       const clickedProject =
         projects.find(project =>
 
@@ -928,9 +1000,10 @@ function attachProjectEvents() {
           chip.dataset.projectId
 
         );
+
       renderTrendAnalytics();
+
     }
   );
-
 
 }
