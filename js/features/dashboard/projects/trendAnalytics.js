@@ -101,12 +101,99 @@ function renderTrendAnalytics() {
   }
 
   const selectedProject =
-    activeProjects.find(project =>
-
-      project.id ===
-      selectedTrendProjectId
-
+    activeProjects.find(
+      project =>
+        project.id ===
+        selectedTrendProjectId
     );
+
+  let projectInfoHtml = "";
+
+  if (selectedProject) {
+
+    const projectStartDate =
+      formatDate(
+        new Date(
+          selectedProject.createdAt
+        )
+      );
+
+    if (
+      currentTrendProjectFilter ===
+      "completed"
+    ) {
+
+      const completedEntry =
+        selectedProject.statusHistory.find(
+          entry =>
+            entry.status ===
+            "completed"
+        );
+
+      const projectEndDate =
+        completedEntry
+          ? formatDate(
+              parseLocalDate(
+                completedEntry.date
+              )
+            )
+          : "-";
+
+      projectInfoHtml = `
+
+        <div class="trend-project-dates">
+
+          <div>
+
+            <strong>Started:</strong>
+            ${projectStartDate}
+
+          </div>
+
+          <div>
+
+            <strong>Ended:</strong>
+            ${projectEndDate}
+
+          </div>
+
+        </div>
+
+      `;
+
+    } else {
+
+      const statusText =
+        currentTrendProjectFilter ===
+        "paused"
+          ? "Paused"
+          : "Ongoing";
+
+      projectInfoHtml = `
+
+        <div class="trend-project-dates">
+
+          <div>
+
+            <strong>Started:</strong>
+            ${projectStartDate}
+
+          </div>
+
+          <div>
+
+            <strong>Status:</strong>
+            ${statusText}
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+  }
 
   container.innerHTML = `
 
@@ -135,6 +222,8 @@ function renderTrendAnalytics() {
 
     </div>
 
+    ${projectInfoHtml}
+
     <div
       id="trendGraphContainer"
       class="trend-graph-container"
@@ -143,15 +232,15 @@ function renderTrendAnalytics() {
       ${
         selectedProject
 
-        ? ""
+          ? ""
 
-        : `
-          <div
-            class="analytics-placeholder"
-          >
-            Select a project to view its trend.
-          </div>
-        `
+          : `
+              <div
+                class="analytics-placeholder"
+              >
+                Select a project to view its trend.
+              </div>
+            `
       }
 
     </div>
@@ -311,9 +400,27 @@ function renderTrendGraph(
     canvas
   );
 
+  const targetHours =
+
+    (
+      currentAnalyticsRange ===
+        "thisWeek"
+
+      ||
+
+      currentAnalyticsRange ===
+        "previousWeek"
+
+    )
+
+      ? project.targetHoursPerDay
+
+      : null;
+
   const yAxis =
     calculateTrendYAxis(
-      graphData
+      graphData,
+      targetHours
     );
 
   drawTrendBarGraph(
@@ -628,54 +735,38 @@ function getMonthlyTrendData(
 }
 
 function calculateTrendYAxis(
-  graphData
+  graphData,
+  targetHours = null
 ) {
 
-  const maxValue =
+  const maxLogged =
     Math.max(
       ...graphData.map(
         item => item.value
       ),
-      1
+      0
     );
 
-  let maxY;
+  let maxY =
+    maxLogged;
 
   if (
-    maxValue <= 2
+    targetHours !== null
   ) {
-
-    maxY = 2;
-
-  } else if (
-    maxValue <= 5
-  ) {
-
-    maxY = 5;
-
-  } else if (
-    maxValue <= 10
-  ) {
-
-    maxY = 10;
-
-  } else {
-
-    const magnitude =
-      Math.pow(
-        10,
-        Math.floor(
-          Math.log10(
-            maxValue
-          )
-        )
-      );
 
     maxY =
-      Math.ceil(
-        maxValue /
-        magnitude
-      ) * magnitude;
+      Math.max(
+        maxLogged,
+        targetHours
+      );
+
+  }
+
+  if (
+    maxY === 0
+  ) {
+
+    maxY = 1;
 
   }
 
@@ -689,7 +780,10 @@ function calculateTrendYAxis(
       maxY /
       divisions,
 
-    divisions
+    divisions,
+
+    target:
+      targetHours
 
   };
 
@@ -798,6 +892,55 @@ function drawTrendAxes(
   }
 
   // ==========================
+  // TARGET LINE
+  // ==========================
+
+  if (
+
+    yAxis.target !== null
+
+  ) {
+
+    const targetY =
+
+      bottom -
+
+      (
+        yAxis.target /
+        yAxis.max
+      ) *
+      chartHeight;
+
+    ctx.save();
+
+    ctx.strokeStyle =
+      "#22c55e";
+
+    ctx.lineWidth = 2;
+
+    ctx.setLineDash(
+      [6, 6]
+    );
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      left,
+      targetY
+    );
+
+    ctx.lineTo(
+      right,
+      targetY
+    );
+
+    ctx.stroke();
+
+    ctx.restore();
+
+  }
+
+  // ==========================
   // AXES
   // ==========================
 
@@ -805,8 +948,6 @@ function drawTrendAxes(
     "#ffffff";
 
   ctx.lineWidth = 2;
-
-  // Y
 
   ctx.beginPath();
 
@@ -821,8 +962,6 @@ function drawTrendAxes(
   );
 
   ctx.stroke();
-
-  // X
 
   ctx.beginPath();
 
@@ -884,13 +1023,9 @@ function drawTrendBars(
           ? 0
 
           : (
-
               item.value /
-
               yAxis.max
-
             ) *
-
             chartHeight;
 
       const x =
@@ -900,16 +1035,31 @@ function drawTrendBars(
         index * slotWidth +
 
         (
-
           slotWidth -
-
           barWidth
-
         ) / 2;
 
       const y =
         bottom -
         barHeight;
+
+      // ======================
+      // SHADOW
+      // ======================
+
+      ctx.save();
+
+      ctx.shadowColor =
+        "rgba(79,70,229,0.45)";
+
+      ctx.shadowBlur =
+        16;
+
+      ctx.shadowOffsetX =
+        0;
+
+      ctx.shadowOffsetY =
+        4;
 
       // ======================
       // BAR GRADIENT
@@ -930,19 +1080,13 @@ function drawTrendBars(
         );
 
       gradient.addColorStop(
-
         0,
-
-        "#6d5efc"
-
+        "#7367ff"
       );
 
       gradient.addColorStop(
-
         1,
-
         "#4f46e5"
-
       );
 
       ctx.fillStyle =
@@ -961,29 +1105,24 @@ function drawTrendBars(
         barHeight,
 
         [
-
           8,
-
           8,
-
           0,
-
           0
-
         ]
 
       );
 
       ctx.fill();
 
+      ctx.restore();
+
       // ======================
       // VALUE
       // ======================
 
       if (
-
         item.value > 0
-
       ) {
 
         ctx.fillStyle =
@@ -1001,13 +1140,10 @@ function drawTrendBars(
         ctx.fillText(
 
           formatHours(
-
             item.value
-
           ),
 
           x +
-
             barWidth / 2,
 
           y - 10

@@ -123,3 +123,26 @@ function getLocalTime(
   );
 
 }
+
+function getProjectCompletionDate(
+  project
+) {
+
+  const completedEntry =
+    project.statusHistory.find(
+      entry =>
+        entry.status ===
+        "completed"
+    );
+
+  if (!completedEntry) {
+
+    return null;
+
+  }
+
+  return parseLocalDate(
+    completedEntry.date
+  );
+
+}
