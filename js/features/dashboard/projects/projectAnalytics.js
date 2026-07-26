@@ -304,7 +304,6 @@ function getExpectedDaysForRange(
 
 }
 
-
 // =====================================================
 // ANALYTICS CALCULATION
 // =====================================================
@@ -698,7 +697,6 @@ function renderAnalyticsDateRange() {
 
 }
 
-
 function renderOverviewAnalytics() {
 
   const container =
@@ -999,7 +997,15 @@ function renderTrendAnalytics() {
 
   `;
 
+  if (
+    selectedProject
+  ) {
 
+    renderTrendGraph(
+      selectedProject
+    );
+
+  }
 
 }
 
@@ -1033,4 +1039,934 @@ function renderInsightsAnalytics() {
       Insights Analytics
     </div>
   `;
+}
+
+function drawTrendBarGraph(
+  canvas,
+  graphData,
+  yAxis
+) {
+
+  const ctx =
+    canvas.getContext("2d");
+
+  const padding = {
+
+    top: 30,
+
+    right: 25,
+
+    bottom: 70,
+
+    left: 60
+
+  };
+
+  const chartWidth =
+    canvas.width -
+    padding.left -
+    padding.right;
+
+  const chartHeight =
+    canvas.height -
+    padding.top -
+    padding.bottom;
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  ctx.font =
+    "12px Arial";
+
+  ctx.lineWidth = 1;
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  drawTrendAxes(
+
+    ctx,
+
+    padding,
+
+    chartWidth,
+
+    chartHeight,
+
+    yAxis
+
+  );
+
+  drawTrendBars(
+
+    ctx,
+
+    graphData,
+
+    padding,
+
+    chartWidth,
+
+    chartHeight,
+
+    yAxis
+
+  );
+
+  drawTrendLabels(
+
+    ctx,
+
+    graphData,
+
+    padding,
+
+    chartWidth,
+
+    chartHeight,
+
+    yAxis
+
+  );
+
+}
+
+function renderTrendGraph(
+  project
+) {
+
+  const container =
+    document.getElementById(
+      "trendGraphContainer"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const graphData =
+    getTrendGraphData(
+      project
+    );
+
+  if (
+    !graphData.length
+  ) {
+
+    container.innerHTML = `
+      <div class="analytics-empty-state">
+        No data available.
+      </div>
+    `;
+
+    return;
+
+  }
+
+  const canvas =
+    document.createElement(
+      "canvas"
+    );
+
+  canvas.width = 900;
+  canvas.height = 420;
+
+  container.appendChild(
+    canvas
+  );
+
+  const yAxis =
+    calculateTrendYAxis(
+      graphData
+    );
+
+  drawTrendBarGraph(
+    canvas,
+    graphData,
+    yAxis
+  );
+
+}
+
+function getTrendGraphData(
+  project
+) {
+
+  if (
+    !project ||
+    !project.logs
+  ) {
+
+    return [];
+
+  }
+
+  const {
+    startDate,
+    endDate
+  } =
+    getAnalyticsDateRange();
+
+  switch (
+    currentAnalyticsRange
+  ) {
+
+    case "thisWeek":
+
+    case "previousWeek":
+
+      return getDailyTrendData(
+        project,
+        startDate,
+        endDate
+      );
+
+    case "thisMonth":
+
+      return getWeeklyTrendData(
+        project,
+        startDate,
+        endDate
+      );
+
+    case "overall":
+
+      const createdAt =
+        new Date(
+          project.createdAt
+        );
+
+      const ageInDays =
+        Math.floor(
+          (
+            endDate -
+            createdAt
+          ) /
+          86400000
+        );
+
+      if (
+        ageInDays < 60
+      ) {
+
+        return getWeeklyTrendData(
+          project,
+          createdAt,
+          endDate
+        );
+
+      }
+
+      return getMonthlyTrendData(
+        project
+      );
+
+    default:
+
+      return [];
+
+  }
+
+}
+
+function getDailyTrendData(
+  project,
+  startDate,
+  endDate
+) {
+
+  const graphData = [];
+
+  const currentDate =
+    new Date(startDate);
+
+  while (
+    currentDate <= endDate
+  ) {
+
+    const dateKey =
+      getLocalDateKey(
+        currentDate
+      );
+
+    graphData.push({
+
+      label:
+        currentDate.toLocaleDateString(
+          "en-IN",
+          {
+            weekday: "short"
+          }
+        ),
+
+      value:
+        project.logs[
+          dateKey
+        ] || 0,
+
+      date: dateKey
+
+    });
+
+    currentDate.setDate(
+      currentDate.getDate() + 1
+    );
+
+  }
+
+  return graphData;
+
+}
+
+function getWeeklyTrendData(
+  project,
+  startDate,
+  endDate
+) {
+
+  const graphData = [];
+
+  let weekStart =
+    new Date(startDate);
+
+  while (
+    weekStart <= endDate
+  ) {
+
+    const weekEnd =
+      new Date(weekStart);
+
+    weekEnd.setDate(
+      weekEnd.getDate() + 6
+    );
+
+    if (
+      weekEnd > endDate
+    ) {
+
+      weekEnd.setTime(
+        endDate.getTime()
+      );
+
+    }
+
+    let totalHours = 0;
+
+    const currentDay =
+      new Date(weekStart);
+
+    while (
+      currentDay <= weekEnd
+    ) {
+
+      const dateKey =
+        getLocalDateKey(
+          currentDay
+        );
+
+      totalHours +=
+        project.logs[
+          dateKey
+        ] || 0;
+
+      currentDay.setDate(
+        currentDay.getDate() + 1
+      );
+
+    }
+
+    graphData.push({
+
+      label:
+        `${weekStart.toLocaleDateString(
+          "en-IN",
+          {
+            day: "numeric",
+            month: "short"
+          }
+        )} - ${weekEnd.toLocaleDateString(
+          "en-IN",
+          {
+            day: "numeric",
+            month: "short"
+          }
+        )}`,
+
+      value:
+        Number(
+          totalHours.toFixed(2)
+        ),
+
+      startDate:
+        getLocalDateKey(
+          weekStart
+        ),
+
+      endDate:
+        getLocalDateKey(
+          weekEnd
+        )
+
+    });
+
+    weekStart.setDate(
+      weekStart.getDate() + 7
+    );
+
+  }
+
+  return graphData;
+
+}
+
+function getMonthlyTrendData(
+  project
+) {
+
+  const monthlyTotals =
+    {};
+
+  Object.entries(
+    project.logs
+  ).forEach(([dateKey, hours]) => {
+
+    const date =
+      parseLocalDate(
+        dateKey
+      );
+
+    const monthKey =
+      `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
+
+    if (
+      !monthlyTotals[
+        monthKey
+      ]
+    ) {
+
+      monthlyTotals[
+        monthKey
+      ] = {
+        total: 0,
+        date
+      };
+
+    }
+
+    monthlyTotals[
+      monthKey
+    ].total += hours;
+
+  });
+
+  return Object
+    .entries(
+      monthlyTotals
+    )
+    .sort(
+      ([a], [b]) =>
+        a.localeCompare(b)
+    )
+    .map(
+      ([, data]) => ({
+
+        label:
+          data.date.toLocaleDateString(
+            "en-IN",
+            {
+              month: "short",
+              year: "2-digit"
+            }
+          ),
+
+        value:
+          Number(
+            data.total.toFixed(2)
+          )
+
+      })
+    );
+
+}
+
+function calculateTrendYAxis(
+  graphData
+) {
+
+  const maxValue =
+    Math.max(
+      ...graphData.map(
+        item => item.value
+      ),
+      1
+    );
+
+  let maxY;
+
+  if (
+    maxValue <= 2
+  ) {
+
+    maxY = 2;
+
+  } else if (
+    maxValue <= 5
+  ) {
+
+    maxY = 5;
+
+  } else if (
+    maxValue <= 10
+  ) {
+
+    maxY = 10;
+
+  } else {
+
+    const magnitude =
+      Math.pow(
+        10,
+        Math.floor(
+          Math.log10(
+            maxValue
+          )
+        )
+      );
+
+    maxY =
+      Math.ceil(
+        maxValue /
+        magnitude
+      ) * magnitude;
+
+  }
+
+  const divisions = 5;
+
+  return {
+
+    max: maxY,
+
+    step:
+      maxY /
+      divisions,
+
+    divisions
+
+  };
+
+}
+
+function drawTrendAxes(
+
+  ctx,
+
+  padding,
+
+  chartWidth,
+
+  chartHeight,
+
+  yAxis
+
+) {
+
+  const left =
+    padding.left;
+
+  const top =
+    padding.top;
+
+  const right =
+    left + chartWidth;
+
+  const bottom =
+    top + chartHeight;
+
+  // Horizontal grid lines
+
+  ctx.strokeStyle =
+    "#e5e7eb";
+
+  ctx.fillStyle =
+    "#6b7280";
+
+  ctx.lineWidth = 1;
+
+  ctx.font =
+    "12px Arial";
+
+  ctx.textAlign =
+    "right";
+
+  ctx.textBaseline =
+    "middle";
+
+  for (
+
+    let i = 0;
+
+    i <= yAxis.divisions;
+
+    i++
+
+  ) {
+
+    const y =
+
+      bottom -
+
+      (
+        i /
+        yAxis.divisions
+      ) *
+      chartHeight;
+
+    // Grid line
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      left,
+      y
+    );
+
+    ctx.lineTo(
+      right,
+      y
+    );
+
+    ctx.stroke();
+
+    // Tick label
+
+    const value =
+      (
+        yAxis.step *
+        i
+      ).toFixed(1);
+
+    ctx.fillText(
+
+      value.replace(
+        /\.0$/,
+        ""
+      ),
+
+      left - 10,
+
+      y
+
+    );
+
+  }
+
+  // Axes
+
+  ctx.strokeStyle =
+    "#9ca3af";
+
+  ctx.lineWidth = 2;
+
+  // Y-axis
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    left,
+    top
+  );
+
+  ctx.lineTo(
+    left,
+    bottom
+  );
+
+  ctx.stroke();
+
+  // X-axis
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    left,
+    bottom
+  );
+
+  ctx.lineTo(
+    right,
+    bottom
+  );
+
+  ctx.stroke();
+
+}
+
+function drawTrendBars(
+
+  ctx,
+
+  graphData,
+
+  padding,
+
+  chartWidth,
+
+  chartHeight,
+
+  yAxis
+
+) {
+
+  const left =
+    padding.left;
+
+  const bottom =
+    padding.top +
+    chartHeight;
+
+  const slotWidth =
+    chartWidth /
+    graphData.length;
+
+  const barWidth =
+    Math.min(
+      slotWidth * 0.65,
+      50
+    );
+
+  graphData.forEach(
+
+    (item, index) => {
+
+      const barHeight =
+
+        yAxis.max === 0
+          ? 0
+          : (
+              item.value /
+              yAxis.max
+            ) *
+            chartHeight;
+
+      const x =
+
+        left +
+
+        index *
+        slotWidth +
+
+        (
+          slotWidth -
+          barWidth
+        ) / 2;
+
+      const y =
+        bottom -
+        barHeight;
+
+      // Draw bar
+
+      ctx.fillStyle =
+        "#4f46e5";
+
+      ctx.beginPath();
+
+      ctx.roundRect(
+
+        x,
+
+        y,
+
+        barWidth,
+
+        barHeight,
+
+        [
+          6,
+          6,
+          0,
+          0
+        ]
+
+      );
+
+      ctx.fill();
+
+      // Value above bar
+
+      if (
+        item.value > 0
+      ) {
+
+        ctx.fillStyle =
+          "#111827";
+
+        ctx.font =
+          "11px Arial";
+
+        ctx.textAlign =
+          "center";
+
+        ctx.textBaseline =
+          "bottom";
+
+        ctx.fillText(
+
+          formatHours(
+            item.value
+          ),
+
+          x +
+            barWidth / 2,
+
+          y - 6
+
+        );
+
+      }
+
+    }
+
+  );
+
+}
+
+function drawTrendBars(
+
+  ctx,
+
+  graphData,
+
+  padding,
+
+  chartWidth,
+
+  chartHeight,
+
+  yAxis
+
+) {
+
+  const left =
+    padding.left;
+
+  const bottom =
+    padding.top +
+    chartHeight;
+
+  const slotWidth =
+    chartWidth /
+    graphData.length;
+
+  const barWidth =
+    Math.min(
+      slotWidth * 0.65,
+      50
+    );
+
+  graphData.forEach(
+
+    (item, index) => {
+
+      const barHeight =
+
+        yAxis.max === 0
+          ? 0
+          : (
+              item.value /
+              yAxis.max
+            ) *
+            chartHeight;
+
+      const x =
+
+        left +
+
+        index *
+        slotWidth +
+
+        (
+          slotWidth -
+          barWidth
+        ) / 2;
+
+      const y =
+        bottom -
+        barHeight;
+
+      // Draw bar
+
+      ctx.fillStyle =
+        "#4f46e5";
+
+      ctx.beginPath();
+
+      ctx.roundRect(
+
+        x,
+
+        y,
+
+        barWidth,
+
+        barHeight,
+
+        [
+          6,
+          6,
+          0,
+          0
+        ]
+
+      );
+
+      ctx.fill();
+
+      // Value above bar
+
+      if (
+        item.value > 0
+      ) {
+
+        ctx.fillStyle =
+          "#111827";
+
+        ctx.font =
+          "11px Arial";
+
+        ctx.textAlign =
+          "center";
+
+        ctx.textBaseline =
+          "bottom";
+
+        ctx.fillText(
+
+          formatHours(
+            item.value
+          ),
+
+          x +
+            barWidth / 2,
+
+          y - 6
+
+        );
+
+      }
+
+    }
+
+  );
+
 }
