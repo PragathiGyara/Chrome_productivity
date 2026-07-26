@@ -450,6 +450,34 @@ function getTrendGraphData(
   } =
     getAnalyticsDateRange();
 
+  let graphEndDate =
+    endDate;
+
+  if (
+    currentAnalyticsRange === "overall" &&
+    project.status === "completed"
+  ) {
+
+    const completedEntry =
+      project.statusHistory.find(
+        entry =>
+          entry.status ===
+          "completed"
+      );
+
+    if (
+      completedEntry
+    ) {
+
+      graphEndDate =
+        parseLocalDate(
+          completedEntry.date
+        );
+
+    }
+
+  }
+
   switch (
     currentAnalyticsRange
   ) {
@@ -482,7 +510,7 @@ function getTrendGraphData(
       const ageInDays =
         Math.floor(
           (
-            endDate -
+            graphEndDate -
             createdAt
           ) /
           86400000
@@ -495,13 +523,15 @@ function getTrendGraphData(
         return getWeeklyTrendData(
           project,
           createdAt,
-          endDate
+          graphEndDate
         );
 
       }
 
       return getMonthlyTrendData(
-        project
+        project,
+        createdAt,
+        graphEndDate
       );
 
     default:
