@@ -371,16 +371,6 @@ function getProjectsForSelectedDate() {
 
   return projects.filter(project => {
 
-    const status =
-      project.status ||
-      "active";
-
-    if (
-      status === "completed"
-    ) {
-      return false;
-    }
-
     const createdDateKey =
       getDateKey(
         new Date(
@@ -391,6 +381,21 @@ function getProjectsForSelectedDate() {
     if (
       selectedProjectDate <
       createdDateKey
+    ) {
+      return false;
+    }
+
+    const completedEntry =
+      project.statusHistory?.find(
+        entry =>
+          entry.status ===
+          "completed"
+      );
+
+    if (
+      completedEntry &&
+      selectedProjectDate >
+        completedEntry.date
     ) {
       return false;
     }
@@ -420,10 +425,6 @@ function renderProjects() {
 
   getProjectsForSelectedDate()
 
-    // =====================================
-    // RENDER
-    // =====================================
-
     .forEach(project => {
 
       const todayKey =
@@ -448,6 +449,16 @@ function renderProjects() {
 
         : 0;
 
+      const completedEntry =
+        project.statusHistory?.find(
+          entry =>
+            entry.status ===
+            "completed"
+        );
+
+      const isCompleted =
+        !!completedEntry;
+
       const row =
         document.createElement(
           "div"
@@ -457,13 +468,24 @@ function renderProjects() {
         "project-row"
       );
 
+      if (
+        isCompleted
+      ) {
+
+        row.classList.add(
+          "completed-project-row"
+        );
+
+      }
+
       // =====================================
       // DRAG ENABLED
       // =====================================
 
       if (
         project.status ===
-        "active"
+          "active" &&
+        !isCompleted
       ) {
 
         row.draggable = true;
@@ -511,6 +533,20 @@ function renderProjects() {
               : ""
             }
 
+            ${
+              isCompleted
+
+              ? `
+                <span
+                  class="project-completed-tag"
+                >
+                  Completed
+                </span>
+              `
+
+              : ""
+            }
+
           </div>
 
           <div
@@ -549,63 +585,73 @@ function renderProjects() {
           class="project-actions"
         >
 
-          <button
-            class="project-log-btn"
-            data-add="0.083"
-          >
-            +5m
-          </button>
-
-          <button
-            class="project-log-btn"
-            data-add="0.25"
-          >
-            +15m
-          </button>
-
-          <button
-            class="project-log-btn"
-            data-add="0.5"
-          >
-            +30m
-          </button>
-
-          <button
-            class="project-log-btn"
-            data-add="1"
-          >
-            +1h
-          </button>
-
           ${
-            project.status !==
-            "paused"
+            !isCompleted
 
             ? `
 
               <button
-                class="project-pause-btn"
+                class="project-log-btn"
+                data-add="0.083"
               >
-                Pause
+                +5m
               </button>
 
               <button
-                class="project-complete-btn"
+                class="project-log-btn"
+                data-add="0.25"
               >
-                Complete
+                +15m
               </button>
-
-            `
-
-            : `
 
               <button
-                class="project-resume-btn"
+                class="project-log-btn"
+                data-add="0.5"
               >
-                Resume
+                +30m
               </button>
 
+              <button
+                class="project-log-btn"
+                data-add="1"
+              >
+                +1h
+              </button>
+
+              ${
+                project.status !==
+                "paused"
+
+                ? `
+
+                  <button
+                    class="project-pause-btn"
+                  >
+                    Pause
+                  </button>
+
+                  <button
+                    class="project-complete-btn"
+                  >
+                    Complete
+                  </button>
+
+                `
+
+                : `
+
+                  <button
+                    class="project-resume-btn"
+                  >
+                    Resume
+                  </button>
+
+                `
+              }
+
             `
+
+            : ""
           }
 
           <button
@@ -617,11 +663,17 @@ function renderProjects() {
         </div>
       `;
 
-      attachProjectRowEvents(
-        row,
-        project,
-        todayKey
-      );
+      if (
+        !isCompleted
+      ) {
+
+        attachProjectRowEvents(
+          row,
+          project,
+          todayKey
+        );
+
+      }
 
       list.appendChild(
         row
