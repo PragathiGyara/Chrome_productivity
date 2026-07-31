@@ -379,33 +379,64 @@ function populateTimetableCategories(
 
   select.innerHTML = "";
 
-  tracks.forEach(track => {
-
-    const option =
-      document.createElement(
-        "option"
-      );
-
-    option.value =
-      track.id;
-
-    option.textContent =
-      `${track.icon} ${track.name}`;
-
-    if (
-      track.id ===
-      selectedCategoryId
-    ) {
-
-      option.selected = true;
-
-    }
-
-    select.appendChild(
-      option
+  const othersOption =
+    document.createElement(
+      "option"
     );
 
-  });
+  othersOption.value =
+    "";
+
+  othersOption.textContent =
+    "📌 Others";
+
+  if (
+
+    selectedCategoryId == null
+
+  ) {
+
+    othersOption.selected =
+      true;
+
+  }
+
+  select.appendChild(
+    othersOption
+  );
+
+  tracks.forEach(
+    track => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        track.id;
+
+      option.textContent =
+        `${track.icon} ${track.name}`;
+
+      if (
+
+        track.id ===
+        selectedCategoryId
+
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
 
 }
 
