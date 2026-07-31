@@ -250,3 +250,211 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
 
 }
+
+.timetable-entry-category {
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  opacity: 0.8;
+
+  margin-bottom: 4px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+}
+
+.timetable-entry-title {
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  margin-bottom: 4px;
+
+  word-break: break-word;
+
+}
+
+.timetable-entry-time {
+
+  font-size: 10px;
+
+  opacity: 0.75;
+
+}
+
+/* =====================================================
+   TIMETABLE MODAL
+===================================================== */
+
+.timetable-modal-content {
+
+  width: 560px;
+
+  max-width: 92vw;
+
+}
+
+
+/* =====================================================
+   TIMETABLE FORM
+===================================================== */
+
+.timetable-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+
+  margin-top: 20px;
+
+}
+
+
+/* =====================================================
+   FIELD LABEL
+===================================================== */
+
+.timetable-field-label {
+
+  display: block;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  margin-bottom: 8px;
+
+}
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+.timetable-form input,
+.timetable-form select {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+}
+
+
+/* =====================================================
+   TIME ROW
+===================================================== */
+
+.timetable-time-row {
+
+  display: flex;
+
+  gap: 18px;
+
+}
+
+
+.timetable-time-row > div {
+
+  flex: 1;
+
+}
+
+
+/* =====================================================
+   DAY SELECTOR
+===================================================== */
+
+.timetable-day-selector {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+}
+
+
+/* =====================================================
+   DAY CHIP
+===================================================== */
+
+.timetable-day-chip {
+
+  width: 46px;
+
+  height: 46px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255,255,255,0.10);
+
+  background: rgba(255,255,255,0.05);
+
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+
+}
+
+
+.timetable-day-chip:hover {
+
+  transform: translateY(-1px);
+
+  background: rgba(255,255,255,0.10);
+
+}
+
+
+.timetable-day-chip.selected {
+
+  background: #3b82f6;
+
+  border-color: #3b82f6;
+
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.timetable-actions {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 10px;
+
+}

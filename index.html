@@ -767,7 +767,11 @@
 
             <!-- FORM -->
 
-            <div class="timetable-form">
+            <div
+                class="timetable-form"
+            >
+
+                <!-- TASK -->
 
                 <label
                     class="timetable-field-label"
@@ -781,43 +785,88 @@
                     placeholder="Task name"
                 />
 
+                <!-- CATEGORY -->
+
+                <label
+                    class="timetable-field-label"
+                    for="timetableCategorySelect"
+                >
+                    Category
+                </label>
+
+                <select
+                    id="timetableCategorySelect"
+                >
+                </select>
+
+                <!-- TIME -->
+
                 <div
-                    class="timetable-details-card"
+                    class="timetable-time-row"
                 >
 
-                    <div
-                        class="timetable-detail-row"
-                    >
+                    <div>
 
-                        <span>
-                            Day
-                        </span>
-
-                        <b
-                            id="timetableSelectedDay"
+                        <label
+                            class="timetable-field-label"
                         >
-                            Monday
-                        </b>
+                            Start Time
+                        </label>
+
+                        <select
+                            id="timetableStartTime"
+                        >
+                        </select>
 
                     </div>
 
-                    <div
-                        class="timetable-detail-row"
-                    >
+                    <div>
 
-                        <span>
-                            Time
-                        </span>
-
-                        <b
-                            id="timetableSelectedTime"
+                        <label
+                            class="timetable-field-label"
                         >
-                            09:00 - 10:00
-                        </b>
+                            End Time
+                        </label>
+
+                        <select
+                            id="timetableEndTime"
+                        >
+                        </select>
 
                     </div>
 
                 </div>
+
+                <!-- DAYS -->
+
+                <label
+                    class="timetable-field-label"
+                >
+                    Days
+                </label>
+
+                <div
+                    id="timetableDaySelector"
+                    class="timetable-day-selector"
+                >
+
+                    ${timetableDays.map(day => `
+
+                        <button
+                            type="button"
+                            class="timetable-day-chip"
+                            data-day="${day}"
+                        >
+
+                            ${day.slice(0,3)}
+
+                        </button>
+
+                    `).join("")}
+
+                </div>
+
+                <!-- ACTIONS -->
 
                 <div
                     class="timetable-actions"
@@ -826,7 +875,7 @@
                     <button
                         id="deleteTimetableEntryBtn"
                         class="secondary-btn"
-                        style="display: none;"
+                        style="display:none;"
                     >
                         Delete
                     </button>

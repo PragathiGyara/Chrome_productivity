@@ -161,68 +161,114 @@ function renderTimetableEntries() {
   timetableEntries.forEach(
     entry => {
 
-      const dayIndex =
-        timetableDays.indexOf(
-          entry.day
+      const track =
+        tracks.find(
+          track =>
+            track.id ===
+            entry.categoryId
         );
 
-      if (
-        dayIndex === -1
-      ) {
-        return;
-      }
+      entry.days.forEach(
+        day => {
 
-      const startHour =
-        parseInt(
-          entry.start.split(":")[0],
-          10
-        );
+          const dayIndex =
+            timetableDays.indexOf(
+              day
+            );
 
-      const endHour =
-        parseInt(
-          entry.end.split(":")[0],
-          10
-        );
+          if (
+            dayIndex === -1
+          ) {
 
-      const block =
-        document.createElement(
-          "div"
-        );
+            return;
 
-      block.className =
-        "timetable-entry";
+          }
 
-      block.textContent =
-        entry.title;
+          const startHour =
+            parseInt(
+              entry.start.split(":")[0],
+              10
+            );
 
-      block.style.left =
-        `${dayIndex * cellWidth}px`;
+          const endHour =
+            parseInt(
+              entry.end.split(":")[0],
+              10
+            );
 
-      block.style.top =
-        `${startHour * cellHeight}px`;
+          const block =
+            document.createElement(
+              "div"
+            );
 
-      block.style.width =
-        `${cellWidth}px`;
+          block.className =
+            "timetable-entry";
 
-      block.style.height =
-        `${(endHour - startHour) * cellHeight}px`;
+          block.innerHTML = `
 
-      block.addEventListener(
-        "click",
-        () => {
+            <div
+              class="timetable-entry-category"
+            >
+              ${track ? track.icon : "📌"}
+              ${
+                track
+                  ? track.name
+                  : "General"
+              }
+            </div>
 
-          openTimetableModal(
-            entry.day,
-            entry.start,
-            entry.end,
-            entry
+            <div
+              class="timetable-entry-title"
+            >
+              ${entry.title}
+            </div>
+
+            <div
+              class="timetable-entry-time"
+            >
+              ${entry.start}
+              -
+              ${entry.end}
+            </div>
+
+          `;
+
+          block.style.left =
+            `${dayIndex * cellWidth}px`;
+
+          block.style.top =
+            `${startHour * cellHeight}px`;
+
+          block.style.width =
+            `${cellWidth}px`;
+
+          block.style.height =
+            `${
+              (endHour - startHour)
+              * cellHeight
+            }px`;
+
+          block.addEventListener(
+            "click",
+            event => {
+
+              event.stopPropagation();
+
+              openTimetableModal(
+                day,
+                entry.start,
+                entry.end,
+                entry
+              );
+
+            }
+          );
+
+          layer.appendChild(
+            block
           );
 
         }
-      );
-
-      layer.appendChild(
-        block
       );
 
     }

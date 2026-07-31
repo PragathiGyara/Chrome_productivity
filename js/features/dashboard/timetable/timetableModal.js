@@ -66,12 +66,6 @@ function openTimetableModal(
   entry = null
 ) {
 
-  selectedTimetableSlot = {
-    day,
-    start,
-    end
-  };
-
   const taskInput =
     document.getElementById(
       "timetableTaskInput"
@@ -106,12 +100,21 @@ function openTimetableModal(
     saveBtn.textContent =
       "Save Changes";
 
-    if (deleteBtn) {
+    deleteBtn.style.display =
+      "inline-flex";
 
-      deleteBtn.style.display =
-        "inline-flex";
+    populateTimetableCategories(
+      entry.categoryId
+    );
 
-    }
+    populateTimetableTimes(
+      entry.start,
+      entry.end
+    );
+
+    renderTimetableDaySelector(
+      entry.days
+    );
 
   }
 
@@ -128,23 +131,21 @@ function openTimetableModal(
     saveBtn.textContent =
       "Save";
 
-    if (deleteBtn) {
+    deleteBtn.style.display =
+      "none";
 
-      deleteBtn.style.display =
-        "none";
+    populateTimetableCategories();
 
-    }
+    populateTimetableTimes(
+      start,
+      end
+    );
+
+    renderTimetableDaySelector(
+      [day]
+    );
 
   }
-
-  document.getElementById(
-    "timetableSelectedDay"
-  ).textContent = day;
-
-  document.getElementById(
-    "timetableSelectedTime"
-  ).textContent =
-    `${start} - ${end}`;
 
   openModal(
     "timetableModal"
@@ -193,6 +194,59 @@ function saveTimetableEntry() {
 
   }
 
+  const categoryId =
+    Number(
+      document.getElementById(
+        "timetableCategorySelect"
+      ).value
+    );
+
+  const start =
+    document.getElementById(
+      "timetableStartTime"
+    ).value;
+
+  const end =
+    document.getElementById(
+      "timetableEndTime"
+    ).value;
+
+  if (start >= end) {
+
+    alert(
+      "End time must be after start time."
+    );
+
+    return;
+
+  }
+
+  const days =
+    Array.from(
+
+      document.querySelectorAll(
+        ".timetable-day-chip.selected"
+      )
+
+    ).map(
+      chip =>
+        chip.dataset.day
+    );
+
+  if (
+
+    days.length === 0
+
+  ) {
+
+    alert(
+      "Select at least one day."
+    );
+
+    return;
+
+  }
+
   if (
 
     editingTimetableEntryId !==
@@ -202,23 +256,30 @@ function saveTimetableEntry() {
 
     const entry =
       timetableEntries.find(
+
         item =>
+
           item.id ===
           editingTimetableEntryId
+
       );
 
     if (entry) {
 
-      entry.title = task;
+      entry.title =
+        task;
 
-      entry.day =
-        selectedTimetableSlot.day;
+      entry.categoryId =
+        categoryId;
 
       entry.start =
-        selectedTimetableSlot.start;
+        start;
 
       entry.end =
-        selectedTimetableSlot.end;
+        end;
+
+      entry.days =
+        days;
 
     }
 
@@ -228,18 +289,23 @@ function saveTimetableEntry() {
 
     timetableEntries.push({
 
-      id: Date.now(),
+      id:
+        Date.now(),
 
-      title: task,
+      title:
+        task,
 
-      day:
-        selectedTimetableSlot.day,
+      categoryId:
+        categoryId,
 
       start:
-        selectedTimetableSlot.start,
+        start,
 
       end:
-        selectedTimetableSlot.end
+        end,
+
+      days:
+        days
 
     });
 
@@ -282,6 +348,212 @@ function deleteTimetableEntry() {
   closeTimetableModal();
 
   renderTimetableEntries();
+
+}
+
+/* =====================================================
+   POPULATE CATEGORY DROPDOWN
+===================================================== */
+
+function populateTimetableCategories(
+  selectedCategoryId = null
+) {
+
+  const select =
+    document.getElementById(
+      "timetableCategorySelect"
+    );
+
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  tracks.forEach(track => {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      track.id;
+
+    option.textContent =
+      `${track.icon} ${track.name}`;
+
+    if (
+      track.id ===
+      selectedCategoryId
+    ) {
+
+      option.selected = true;
+
+    }
+
+    select.appendChild(
+      option
+    );
+
+  });
+
+}
+
+/* =====================================================
+   POPULATE TIME DROPDOWNS
+===================================================== */
+
+function populateTimetableTimes(
+  selectedStart = "09:00",
+  selectedEnd = "10:00"
+) {
+
+  const startSelect =
+    document.getElementById(
+      "timetableStartTime"
+    );
+
+  const endSelect =
+    document.getElementById(
+      "timetableEndTime"
+    );
+
+  if (
+    !startSelect ||
+    !endSelect
+  ) {
+    return;
+  }
+
+  startSelect.innerHTML = "";
+  endSelect.innerHTML = "";
+
+  for (
+    let hour = 0;
+    hour < 24;
+    hour++
+  ) {
+
+    const time =
+      `${String(hour).padStart(2, "0")}:00`;
+
+    const startOption =
+      document.createElement(
+        "option"
+      );
+
+    startOption.value =
+      time;
+
+    startOption.textContent =
+      time;
+
+    if (
+      time === selectedStart
+    ) {
+
+      startOption.selected = true;
+
+    }
+
+    startSelect.appendChild(
+      startOption
+    );
+
+    const endOption =
+      document.createElement(
+        "option"
+      );
+
+    endOption.value =
+      time;
+
+    endOption.textContent =
+      time;
+
+    if (
+      time === selectedEnd
+    ) {
+
+      endOption.selected = true;
+
+    }
+
+    endSelect.appendChild(
+      endOption
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   RENDER DAY CHIPS
+===================================================== */
+
+function renderTimetableDaySelector(
+  selectedDays = []
+) {
+
+  const container =
+    document.getElementById(
+      "timetableDaySelector"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  timetableDays.forEach(
+    day => {
+
+      const chip =
+        document.createElement(
+          "button"
+        );
+
+      chip.type = "button";
+
+      chip.className =
+        "timetable-day-chip";
+
+      chip.dataset.day =
+        day;
+
+      chip.textContent =
+        day.slice(0, 3);
+
+      if (
+
+        selectedDays.includes(
+          day
+        )
+
+      ) {
+
+        chip.classList.add(
+          "selected"
+        );
+
+      }
+
+      chip.addEventListener(
+        "click",
+        () => {
+
+          chip.classList.toggle(
+            "selected"
+          );
+
+        }
+      );
+
+      container.appendChild(
+        chip
+      );
+
+    }
+  );
 
 }
 

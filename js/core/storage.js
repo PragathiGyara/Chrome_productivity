@@ -521,7 +521,6 @@ function persistTimetableEntries() {
 
 }
 
-
 function loadTimetableEntries() {
 
   const stored =
@@ -533,5 +532,55 @@ function loadTimetableEntries() {
     stored
       ? JSON.parse(stored)
       : [];
+
+  let dataChanged =
+    false;
+
+  timetableEntries.forEach(
+    entry => {
+
+      if (
+
+        entry.days == null
+
+      ) {
+
+        entry.days =
+          entry.day
+            ? [entry.day]
+            : [];
+
+        delete entry.day;
+
+        dataChanged =
+          true;
+
+      }
+
+      if (
+
+        entry.categoryId ==
+        null
+
+      ) {
+
+        entry.categoryId =
+          tracks.length > 0
+            ? tracks[0].id
+            : null;
+
+        dataChanged =
+          true;
+
+      }
+
+    }
+  );
+
+  if (dataChanged) {
+
+    persistTimetableEntries();
+
+  }
 
 }
