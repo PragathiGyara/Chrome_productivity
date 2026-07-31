@@ -187,3 +187,34 @@
     rgba(255,255,255,0.04);
 
 }
+
+/* =====================================================
+   GRID CONTAINER
+===================================================== */
+
+.timetable-grid-container {
+
+  position: relative;
+
+}
+
+
+/* =====================================================
+   ENTRY LAYER
+===================================================== */
+
+.timetable-entry-layer {
+
+  position: absolute;
+
+  top: 48px;
+
+  left: 80px;
+
+  right: 0;
+
+  bottom: 0;
+
+  pointer-events: none;
+
+}
