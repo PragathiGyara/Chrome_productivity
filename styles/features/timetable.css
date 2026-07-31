@@ -1,0 +1,189 @@
+/* =====================================================
+   TIMETABLE SECTION
+===================================================== */
+
+.timetable-section {
+
+  background: rgba(255,255,255,0.03);
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+}
+
+
+/* =====================================================
+   TIMETABLE HEADER
+===================================================== */
+
+.timetable-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+}
+
+
+/* =====================================================
+   TIMETABLE WRAPPER
+===================================================== */
+
+.timetable-wrapper {
+
+  max-height: 700px;
+
+  overflow: auto;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+}
+
+
+/* =====================================================
+   TIMETABLE GRID
+===================================================== */
+
+.timetable-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    80px
+    repeat(7, 1fr);
+
+  min-width: 900px;
+
+}
+
+
+/* =====================================================
+   TOP LEFT CORNER
+===================================================== */
+
+.timetable-corner {
+
+  position: sticky;
+
+  top: 0;
+
+  left: 0;
+
+  z-index: 4;
+
+  background: #111827;
+
+  border-right:
+    1px solid rgba(255,255,255,0.08);
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.08);
+
+  min-height: 48px;
+
+}
+
+
+/* =====================================================
+   DAY HEADER
+===================================================== */
+
+.timetable-day {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 3;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 48px;
+
+  font-weight: 600;
+
+  background: #111827;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.08);
+
+  border-right:
+    1px solid rgba(255,255,255,0.05);
+
+}
+
+
+/* =====================================================
+   HOUR LABEL
+===================================================== */
+
+.timetable-hour {
+
+  position: sticky;
+
+  left: 0;
+
+  z-index: 2;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding-top: 6px;
+
+  height: 64px;
+
+  font-size: 13px;
+
+  color: rgba(255,255,255,0.72);
+
+  background: #111827;
+
+  border-right:
+    1px solid rgba(255,255,255,0.08);
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.06);
+
+}
+
+
+/* =====================================================
+   TIMETABLE CELL
+===================================================== */
+
+.timetable-cell {
+
+  height: 64px;
+
+  border-right:
+    1px solid rgba(255,255,255,0.05);
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.06);
+
+  transition:
+    background 0.15s ease;
+
+}
+
+
+.timetable-cell:hover {
+
+  background:
+    rgba(255,255,255,0.04);
+
+}

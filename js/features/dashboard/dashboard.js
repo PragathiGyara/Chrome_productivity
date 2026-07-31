@@ -18,7 +18,8 @@ let currentDashboardPage = 0;
 const dashboardPages = [
   "tracks",
   "projects",
-  "timeline"
+  "timeline",
+  "timetable"
 ];
 
 function renderDashboardView() {
@@ -96,7 +97,8 @@ function renderCurrentDashboardPage() {
       settingsBtn.textContent =
         "Manage Projects";
 
-      settingsBtn.onclick = openManageProjectsModal;
+      settingsBtn.onclick =
+        openManageProjectsModal;
 
       renderProjectsView();
 
@@ -114,6 +116,18 @@ function renderCurrentDashboardPage() {
 
       break;
 
+    case "timetable":
+
+      title.textContent =
+        "Timetable";
+
+      settingsBtn.style.display =
+        "none";
+
+      renderTimetableView();
+
+      break;
+
     default:
 
       title.textContent =
@@ -127,7 +141,9 @@ function renderCurrentDashboardPage() {
       `;
 
       renderTracks();
+
   }
+
 }
 
 /* =====================================================
