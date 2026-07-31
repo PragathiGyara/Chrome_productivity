@@ -145,11 +145,18 @@ function renderTimetableEntries() {
 
   layer.innerHTML = "";
 
-  const dayWidth =
-    layer.clientWidth / 7;
+  const firstCell =
+    document.querySelector(
+      ".timetable-cell"
+    );
 
-  const hourHeight =
-    64;
+  if (!firstCell) return;
+
+  const cellWidth =
+    firstCell.offsetWidth;
+
+  const cellHeight =
+    firstCell.offsetHeight;
 
   timetableEntries.forEach(
     entry => {
@@ -159,14 +166,22 @@ function renderTimetableEntries() {
           entry.day
         );
 
+      if (
+        dayIndex === -1
+      ) {
+        return;
+      }
+
       const startHour =
         parseInt(
-          entry.start
+          entry.start.split(":")[0],
+          10
         );
 
       const endHour =
         parseInt(
-          entry.end
+          entry.end.split(":")[0],
+          10
         );
 
       const block =
@@ -181,16 +196,16 @@ function renderTimetableEntries() {
         entry.title;
 
       block.style.left =
-        `${dayIndex * dayWidth + 4}px`;
+        `${dayIndex * cellWidth}px`;
 
       block.style.top =
-        `${startHour * hourHeight + 4}px`;
+        `${startHour * cellHeight}px`;
 
       block.style.width =
-        `${dayWidth - 8}px`;
+        `${cellWidth}px`;
 
       block.style.height =
-        `${(endHour - startHour) * hourHeight - 8}px`;
+        `${(endHour - startHour) * cellHeight}px`;
 
       layer.appendChild(
         block

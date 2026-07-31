@@ -218,3 +218,35 @@
   pointer-events: none;
 
 }
+
+/* =====================================================
+   TIMETABLE ENTRY
+===================================================== */
+
+.timetable-entry {
+
+  position: absolute;
+
+  box-sizing: border-box;
+
+  padding: 6px 8px;
+
+  border-radius: 8px;
+
+  background: var(--accent-color);
+
+  color: white;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+}
