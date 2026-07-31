@@ -107,7 +107,7 @@ function closeTimetableModal() {
    SAVE TIMETABLE ENTRY
 ===================================================== */
 
-const timetableEntries = [];
+let timetableEntries = [];
 
 
 /* =====================================================
@@ -146,6 +146,8 @@ function saveTimetableEntry() {
       selectedTimetableSlot.end
 
   });
+
+  persistTimetableEntries();
 
   closeTimetableModal();
 

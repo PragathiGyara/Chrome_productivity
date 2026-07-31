@@ -15,6 +15,8 @@ function initializeApp() {
 
   loadTimelineEntries();
 
+  loadTimetableEntries();
+
   renderDashboardView();
 
   initializeLeftPanel();

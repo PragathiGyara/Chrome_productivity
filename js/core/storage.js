@@ -6,6 +6,7 @@ const TRACK_STORAGE_KEY = "dashboardTracks";
 const TODO_STORAGE_KEY = "dailyTodos";
 const PROJECT_STORAGE_KEY = "dashboardProjects";
 const TODO_DISPLAY_SETTINGS_KEY = "todoDisplaySettings";
+const TIMETABLE_STORAGE_KEY = "dashboardTimetable";
 
 
 // =====================================================
@@ -498,5 +499,39 @@ function loadProjects() {
     persistProjects();
 
   }
+
+}
+
+
+// =====================================================
+// TIMETABLE STORAGE
+// =====================================================
+
+function persistTimetableEntries() {
+
+  localStorage.setItem(
+
+    TIMETABLE_STORAGE_KEY,
+
+    JSON.stringify(
+      timetableEntries
+    )
+
+  );
+
+}
+
+
+function loadTimetableEntries() {
+
+  const stored =
+    localStorage.getItem(
+      TIMETABLE_STORAGE_KEY
+    );
+
+  timetableEntries =
+    stored
+      ? JSON.parse(stored)
+      : [];
 
 }
