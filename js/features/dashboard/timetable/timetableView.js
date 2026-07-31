@@ -207,6 +207,20 @@ function renderTimetableEntries() {
       block.style.height =
         `${(endHour - startHour) * cellHeight}px`;
 
+      block.addEventListener(
+        "click",
+        () => {
+
+          openTimetableModal(
+            entry.day,
+            entry.start,
+            entry.end,
+            entry
+          );
+
+        }
+      );
+
       layer.appendChild(
         block
       );

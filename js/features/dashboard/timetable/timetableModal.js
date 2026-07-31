@@ -4,13 +4,13 @@
 
 let selectedTimetableSlot = null;
 
+let editingTimetableEntryId = null;
+
 /* =====================================================
    INITIALIZE TIMETABLE MODAL
 ===================================================== */
 
 function initializeTimetableModal() {
-
-  console.log("Initializing timetable modal");
 
   const closeBtn =
     document.getElementById(
@@ -22,29 +22,29 @@ function initializeTimetableModal() {
       "saveTimetableEntryBtn"
     );
 
+  const deleteBtn =
+    document.getElementById(
+      "deleteTimetableEntryBtn"
+    );
+
   const modal =
     document.getElementById(
       "timetableModal"
     );
 
-  console.log(closeBtn);
-  console.log(saveBtn);
-  console.log(modal);
-
   closeBtn?.addEventListener(
     "click",
-    () => {
-      console.log("Close clicked");
-      closeTimetableModal();
-    }
+    closeTimetableModal
   );
 
   saveBtn?.addEventListener(
     "click",
-    () => {
-      console.log("Save clicked");
-      saveTimetableEntry();
-    }
+    saveTimetableEntry
+  );
+
+  deleteBtn?.addEventListener(
+    "click",
+    deleteTimetableEntry
   );
 
   attachModalBackdropClose(
@@ -62,7 +62,8 @@ function initializeTimetableModal() {
 function openTimetableModal(
   day,
   start,
-  end
+  end,
+  entry = null
 ) {
 
   selectedTimetableSlot = {
@@ -71,9 +72,70 @@ function openTimetableModal(
     end
   };
 
-  document.getElementById(
-    "timetableTaskInput"
-  ).value = "";
+  const taskInput =
+    document.getElementById(
+      "timetableTaskInput"
+    );
+
+  const saveBtn =
+    document.getElementById(
+      "saveTimetableEntryBtn"
+    );
+
+  const deleteBtn =
+    document.getElementById(
+      "deleteTimetableEntryBtn"
+    );
+
+  const modalTitle =
+    document.getElementById(
+      "timetableModalTitle"
+    );
+
+  if (entry) {
+
+    editingTimetableEntryId =
+      entry.id;
+
+    taskInput.value =
+      entry.title;
+
+    modalTitle.textContent =
+      "Edit Timetable Entry";
+
+    saveBtn.textContent =
+      "Save Changes";
+
+    if (deleteBtn) {
+
+      deleteBtn.style.display =
+        "inline-flex";
+
+    }
+
+  }
+
+  else {
+
+    editingTimetableEntryId =
+      null;
+
+    taskInput.value = "";
+
+    modalTitle.textContent =
+      "Add Timetable Entry";
+
+    saveBtn.textContent =
+      "Save";
+
+    if (deleteBtn) {
+
+      deleteBtn.style.display =
+        "none";
+
+    }
+
+  }
 
   document.getElementById(
     "timetableSelectedDay"
@@ -109,7 +171,6 @@ function closeTimetableModal() {
 
 let timetableEntries = [];
 
-
 /* =====================================================
    SAVE ENTRY
 ===================================================== */
@@ -132,20 +193,57 @@ function saveTimetableEntry() {
 
   }
 
-  timetableEntries.push({
+  if (
 
-    title: task,
+    editingTimetableEntryId !==
+    null
 
-    day:
-      selectedTimetableSlot.day,
+  ) {
 
-    start:
-      selectedTimetableSlot.start,
+    const entry =
+      timetableEntries.find(
+        item =>
+          item.id ===
+          editingTimetableEntryId
+      );
 
-    end:
-      selectedTimetableSlot.end
+    if (entry) {
 
-  });
+      entry.title = task;
+
+      entry.day =
+        selectedTimetableSlot.day;
+
+      entry.start =
+        selectedTimetableSlot.start;
+
+      entry.end =
+        selectedTimetableSlot.end;
+
+    }
+
+  }
+
+  else {
+
+    timetableEntries.push({
+
+      id: Date.now(),
+
+      title: task,
+
+      day:
+        selectedTimetableSlot.day,
+
+      start:
+        selectedTimetableSlot.start,
+
+      end:
+        selectedTimetableSlot.end
+
+    });
+
+  }
 
   persistTimetableEntries();
 
@@ -154,3 +252,36 @@ function saveTimetableEntry() {
   renderTimetableEntries();
 
 }
+
+/* =====================================================
+   DELETE ENTRY
+===================================================== */
+
+function deleteTimetableEntry() {
+
+  if (
+
+    editingTimetableEntryId ===
+    null
+
+  ) {
+
+    return;
+
+  }
+
+  timetableEntries =
+    timetableEntries.filter(
+      entry =>
+        entry.id !==
+        editingTimetableEntryId
+    );
+
+  persistTimetableEntries();
+
+  closeTimetableModal();
+
+  renderTimetableEntries();
+
+}
+
