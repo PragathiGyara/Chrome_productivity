@@ -336,6 +336,17 @@ function deleteTimetableEntry() {
 
   }
 
+  const confirmed =
+    confirm(
+      "Are you sure you want to delete this timetable entry?"
+    );
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
   timetableEntries =
     timetableEntries.filter(
       entry =>
