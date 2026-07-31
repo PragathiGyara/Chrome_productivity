@@ -22,10 +22,13 @@ let selectedProjectDate =
   getLocalDateKey();
 
 let isProjectsTrackerCollapsed =
-  false;
+  true;
 
 let isHourDistributionCollapsed =
   false;
+
+let isAnalyticsCollapsed =
+  true;
 
 // =====================================================
 // RENDER PROJECTS VIEW
@@ -147,6 +150,26 @@ function renderProjectsView() {
           Hour Distribution
 
         </div>
+
+        ${
+          !isHourDistributionCollapsed
+            ? `
+              <div
+                class="projects-selected-date"
+              >
+
+                <span>
+                  📅
+                </span>
+
+                <span>
+                  ${selectedProjectDate}
+                </span>
+
+              </div>
+            `
+            : ""
+        }
 
       </div>
 
@@ -271,82 +294,113 @@ function renderProjectsView() {
       >
 
         <div
-          class="projects-section-title"
+          class="projects-section-title
+                 tracker-collapse-toggle"
+          id="analyticsCollapseToggle"
         >
+
+          <span
+            class="tracker-collapse-icon"
+          >
+            ${
+              isAnalyticsCollapsed
+                ? "▶"
+                : "▼"
+            }
+          </span>
+
           Analytics
+
         </div>
 
-        <select
-          id="analyticsRangeSelect"
-          class="analytics-range-select"
-        >
+        ${
+          !isAnalyticsCollapsed
+            ? `
+              <select
+                id="analyticsRangeSelect"
+                class="analytics-range-select"
+              >
 
-          <option value="thisWeek">
-            This Week
-          </option>
+                <option value="thisWeek">
+                  This Week
+                </option>
 
-          <option value="previousWeek">
-            Previous Week
-          </option>
+                <option value="previousWeek">
+                  Previous Week
+                </option>
 
-          <option value="thisMonth">
-            This Month
-          </option>
+                <option value="thisMonth">
+                  This Month
+                </option>
 
-          <option value="overall">
-            Overall
-          </option>
+                <option value="overall">
+                  Overall
+                </option>
 
-        </select>
+              </select>
+            `
+            : ""
+        }
 
       </div>
 
       <div
-        class="analytics-tabs"
+        id="analyticsContent"
+        class="${
+          isAnalyticsCollapsed
+            ? "tracker-collapsed"
+            : ""
+        }"
       >
 
-        <button
-          class="analytics-tab active"
-          data-view="overview"
+        <div
+          class="analytics-tabs"
         >
-          Overview
-        </button>
 
-        <button
-          class="analytics-tab"
-          data-view="trend"
-        >
-          Trend
-        </button>
+          <button
+            class="analytics-tab active"
+            data-view="overview"
+          >
+            Overview
+          </button>
 
-        <button
-          class="analytics-tab"
-          data-view="distribution"
-        >
-          Distribution
-        </button>
+          <button
+            class="analytics-tab"
+            data-view="trend"
+          >
+            Trend
+          </button>
 
-        <button
-          class="analytics-tab"
-          data-view="insights"
-        >
-          Insights
-        </button>
+          <button
+            class="analytics-tab"
+            data-view="distribution"
+          >
+            Distribution
+          </button>
+
+          <button
+            class="analytics-tab"
+            data-view="insights"
+          >
+            Insights
+          </button>
+
+        </div>
+
+        <div
+          id="analyticsDateRange"
+          class="analytics-date-range"
+        ></div>
+
+        <div
+          id="trendProjectFilterContainer"
+        ></div>
+
+        <div
+          id="projectsAnalyticsContent"
+        ></div>
 
       </div>
-
-      <div
-        id="analyticsDateRange"
-        class="analytics-date-range"
-      ></div>
-
-      <div
-        id="trendProjectFilterContainer"
-      ></div>
-
-      <div
-        id="projectsAnalyticsContent"
-      ></div>
 
     </div>
 
@@ -1007,9 +1061,7 @@ function attachProjectEvents() {
         selectedProjectDate =
           e.target.value;
 
-        renderProjects();
-
-        renderHourDistribution();
+        renderProjectsView();
 
       }
     );
@@ -1056,6 +1108,22 @@ function attachProjectEvents() {
 
         isHourDistributionCollapsed =
           !isHourDistributionCollapsed;
+
+        renderProjectsView();
+
+      }
+    );
+
+  document
+    .getElementById(
+      "analyticsCollapseToggle"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        isAnalyticsCollapsed =
+          !isAnalyticsCollapsed;
 
         renderProjectsView();
 

@@ -16,9 +16,9 @@
 let currentDashboardPage = 0;
 
 const dashboardPages = [
-  "tracks",
   "projects",
   "timeline",
+  "tracks",
   "timetable"
 ];
 

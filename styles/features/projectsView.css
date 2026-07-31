@@ -1010,6 +1010,26 @@
 }
 
 /* =====================================================
+   HOUR DISTRIBUTION SELECTED DATE
+===================================================== */
+
+.projects-selected-date {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  color: var(--text-secondary);
+
+}
+
+/* =====================================================
    HOUR DISTRIBUTION GRID
 ===================================================== */
 
