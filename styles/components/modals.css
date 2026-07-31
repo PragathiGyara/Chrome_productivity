@@ -189,3 +189,19 @@
 
   margin-bottom: 18px;
 }
+
+/* =====================================================
+   MANAGE PROJECTS MODAL
+===================================================== */
+
+.manage-projects-modal-content {
+
+  width: 980px;
+
+  max-width: 92vw;
+
+  max-height: 88vh;
+
+  padding: 30px;
+
+}
