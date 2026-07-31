@@ -103,7 +103,7 @@ function openTimetableModal(
     deleteBtn.style.display =
       "inline-flex";
 
-    populateTimetableCategories(
+    populateTimetableTracks(
       entry.categoryId
     );
 
@@ -134,7 +134,7 @@ function openTimetableModal(
     deleteBtn.style.display =
       "none";
 
-    populateTimetableCategories();
+    populateTimetableTracks();
 
     populateTimetableTimes(
       start,
@@ -194,12 +194,17 @@ function saveTimetableEntry() {
 
   }
 
-  const categoryId =
-    Number(
-      document.getElementById(
-        "timetableCategorySelect"
-      ).value
-    );
+  const trackValue =
+    document.getElementById(
+      "timetableTrackSelect"
+    ).value;
+
+  const trackId =
+    trackValue === ""
+      ? null
+      : Number(
+          trackValue
+        );
 
   const start =
     document.getElementById(
@@ -234,9 +239,7 @@ function saveTimetableEntry() {
     );
 
   if (
-
     days.length === 0
-
   ) {
 
     alert(
@@ -248,17 +251,14 @@ function saveTimetableEntry() {
   }
 
   if (
-
     editingTimetableEntryId !==
     null
-
   ) {
 
     const entry =
       timetableEntries.find(
 
         item =>
-
           item.id ===
           editingTimetableEntryId
 
@@ -269,8 +269,8 @@ function saveTimetableEntry() {
       entry.title =
         task;
 
-      entry.categoryId =
-        categoryId;
+      entry.trackId =
+        trackId;
 
       entry.start =
         start;
@@ -295,8 +295,8 @@ function saveTimetableEntry() {
       title:
         task,
 
-      categoryId:
-        categoryId,
+      trackId:
+        trackId,
 
       start:
         start,
@@ -363,16 +363,16 @@ function deleteTimetableEntry() {
 }
 
 /* =====================================================
-   POPULATE CATEGORY DROPDOWN
+   POPULATE TRACK DROPDOWN
 ===================================================== */
 
-function populateTimetableCategories(
-  selectedCategoryId = null
+function populateTimetableTracks(
+  selectedTrackId = null
 ) {
 
   const select =
     document.getElementById(
-      "timetableCategorySelect"
+      "timetableTrackSelect"
     );
 
   if (!select) return;
@@ -384,20 +384,16 @@ function populateTimetableCategories(
       "option"
     );
 
-  othersOption.value =
-    "";
+  othersOption.value = "";
 
   othersOption.textContent =
     "📌 Others";
 
   if (
-
-    selectedCategoryId == null
-
+    selectedTrackId == null
   ) {
 
-    othersOption.selected =
-      true;
+    othersOption.selected = true;
 
   }
 
@@ -405,38 +401,33 @@ function populateTimetableCategories(
     othersOption
   );
 
-  tracks.forEach(
-    track => {
+  tracks.forEach(track => {
 
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        track.id;
-
-      option.textContent =
-        `${track.icon} ${track.name}`;
-
-      if (
-
-        track.id ===
-        selectedCategoryId
-
-      ) {
-
-        option.selected =
-          true;
-
-      }
-
-      select.appendChild(
-        option
+    const option =
+      document.createElement(
+        "option"
       );
 
+    option.value =
+      track.id;
+
+    option.textContent =
+      `${track.icon} ${track.name}`;
+
+    if (
+      track.id ===
+      selectedTrackId
+    ) {
+
+      option.selected = true;
+
     }
-  );
+
+    select.appendChild(
+      option
+    );
+
+  });
 
 }
 

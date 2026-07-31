@@ -165,7 +165,7 @@ function renderTimetableEntries() {
         tracks.find(
           track =>
             track.id ===
-            entry.categoryId
+            entry.trackId
         );
 
       entry.days.forEach(
