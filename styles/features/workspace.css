@@ -179,17 +179,11 @@
 ===================================================== */
 
 .workspace-layout {
-
   display: grid;
-
   grid-template-columns: repeat(3, 1fr);
-
   grid-template-rows: 1fr auto;
-
   gap: 20px;
-
   height: 100%;
-
   min-height: 0;
 }
 
@@ -199,19 +193,15 @@
 ===================================================== */
 
 .workspace-layout > .workspace-card:nth-child(-n+3) {
-
   min-height: 500px;
 }
-
 
 /* =====================================================
    NOTES SECTION
 ===================================================== */
 
 .workspace-notes {
-
-  grid-column: 1 / -1;
-
+  grid-column: 2 / -1;
   min-height: 220px;
 }
 

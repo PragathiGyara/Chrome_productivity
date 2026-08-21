@@ -51,90 +51,107 @@ function renderTrackWorkspace() {
     <div class="workspace-header">
       <button id="backBtn">← Back</button>
 
-    <div class="track-navigation">
-    <div class="nav-left">
-        <button id="prevTrackBtn" class="nav-btn">
-        ← <span>Prev</span>
-        </button>
-    </div>
-    <h2 class="track-title">
-      <span class="workspace-track-header">
-        <span
-          id="workspaceTrackIcon"
-          class="workspace-track-icon"
-          title="Change icon"
-        >
-          ${track.icon}
-        </span>
-        <span
-          id="trackNameDisplay"
-          class="editable-track-name"
-        >
-          ${track.name}
-        </span>
-      </span>
-    </h2>
-    <div class="nav-right">
-        <button id="nextTrackBtn" class="nav-btn">
-        <span>Next</span> →
-        </button>
-    </div>
+      <div class="track-navigation">
+        <div class="nav-left">
+          <button id="prevTrackBtn" class="nav-btn">
+            ← <span>Prev</span>
+          </button>
+        </div>
 
-    </div>
+        <h2 class="track-title">
+          <span class="workspace-track-header">
+            <span
+              id="workspaceTrackIcon"
+              class="workspace-track-icon"
+              title="Change icon"
+            >
+              ${track.icon}
+            </span>
 
-    <div class="workspace-divider">
-      ${tracks.map(t => `
-        <span 
-          class="track-chip ${t.id === activeTrackId ? "active-chip" : ""}" 
-          data-id="${t.id}">
-          ${t.icon} ${t.name}
-        </span>
-      `).join("")}
-    </div>
+            <span
+              id="trackNameDisplay"
+              class="editable-track-name"
+            >
+              ${track.name}
+            </span>
+          </span>
+        </h2>
 
-    <div class="workspace-layout">
+        <div class="nav-right">
+          <button id="nextTrackBtn" class="nav-btn">
+            <span>Next</span> →
+          </button>
+        </div>
+      </div>
 
-      <div class="workspace-card">
-        <div class="section-header">
-          <div class="reading-section-title">
-            <h3>Reading</h3>
+      <div class="workspace-divider">
+        ${tracks.map(t => `
+          <span 
+            class="track-chip ${t.id === activeTrackId ? "active-chip" : ""}" 
+            data-id="${t.id}">
+            ${t.icon} ${t.name}
+          </span>
+        `).join("")}
+      </div>
 
-            <div class="reading-stats">
-              ${
-                track.reading.filter(r => r.completed).length
-              } / ${track.reading.length} completed
+      <div class="workspace-layout">
+
+        <div class="workspace-card">
+          <div class="section-header">
+            <div class="reading-section-title">
+              <h3>Reading</h3>
+
+              <div class="reading-stats">
+                ${
+                  track.reading.filter(r => r.completed).length
+                } / ${track.reading.length} completed
+              </div>
+            </div>
+
+            <button id="addReadingBtn">+ Add</button>
+          </div>
+
+          <div id="readingList"></div>
+        </div>
+
+        <div class="workspace-card">
+          <div class="section-header">
+            <h3>Tasks</h3>
+
+            <div>
+              <button id="addTaskBtn">+ Add</button>
             </div>
           </div>
-          <button id="addReadingBtn">+ Add</button>
-        </div>
-        <div id="readingList"></div>
-      </div>
 
-      <div class="workspace-card">
-        <div class="section-header">
-          <h3>Tasks</h3>
-          <div>
-            <button id="addTaskBtn">+ Add</button>          
+          <div id="taskList"></div>
+        </div>
+
+        <div class="workspace-card">
+          <div class="section-header">
+            <h3>To-Do</h3>
+          </div>
+
+          <div id="todoList"></div>
+        </div>
+
+        <div class="workspace-card">
+          <div class="deadline-header">
+            <h3>Deadlines</h3>
+            <button id="trackAddDeadlineBtn">+ Add</button>
+          </div>
+
+          <div id="deadlineList"></div>
+        </div>
+
+        <div class="workspace-card workspace-notes">
+          <h3>Notes</h3>
+
+          <div id="notesDisplay" class="editable-notes">
+            ${track.notes || "Double-click to add notes..."}
           </div>
         </div>
-        <div id="taskList"></div>
-      </div>
 
-      <div class="workspace-card">
-        <div class="deadline-header">
-          <h3>Deadlines</h3>
-          <button id="trackAddDeadlineBtn">+ Add</button>
-        </div>
-        <div id="deadlineList"></div>
       </div>
-
-      <div class="workspace-card workspace-notes">
-        <h3>Notes</h3>
-        <div id="notesDisplay" class="editable-notes">
-          ${track.notes || "Double-click to add notes..."}
-        </div>
-      </div>
-
     </div>
   `;
 
@@ -146,7 +163,10 @@ function renderTrackWorkspace() {
   renderNotes(track);
 
   const divider = document.querySelector(".workspace-divider");
-  if (divider) enableSmartScrollbar(divider);
+
+  if (divider) {
+    enableSmartScrollbar(divider);
+  }
 }
 
 
