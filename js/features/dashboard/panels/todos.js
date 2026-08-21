@@ -684,7 +684,6 @@ function attachTodoDragEvents(
 
 }
 
-
 function openSidebarTodoForm() {
 
     const container =
@@ -717,6 +716,24 @@ function openSidebarTodoForm() {
             placeholder="What needs to be done?"
         />
 
+        <select id="todoTrackSelect">
+
+            <option value="">
+                Select track
+            </option>
+
+            ${tracks.map(track => `
+                <option value="${track.id}">
+                    ${track.icon} ${track.name}
+                </option>
+            `).join("")}
+
+            <option value="general">
+                General
+            </option>
+
+        </select>
+
         <div class="deadline-form-actions">
 
             <button
@@ -744,6 +761,11 @@ function openSidebarTodoForm() {
             "#todoInput"
         );
 
+    const trackSelect =
+        form.querySelector(
+            "#todoTrackSelect"
+        );
+
     revealTodoForm(form);
 
     form
@@ -762,11 +784,22 @@ function openSidebarTodoForm() {
                 const todoData =
                     loadTodos();
 
+                const selectedTrack =
+                    trackSelect.value;
+
+                const trackId =
+                    selectedTrack === "general" ||
+                    selectedTrack === ""
+                        ? null
+                        : Number(selectedTrack);
+
                 todoData.tasks.push({
 
                     id: Date.now(),
 
                     text,
+
+                    trackId,
 
                     completed: false,
 

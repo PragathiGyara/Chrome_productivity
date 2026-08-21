@@ -129,6 +129,7 @@ function renderTrackWorkspace() {
         <div class="workspace-card">
           <div class="section-header">
             <h3>To-Do</h3>
+            <button id="addWorkspaceTodoBtn">+ Add</button>
           </div>
 
           <div id="todoList"></div>
@@ -160,6 +161,7 @@ function renderTrackWorkspace() {
   renderDeadlines(track); 
   renderReading(track);
   renderTasks(track);
+  renderWorkspaceTodos(track);
   renderNotes(track);
 
   const divider = document.querySelector(".workspace-divider");
@@ -168,7 +170,6 @@ function renderTrackWorkspace() {
     enableSmartScrollbar(divider);
   }
 }
-
 
 // =====================================================
 // WORKSPACE EVENT BINDING
@@ -189,8 +190,10 @@ function attachWorkspaceEvents() {
   if (nameEl) {
     nameEl.addEventListener("click", () => enableWorkspaceTrackNameEdit(nameEl));
   }
+
   const iconEl =
-  document.getElementById("workspaceTrackIcon");
+    document.getElementById("workspaceTrackIcon");
+
   if (iconEl) {
     iconEl.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -216,8 +219,15 @@ function attachWorkspaceEvents() {
     () => openTaskForm(track)
   );
 
+  // To-Do add button
+  document.getElementById("addWorkspaceTodoBtn")?.addEventListener(
+    "click",
+    () => openWorkspaceTodoForm(track)
+  );
+
   // Notes edit
   const notesEl = document.getElementById("notesDisplay");
+
   if (notesEl) {
     notesEl.addEventListener("dblclick", () => {
       enableNotesEdit(notesEl, track);
@@ -1585,6 +1595,188 @@ function enableNotesEdit(element, track) {
       element.blur();
     }
   });
+}
+
+
+
+// =====================================================
+// TO DO
+// =====================================================
+
+function renderWorkspaceTodos(track) {
+
+  const container =
+    document.getElementById("todoList");
+
+  if (!container) return;
+
+  const todoData =
+    loadTodos();
+
+  const trackTodos =
+    todoData.tasks
+      .filter(todo =>
+        todo.trackId === track.id
+      )
+      .sort((a, b) =>
+        a.order - b.order
+      );
+
+  container.innerHTML = "";
+
+  trackTodos.forEach(todo => {
+
+    const div =
+      document.createElement("div");
+
+    div.classList.add(
+      "deadline-item"
+    );
+
+    if (todo.completed) {
+      div.classList.add(
+        "task-complete"
+      );
+    }
+
+    div.innerHTML = `
+
+      <div class="task-main">
+
+        <strong>
+          ${todo.completed ? "✔ " : ""}
+          ${todo.text}
+        </strong>
+
+      </div>
+
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function openWorkspaceTodoForm(track) {
+
+  const container =
+    document.getElementById("todoList");
+
+  if (!container) return;
+
+  if (
+    container.querySelector(".todo-form")
+  ) {
+    return;
+  }
+
+  const form =
+    document.createElement("div");
+
+  form.classList.add(
+    "todo-form"
+  );
+
+  form.innerHTML = `
+
+    <input
+      type="text"
+      id="workspaceTodoInput"
+      placeholder="What needs to be done?"
+    />
+
+    <div class="deadline-form-actions">
+
+      <button
+        type="button"
+        id="saveWorkspaceTodoBtn"
+        class="primary-btn"
+      >
+        Add
+      </button>
+
+      <button
+        type="button"
+        id="cancelWorkspaceTodoBtn"
+        class="neutral-btn"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  `;
+
+  container.prepend(form);
+
+  const input =
+    form.querySelector(
+      "#workspaceTodoInput"
+    );
+
+  revealTodoForm(form);
+
+  form
+    .querySelector("#saveWorkspaceTodoBtn")
+    .addEventListener(
+      "click",
+      () => {
+
+        const text =
+          input.value.trim();
+
+        if (!text) {
+          return;
+        }
+
+        const todoData =
+          loadTodos();
+
+        todoData.tasks.push({
+
+          id: Date.now(),
+
+          text,
+
+          trackId: track.id,
+
+          completed: false,
+
+          archived: false,
+
+          order:
+            todoData.tasks.filter(
+              task => !task.archived
+            ).length,
+
+          createdAt:
+            new Date().toISOString(),
+
+          completedAt: null
+
+        });
+
+        persistTodos(todoData);
+
+        form.remove();
+
+        renderTrackWorkspace();
+
+      }
+    );
+
+  form
+    .querySelector("#cancelWorkspaceTodoBtn")
+    .addEventListener(
+      "click",
+      () => {
+
+        form.remove();
+
+      }
+    );
+
 }
 
 // =====================================================
