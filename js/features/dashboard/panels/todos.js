@@ -1,5 +1,6 @@
 let currentTodoView = "current";
 let draggedTodoId = null;
+let currentTodoTrack = "general";
 let todoDisplaySettings =
     loadTodoDisplaySettings();
 
@@ -152,6 +153,32 @@ function initializeTodoSettings() {
 
 }
 
+function initializeTodoTrackFilter() {
+
+    const filter =
+        document.getElementById(
+            "todoTrackFilter"
+        );
+
+    if (!filter) return;
+
+    filter.value =
+        currentTodoTrack;
+
+    filter.addEventListener(
+        "change",
+        e => {
+
+            currentTodoTrack =
+                e.target.value;
+
+            renderTodoSection();
+
+        }
+    );
+
+}
+
 function renderTodoSection() {
 
   // Close any open edit form
@@ -246,6 +273,26 @@ function renderTodoList(tasks, source) {
         );
 
         // ==========================
+        // FIND TRACK
+        // ==========================
+
+        const todoTrack =
+            item.trackId === "general"
+                ? null
+                : tracks.find(
+                    track =>
+                        track.id ===
+                        Number(item.trackId)
+                );
+
+        const trackDisplay =
+            item.trackId === "general"
+                ? "Others"
+                : todoTrack
+                    ? `${todoTrack.icon} ${todoTrack.name}`
+                    : "Unknown track";
+
+        // ==========================
         // ACTION BUTTON
         // ==========================
 
@@ -293,6 +340,10 @@ function renderTodoList(tasks, source) {
 
         }
 
+        // ==========================
+        // TODO CARD
+        // ==========================
+
         div.innerHTML = `
 
             <div class="todo-card ${item.completed ? "done" : ""}">
@@ -309,6 +360,12 @@ function renderTodoList(tasks, source) {
                         ${item.text}
 
                     </span>
+
+                    <div class="todo-track">
+
+                        ${trackDisplay}
+
+                    </div>
 
                     ${
                         todoDisplaySettings.showDates &&
@@ -499,8 +556,15 @@ function renderTodayTodos() {
         current
     } = getCurrentTodos();
 
+    const filteredTodos =
+        current.filter(
+            task =>
+                String(task.trackId) ===
+                String(currentTodoTrack)
+        );
+
     renderTodoList(
-        current,
+        filteredTodos,
         "current"
     );
 
@@ -718,7 +782,7 @@ function openSidebarTodoForm() {
 
         <select id="todoTrackSelect">
 
-            <option value="">
+            <option value="" disabled selected>
                 Select track
             </option>
 
@@ -729,7 +793,7 @@ function openSidebarTodoForm() {
             `).join("")}
 
             <option value="general">
-                General
+                Others
             </option>
 
         </select>
@@ -781,16 +845,25 @@ function openSidebarTodoForm() {
                     return;
                 }
 
-                const todoData =
-                    loadTodos();
-
                 const selectedTrack =
                     trackSelect.value;
 
+                if (!selectedTrack) {
+
+                    alert(
+                        "Please select a track."
+                    );
+
+                    return;
+
+                }
+
+                const todoData =
+                    loadTodos();
+
                 const trackId =
-                    selectedTrack === "general" ||
-                    selectedTrack === ""
-                        ? null
+                    selectedTrack === "general"
+                        ? "general"
                         : Number(selectedTrack);
 
                 todoData.tasks.push({
@@ -806,7 +879,6 @@ function openSidebarTodoForm() {
                     archived: false,
 
                     order:
-
                         todoData.tasks.filter(
                             task => !task.archived
                         ).length,
@@ -865,6 +937,17 @@ function openEditTodoForm(item, source) {
         "todo-edit-form"
     );
 
+    // =====================================
+    // CURRENT TRACK
+    // =====================================
+
+    const currentTrackId =
+        item.trackId ?? "general";
+
+    // =====================================
+    // FORM
+    // =====================================
+
     form.innerHTML = `
 
         <input
@@ -872,6 +955,35 @@ function openEditTodoForm(item, source) {
             id="editTodoText"
             value="${item.text}"
         />
+
+        <select id="editTodoTrackSelect">
+
+            ${tracks.map(track => `
+                <option
+                    value="${track.id}"
+                    ${
+                        Number(currentTrackId) ===
+                        Number(track.id)
+                            ? "selected"
+                            : ""
+                    }
+                >
+                    ${track.icon} ${track.name}
+                </option>
+            `).join("")}
+
+            <option
+                value="general"
+                ${
+                    currentTrackId === "general"
+                        ? "selected"
+                        : ""
+                }
+            >
+                Others
+            </option>
+
+        </select>
 
         <div class="deadline-form-actions">
 
@@ -910,6 +1022,11 @@ function openEditTodoForm(item, source) {
             "#editTodoText"
         );
 
+    const trackSelect =
+        form.querySelector(
+            "#editTodoTrackSelect"
+        );
+
     const updateBtn =
         form.querySelector(
             "#updateTodoBtn"
@@ -928,22 +1045,44 @@ function openEditTodoForm(item, source) {
     const originalText =
         item.text;
 
+    const originalTrackId =
+        currentTrackId;
+
     updateBtn.disabled = true;
+
+    // =====================================
+    // CHECK FOR CHANGES
+    // =====================================
+
+    function updateButtonState() {
+
+        const textChanged =
+            input.value.trim() !==
+            originalText;
+
+        const trackChanged =
+            trackSelect.value !==
+            String(originalTrackId);
+
+        updateBtn.disabled =
+            !textChanged &&
+            !trackChanged;
+
+    }
 
     input.addEventListener(
         "input",
-        () => {
-
-            updateBtn.disabled =
-                input.value.trim() ===
-                originalText;
-
-        }
+        updateButtonState
     );
 
-    // ==========================
+    trackSelect.addEventListener(
+        "change",
+        updateButtonState
+    );
+
+    // =====================================
     // UPDATE
-    // ==========================
+    // =====================================
 
     updateBtn.addEventListener(
         "click",
@@ -975,6 +1114,13 @@ function openEditTodoForm(item, source) {
             task.text =
                 newText;
 
+            task.trackId =
+                trackSelect.value === "general"
+                    ? "general"
+                    : Number(
+                        trackSelect.value
+                    );
+
             persistTodos(
                 todoData
             );
@@ -990,9 +1136,9 @@ function openEditTodoForm(item, source) {
         }
     );
 
-    // ==========================
+    // =====================================
     // DELETE
-    // ==========================
+    // =====================================
 
     deleteBtn.addEventListener(
         "click",
@@ -1030,9 +1176,9 @@ function openEditTodoForm(item, source) {
         }
     );
 
-    // ==========================
+    // =====================================
     // CANCEL
-    // ==========================
+    // =====================================
 
     cancelBtn.addEventListener(
         "click",

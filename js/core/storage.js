@@ -157,6 +157,8 @@ function loadTodos() {
 
                         text: item.text,
 
+                        trackId: "general",
+
                         completed:
                             item.completed ??
                             item.done ??
@@ -200,6 +202,10 @@ function loadTodos() {
 
                 text: task.text,
 
+                trackId:
+                    task.trackId ??
+                    "general",
+
                 completed:
                     task.completed ??
                     task.done ??
@@ -231,6 +237,10 @@ function loadTodos() {
                 id: task.id,
 
                 text: task.text,
+
+                trackId:
+                    task.trackId ??
+                    "general",
 
                 completed:
                     task.completed ??
@@ -280,7 +290,26 @@ function loadTodos() {
 
     }
 
-    // Ensure every task has an order
+    // =====================================
+    // NORMALIZE TODO TRACK
+    // =====================================
+
+    parsed.tasks.forEach(task => {
+
+        if (
+            task.trackId == null
+        ) {
+
+            task.trackId =
+                "general";
+
+        }
+
+    });
+
+    // =====================================
+    // ENSURE EVERY TASK HAS AN ORDER
+    // =====================================
 
     let currentOrder = 0;
     let archivedOrder = 0;

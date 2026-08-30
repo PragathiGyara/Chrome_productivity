@@ -35,6 +35,7 @@ function initializeLeftPanel() {
         );
 
     initializeTodoToggle();
+    initializeTodoTrackFilter();
     initializeTodoSettings();
     initializeSectionCollapse();
     updateSectionCollapseUI();

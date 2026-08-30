@@ -58,82 +58,131 @@
             </section>
             <section class="left-panel-section">
 
-            <div class="left-section-header">
-                <div class="section-title-row">
-                    <button
-                        id="toggleTodosBtn"
-                        class="section-collapse-btn"
-                    >
-                        ▼
-                    </button>
-                    <h4>To Do</h4>
+                <div class="left-section-header">
 
-                </div>
-                <div class="todo-settings-wrapper">
-                    <button
-                        id="todoSettingsBtn"
-                        class="todo-settings-btn"
-                        title="Display Options"
-                    >
-                        ⚙
-                    </button>
-                    <div
-                        id="todoSettingsMenu"
-                        class="todo-settings-menu hidden"
-                    >
-                        <label>
-                            <input
-                                type="checkbox"
-                                id="showCompletedToggle"
-                                checked
-                            >
-                            Show completed tasks
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                id="showDatesToggle"
-                                checked
-                            >
-                            Show dates
-                        </label>
+                    <div class="section-title-row">
+
+                        <button
+                            id="toggleTodosBtn"
+                            class="section-collapse-btn"
+                        >
+                            ▼
+                        </button>
+
+                        <h4>To Do</h4>
+
                     </div>
+
+                    <select
+                        id="todoTrackFilter"
+                        class="todo-track-filter"
+                        title="Filter todos by track"
+                    >
+
+                        <option value="general">
+                            Others
+                        </option>
+
+                        ${tracks.map(track => `
+                            <option value="${track.id}">
+                                ${track.icon} ${track.name}
+                            </option>
+                        `).join("")}
+
+                    </select>
+
                 </div>
 
-            </div>
-                <div id="todosSectionBody" class="section-body">
+                <div
+                    id="todosSectionBody"
+                    class="section-body"
+                >
+
                     <div
                         id="todoDateDisplay"
                         class="todo-date-display"
                     ></div>
+
                     <div
                         id="todoViewToggle"
                         class="todo-view-toggle"
                     >
+
                         <button
                             class="todo-toggle-btn active"
                             data-view="current"
                         >
                             Current
                         </button>
+
                         <button
                             class="todo-toggle-btn"
                             data-view="allTime"
                         >
                             Archived
                         </button>
+
                     </div>
+
+                    <div
+                        class="todo-settings-wrapper"
+                    >
+
+                        <button
+                            id="todoSettingsBtn"
+                            class="todo-settings-btn"
+                            title="Display Options"
+                        >
+                            ⚙ Display Options
+                        </button>
+
+                        <div
+                            id="todoSettingsMenu"
+                            class="todo-settings-menu hidden"
+                        >
+
+                            <label class="todo-setting-item">
+
+                                <input
+                                    type="checkbox"
+                                    id="showCompletedToggle"
+                                    checked
+                                >
+
+                                Show completed tasks
+
+                            </label>
+
+                            <label class="todo-setting-item">
+
+                                <input
+                                    type="checkbox"
+                                    id="showDatesToggle"
+                                    checked
+                                >
+
+                                Show dates
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
                     <div
                         id="todayTodoList"
                         class="todo-list"
                     ></div>
+
                     <button
                         id="addTodoBtn"
                         class="section-add-btn"
                     >
                         + Add Task
                     </button>
+
                 </div>
+
             </section>
         </div>
         </aside>
