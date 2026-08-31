@@ -78,17 +78,13 @@
                         class="todo-track-filter"
                         title="Filter todos by track"
                     >
+                        <option value="all">
+                            All
+                        </option>
 
                         <option value="general">
                             Others
                         </option>
-
-                        ${tracks.map(track => `
-                            <option value="${track.id}">
-                                ${track.icon} ${track.name}
-                            </option>
-                        `).join("")}
-
                     </select>
 
                 </div>

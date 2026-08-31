@@ -1,6 +1,6 @@
 let currentTodoView = "current";
 let draggedTodoId = null;
-let currentTodoTrack = "general";
+let currentTodoTrack = "all";
 let todoDisplaySettings =
     loadTodoDisplaySettings();
 
@@ -162,6 +162,38 @@ function initializeTodoTrackFilter() {
 
     if (!filter) return;
 
+    // Clear everything except the default options
+    filter.innerHTML = `
+
+        <option value="all">
+            All
+        </option>
+
+        <option value="general">
+            Others
+        </option>
+
+    `;
+
+    // Add all available tracks
+    tracks.forEach(track => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            track.id;
+
+        option.textContent =
+            `${track.icon} ${track.name}`;
+
+        filter.appendChild(
+            option
+        );
+
+    });
+
+    // Default selection
     filter.value =
         currentTodoTrack;
 
@@ -252,8 +284,14 @@ function renderTodoList(tasks, source) {
             task => task.completed
         ).length;
 
+    const total =
+        tasks.length;
+
+    const remaining =
+        total - completed;
+
     summary.textContent =
-        `${completed}/${tasks.length} done`;
+        `Remaining: ${remaining}  |  Completed: ${completed}  |  Total: ${total}`;
 
     container.appendChild(
         summary
@@ -271,26 +309,6 @@ function renderTodoList(tasks, source) {
         div.classList.add(
             "todo-item"
         );
-
-        // ==========================
-        // FIND TRACK
-        // ==========================
-
-        const todoTrack =
-            item.trackId === "general"
-                ? null
-                : tracks.find(
-                    track =>
-                        track.id ===
-                        Number(item.trackId)
-                );
-
-        const trackDisplay =
-            item.trackId === "general"
-                ? "Others"
-                : todoTrack
-                    ? `${todoTrack.icon} ${todoTrack.name}`
-                    : "Unknown track";
 
         // ==========================
         // ACTION BUTTON
@@ -340,9 +358,20 @@ function renderTodoList(tasks, source) {
 
         }
 
-        // ==========================
-        // TODO CARD
-        // ==========================
+        const track =
+            item.trackId === "general" ||
+            item.trackId == null
+                ? null
+                : tracks.find(
+                    track =>
+                        Number(track.id) ===
+                        Number(item.trackId)
+                );
+
+        const trackDisplay =
+            track
+                ? `${track.icon} ${track.name}`
+                : "Others";
 
         div.innerHTML = `
 
@@ -356,15 +385,11 @@ function renderTodoList(tasks, source) {
                 <div class="todo-content">
 
                     <span class="todo-text">
-
                         ${item.text}
-
                     </span>
 
                     <div class="todo-track">
-
                         ${trackDisplay}
-
                     </div>
 
                     ${
@@ -549,7 +574,6 @@ function renderTodoList(tasks, source) {
     });
 
 }
-
 function renderTodayTodos() {
 
     const {
@@ -557,11 +581,13 @@ function renderTodayTodos() {
     } = getCurrentTodos();
 
     const filteredTodos =
-        current.filter(
-            task =>
-                String(task.trackId) ===
-                String(currentTodoTrack)
-        );
+        currentTodoTrack === "all"
+            ? current
+            : current.filter(
+                task =>
+                    String(task.trackId) ===
+                    String(currentTodoTrack)
+            );
 
     renderTodoList(
         filteredTodos,
@@ -576,8 +602,17 @@ function renderGlobalTodos() {
         allTime
     } = getAllTimeTodos();
 
+    const filteredTodos =
+        currentTodoTrack === "all"
+            ? allTime
+            : allTime.filter(
+                task =>
+                    String(task.trackId) ===
+                    String(currentTodoTrack)
+            );
+
     renderTodoList(
-        allTime,
+        filteredTodos,
         "allTime"
     );
 
@@ -1017,6 +1052,12 @@ function openEditTodoForm(item, source) {
 
     container.prepend(form);
 
+    // =====================================
+    // REVEAL / SCROLL TO EDIT FORM
+    // =====================================
+
+    revealTodoForm(form);
+
     const input =
         form.querySelector(
             "#editTodoText"
@@ -1199,60 +1240,78 @@ function revealTodoForm(form) {
 
     if (!form) return;
 
-    const rect =
-        form.getBoundingClientRect();
+    const sidebar =
+        document.getElementById("leftPanel");
 
-    const isVisible =
+    if (!sidebar) return;
 
-        rect.top >= 0 &&
+    // Give the browser a moment to insert and lay out the form
+    requestAnimationFrame(() => {
 
-        rect.bottom <= window.innerHeight;
+        const formRect =
+            form.getBoundingClientRect();
 
-    const highlight = () => {
+        const sidebarRect =
+            sidebar.getBoundingClientRect();
 
-        form.classList.add(
-            "todo-form-highlight"
-        );
+        const isVisible =
+            formRect.top >= sidebarRect.top &&
+            formRect.bottom <= sidebarRect.bottom;
 
-        setTimeout(() => {
+        const highlight = () => {
 
-            form.classList.remove(
+            form.classList.add(
                 "todo-form-highlight"
             );
 
-        }, 2000);
+            setTimeout(() => {
 
-        form
-            .querySelector(
-                "input, textarea, select"
-            )
-            ?.focus();
+                form.classList.remove(
+                    "todo-form-highlight"
+                );
 
-    };
+            }, 2000);
 
-    if (isVisible) {
+            form
+                .querySelector(
+                    "input, textarea, select"
+                )
+                ?.focus();
 
-        highlight();
+        };
 
-        return;
+        if (isVisible) {
 
-    }
+            highlight();
 
-    form.scrollIntoView({
+            return;
 
-        behavior: "smooth",
+        }
 
-        block: "start"
+        // Scroll the left panel so the form is visible
+        const scrollOffset =
+            formRect.top -
+            sidebarRect.top -
+            20;
+
+        sidebar.scrollBy({
+
+            top: scrollOffset,
+
+            behavior: "smooth"
+
+        });
+
+        // Highlight after the scroll has started
+        setTimeout(
+
+            highlight,
+
+            350
+
+        );
 
     });
-
-    setTimeout(
-
-        highlight,
-
-        350
-
-    );
 
 }
 
