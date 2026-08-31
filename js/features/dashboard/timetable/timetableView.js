@@ -184,17 +184,30 @@ function renderTimetableEntries() {
 
           }
 
-          const startHour =
-            parseInt(
-              entry.start.split(":")[0],
-              10
+          const startMinutes =
+            timeToMinutes(
+              entry.start
             );
 
-          const endHour =
-            parseInt(
-              entry.end.split(":")[0],
-              10
+          const endMinutes =
+            timeToMinutes(
+              entry.end
             );
+
+          if (
+            endMinutes <= startMinutes
+          ) {
+
+            return;
+
+          }
+
+          const minutesPerHour =
+            60;
+
+          const minutesToPixels =
+            cellHeight /
+            minutesPerHour;
 
           const block =
             document.createElement(
@@ -237,15 +250,15 @@ function renderTimetableEntries() {
             `${dayIndex * cellWidth}px`;
 
           block.style.top =
-            `${startHour * cellHeight}px`;
+            `${startMinutes * minutesToPixels}px`;
 
           block.style.width =
             `${cellWidth}px`;
 
           block.style.height =
             `${
-              (endHour - startHour)
-              * cellHeight
+              (endMinutes - startMinutes)
+              * minutesToPixels
             }px`;
 
           block.addEventListener(

@@ -167,6 +167,67 @@ function closeTimetableModal() {
 }
 
 /* =====================================================
+   CHECK TIMETABLE OVERLAP
+===================================================== */
+
+function hasTimetableOverlap(
+  days,
+  start,
+  end,
+  excludeEntryId = null
+) {
+
+  const newStart =
+    timeToMinutes(start);
+
+  const newEnd =
+    timeToMinutes(end);
+
+  return timetableEntries.find(
+    entry => {
+
+      // Ignore the entry currently being edited
+      if (
+        entry.id ===
+        excludeEntryId
+      ) {
+        return false;
+      }
+
+      // Only compare entries that share a day
+      const sharesDay =
+        entry.days.some(
+          day =>
+            days.includes(day)
+        );
+
+      if (!sharesDay) {
+        return false;
+      }
+
+      const existingStart =
+        timeToMinutes(
+          entry.start
+        );
+
+      const existingEnd =
+        timeToMinutes(
+          entry.end
+        );
+
+      // Overlap exists only when the
+      // intervals actually intersect.
+      return (
+        newStart < existingEnd &&
+        newEnd > existingStart
+      );
+
+    }
+  );
+
+}
+
+/* =====================================================
    SAVE TIMETABLE ENTRY
 ===================================================== */
 
@@ -244,6 +305,28 @@ function saveTimetableEntry() {
 
     alert(
       "Select at least one day."
+    );
+
+    return;
+
+  }
+
+  const conflictingEntry =
+    hasTimetableOverlap(
+      days,
+      start,
+      end,
+      editingTimetableEntryId
+    );
+
+  if (conflictingEntry) {
+
+    alert(
+      `⚠️ Schedule conflict!\n\n` +
+      `"${task}" overlaps with ` +
+      `"${conflictingEntry.title}" ` +
+      `(${conflictingEntry.start} - ${conflictingEntry.end}).\n\n` +
+      `🚫 You can't be at two places at once!`
     );
 
     return;
@@ -517,6 +600,254 @@ function populateTimetableTimes(
 
   }
 
+  attachTimetableTimeControls();
+
+}
+
+/* =====================================================
+   TIMETABLE TIME CONTROLS
+===================================================== */
+
+function attachTimetableTimeControls() {
+
+  const startSelect =
+    document.getElementById(
+      "timetableStartTime"
+    );
+
+  const endSelect =
+    document.getElementById(
+      "timetableEndTime"
+    );
+
+  if (
+    !startSelect ||
+    !endSelect
+  ) {
+    return;
+  }
+
+  const startContainer =
+    startSelect.parentElement;
+
+  const endContainer =
+    endSelect.parentElement;
+
+  if (
+    startContainer.querySelector(
+      ".timetable-time-controls"
+    )
+  ) {
+    return;
+  }
+
+  createTimetableTimeControls(
+    startContainer,
+    startSelect
+  );
+
+  createTimetableTimeControls(
+    endContainer,
+    endSelect
+  );
+
+}
+
+
+/* =====================================================
+   CREATE TIME CONTROLS
+===================================================== */
+
+function createTimetableTimeControls(
+  container,
+  select
+) {
+
+  const controls =
+    document.createElement(
+      "div"
+    );
+
+  controls.className =
+    "timetable-time-controls";
+
+  const minusBtn =
+    document.createElement(
+      "button"
+    );
+
+  minusBtn.type =
+    "button";
+
+  minusBtn.className =
+    "timetable-time-adjust-btn";
+
+  minusBtn.textContent =
+    "−5";
+
+  minusBtn.title =
+    "Subtract 5 minutes";
+
+  const plusBtn =
+    document.createElement(
+      "button"
+    );
+
+  plusBtn.type =
+    "button";
+
+  plusBtn.className =
+    "timetable-time-adjust-btn";
+
+  plusBtn.textContent =
+    "+5";
+
+  plusBtn.title =
+    "Add 5 minutes";
+
+  minusBtn.addEventListener(
+    "click",
+    () => {
+
+      adjustTimetableTime(
+        select,
+        -5
+      );
+
+    }
+  );
+
+  plusBtn.addEventListener(
+    "click",
+    () => {
+
+      adjustTimetableTime(
+        select,
+        5
+      );
+
+    }
+  );
+
+  controls.appendChild(
+    minusBtn
+  );
+
+  controls.appendChild(
+    plusBtn
+  );
+
+  container.appendChild(
+    controls
+  );
+
+}
+
+
+/* =====================================================
+   ADJUST TIMETABLE TIME
+===================================================== */
+
+function adjustTimetableTime(
+  select,
+  amount
+) {
+
+  const currentMinutes =
+    timeToMinutes(
+      select.value
+    );
+
+  const newMinutes =
+    currentMinutes +
+    amount;
+
+  if (
+    newMinutes < 0 ||
+    newMinutes > 23 * 60 + 55
+  ) {
+    return;
+  }
+
+  const newTime =
+    minutesToTime(
+      newMinutes
+    );
+
+  let option =
+    Array.from(
+      select.options
+    ).find(
+      item =>
+        item.value ===
+        newTime
+    );
+
+  if (!option) {
+
+    option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      newTime;
+
+    option.textContent =
+      newTime;
+
+    select.appendChild(
+      option
+    );
+
+  }
+
+  select.value =
+    newTime;
+
+}
+
+
+/* =====================================================
+   TIME HELPERS
+===================================================== */
+
+function timeToMinutes(
+  time
+) {
+
+  const [
+    hours,
+    minutes
+  ] =
+    time
+      .split(":")
+      .map(Number);
+
+  return (
+    hours * 60 +
+    minutes
+  );
+
+}
+
+
+function minutesToTime(
+  totalMinutes
+) {
+
+  const hours =
+    Math.floor(
+      totalMinutes / 60
+    );
+
+  const minutes =
+    totalMinutes % 60;
+
+  return (
+    `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
+  );
+
 }
 
 
@@ -589,4 +920,6 @@ function renderTimetableDaySelector(
   );
 
 }
+
+
 

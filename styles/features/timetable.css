@@ -377,6 +377,66 @@
 
 }
 
+/* =====================================================
+   TIMETABLE TIME CONTROLS
+===================================================== */
+
+.timetable-time-controls {
+
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 8px;
+
+}
+
+
+.timetable-time-adjust-btn {
+
+  flex: 1;
+
+  padding: 7px 10px;
+
+  border-radius: 8px;
+
+  border: 1px solid rgba(255,255,255,0.10);
+
+  background: rgba(255,255,255,0.05);
+
+  color: white;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+
+}
+
+
+.timetable-time-adjust-btn:hover {
+
+  background:
+    rgba(255,255,255,0.10);
+
+  transform:
+    translateY(-1px);
+
+}
+
+
+.timetable-time-adjust-btn:active {
+
+  transform:
+    translateY(0);
+
+}
+
 
 /* =====================================================
    DAY SELECTOR
