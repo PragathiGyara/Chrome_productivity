@@ -17,6 +17,9 @@ const timetableDays = [
   "Sunday"
 ];
 
+let currentTimetableWeekKey =
+  getTimetableWeekKey();
+
 function renderTimetableView() {
 
   const container =
@@ -63,6 +66,24 @@ function renderTimetableView() {
 
   }
 
+  const weekStart =
+    getTimetableWeekStartFromKey(
+      currentTimetableWeekKey
+    );
+
+  const weekEnd =
+    new Date(weekStart);
+
+  weekEnd.setDate(
+    weekEnd.getDate() + 6
+  );
+
+  const weekLabel =
+    formatTimetableWeekRange(
+      weekStart,
+      weekEnd
+    );
+
   container.innerHTML = `
 
     <div
@@ -77,6 +98,52 @@ function renderTimetableView() {
           class="projects-section-title"
         >
           Weekly Timetable
+        </div>
+
+        <div
+          class="timetable-navigation"
+        >
+
+          <button
+            type="button"
+            id="timetablePreviousWeekBtn"
+            class="timetable-nav-btn"
+            title="Previous week"
+          >
+            ‹
+          </button>
+
+          <button
+            type="button"
+            id="timetableWeekPickerBtn"
+            class="timetable-week-picker-btn"
+          >
+            📅 ${weekLabel}
+          </button>
+
+          <button
+            type="button"
+            id="timetableNextWeekBtn"
+            class="timetable-nav-btn"
+            title="Next week"
+          >
+            ›
+          </button>
+
+          <button
+            type="button"
+            id="timetableTodayBtn"
+            class="timetable-today-btn"
+          >
+            Today
+          </button>
+
+          <input
+            type="date"
+            id="timetableDatePicker"
+            class="timetable-date-picker"
+          >
+
         </div>
 
       </div>
@@ -98,13 +165,47 @@ function renderTimetableView() {
             ></div>
 
             ${timetableDays
-              .map(day => `
-                <div
-                  class="timetable-day"
-                >
-                  ${day}
-                </div>
-              `)
+              .map((day, index) => {
+
+                const dayDate =
+                  new Date(weekStart);
+
+                dayDate.setDate(
+                  dayDate.getDate() + index
+                );
+
+                const dateLabel =
+                  dayDate.toLocaleDateString(
+                    undefined,
+                    {
+                      month: "short",
+                      day: "numeric"
+                    }
+                  );
+
+                return `
+
+                  <div
+                    class="timetable-day"
+                  >
+
+                    <div
+                      class="timetable-day-name"
+                    >
+                      ${day}
+                    </div>
+
+                    <div
+                      class="timetable-day-date"
+                    >
+                      ${dateLabel}
+                    </div>
+
+                  </div>
+
+                `;
+
+              })
               .join("")}
 
             ${hourRows}
@@ -124,9 +225,204 @@ function renderTimetableView() {
 
   `;
 
+  attachTimetableNavigation();
+
   attachTimetableCellEvents();
 
   renderTimetableEntries();
+
+}
+
+// =====================================================
+// TIMETABLE WEEK HELPERS
+// =====================================================
+
+function getTimetableWeekStartFromKey(
+  weekKey
+) {
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    weekKey
+      .split("-")
+      .map(Number);
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
+
+}
+
+
+function formatTimetableWeekRange(
+  startDate,
+  endDate
+) {
+
+  const options = {
+    month: "short",
+    day: "numeric"
+  };
+
+  const start =
+    startDate.toLocaleDateString(
+      undefined,
+      options
+    );
+
+  const end =
+    endDate.toLocaleDateString(
+      undefined,
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      }
+    );
+
+  return `${start} - ${end}`;
+
+}
+
+// =====================================================
+// TIMETABLE NAVIGATION
+// =====================================================
+
+function attachTimetableNavigation() {
+
+  const previousBtn =
+    document.getElementById(
+      "timetablePreviousWeekBtn"
+    );
+
+  const nextBtn =
+    document.getElementById(
+      "timetableNextWeekBtn"
+    );
+
+  const todayBtn =
+    document.getElementById(
+      "timetableTodayBtn"
+    );
+
+  const weekPickerBtn =
+    document.getElementById(
+      "timetableWeekPickerBtn"
+    );
+
+  const datePicker =
+    document.getElementById(
+      "timetableDatePicker"
+    );
+
+  previousBtn?.addEventListener(
+    "click",
+    () => {
+
+      changeTimetableWeek(
+        -7
+      );
+
+    }
+  );
+
+  nextBtn?.addEventListener(
+    "click",
+    () => {
+
+      changeTimetableWeek(
+        7
+      );
+
+    }
+  );
+
+  todayBtn?.addEventListener(
+    "click",
+    () => {
+
+      currentTimetableWeekKey =
+        getTimetableWeekKey();
+
+      loadTimetableEntries(
+        currentTimetableWeekKey
+      );
+
+      renderTimetableView();
+
+    }
+  );
+
+  weekPickerBtn?.addEventListener(
+    "click",
+    () => {
+
+      datePicker?.showPicker?.();
+
+      datePicker?.focus();
+
+    }
+  );
+
+  datePicker?.addEventListener(
+    "change",
+    () => {
+
+      if (!datePicker.value) {
+        return;
+      }
+
+      currentTimetableWeekKey =
+        getTimetableWeekKey(
+          new Date(
+            `${datePicker.value}T00:00:00`
+          )
+        );
+
+      loadTimetableEntries(
+        currentTimetableWeekKey
+      );
+
+      renderTimetableView();
+
+    }
+  );
+
+}
+
+// =====================================================
+// CHANGE TIMETABLE WEEK
+// =====================================================
+
+function changeTimetableWeek(
+  days
+) {
+
+  const currentWeekStart =
+    getTimetableWeekStartFromKey(
+      currentTimetableWeekKey
+    );
+
+  currentWeekStart.setDate(
+    currentWeekStart.getDate() +
+    days
+  );
+
+  currentTimetableWeekKey =
+    getTimetableWeekKey(
+      currentWeekStart
+    );
+
+  loadTimetableEntries(
+    currentTimetableWeekKey
+  );
+
+  renderTimetableView();
 
 }
 
