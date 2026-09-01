@@ -139,124 +139,43 @@
 }
 
 /* =====================================================
-   TIMELINE VIEW
+   TIME LOG VIEW
 ===================================================== */
 
-.timeline-scroll-container {
+.time-log-week-label {
 
-    overflow-x: auto;
+    margin-top: 4px;
 
-    overflow-y: hidden;
+    font-size: 13px;
+
+    color:
+        var(--text-secondary);
+
 }
 
-.timeline-scroll-content {
-
-    position: relative;
-
-    min-height: 180px;
-}
 
 /* =====================================================
-   TIMELINE HEADER
+   TIME LOG NAVIGATION
 ===================================================== */
 
-.timeline-hour-header {
+.time-log-navigation {
 
     display: flex;
 
-    border-bottom:
-        1px solid
+    align-items: center;
+
+    gap: 8px;
+}
+
+.time-log-navigation button {
+
+    border: 1px solid
         rgba(
             255,
             255,
             255,
-            0.15
+            0.10
         );
-}
-
-.timeline-hour-cell {
-
-  width: 120px;
-
-  flex-shrink: 0;
-
-  padding: 12px 0 12px 8px;
-
-  text-align: left;
-
-  font-weight: 600;
-
-  color:
-    var(--text-secondary);
-
-  border-right:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    );
-}
-
-/* =====================================================
-   TIMELINE TRACK
-===================================================== */
-
-.timeline-track {
-
-    position: relative;
-
-    height: 140px;
-
-    cursor: crosshair;
-
-    margin-top: 8px;
-
-    border:
-        1px solid
-        rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
-
-    border-radius: 12px;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.02
-        );
-}
-
-.timeline-track:hover {
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.04
-        );
-}
-
-/* =====================================================
-   TIMELINE GRID
-===================================================== */
-
-.timeline-hour-line {
-
-    position: absolute;
-
-    top: 0;
-
-    bottom: 0;
-
-    width: 1px;
 
     background:
         rgba(
@@ -265,273 +184,73 @@
             255,
             0.05
         );
-}
-
-/* =====================================================
-   EMPTY TIMELINE STATE
-===================================================== */
-
-.timeline-empty-state {
-
-    position: absolute;
-
-    top: 50%;
-
-    left: 50%;
-
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
-
-    color:
-        var(--text-secondary);
-
-    font-size: 14px;
-
-    opacity: 0.7;
-
-    white-space: nowrap;
-}
-
-
-/* =====================================================
-   TIMELINE ACTIVITY BLOCKS
-===================================================== */
-
-.timeline-activity-block {
-
-    position: absolute;
-
-    top: 20px;
-
-    height: 80px;
-
-    padding: 10px 12px;
-
-    border-radius: 10px;
-
-    background:
-        var(--primary);
 
     color: white;
 
-    display: flex;
+    border-radius: 8px;
 
-    flex-direction: column;
-
-    justify-content: center;
-
-    box-sizing: border-box;
-
-    overflow: hidden;
-
-    white-space: nowrap;
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
-}
-
-.timeline-activity-block:hover {
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 6px 16px
-        rgba(
-            0,
-            0,
-            0,
-            0.25
-        );
-}
-
-.timeline-activity-name {
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-}
-
-.timeline-activity-time {
-
-    margin-top: 4px;
-
-    font-size: 12px;
-
-    opacity: 0.85;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-}
-
-.timeline-activity-duration {
-
-    margin-top: 2px;
-
-    font-size: 11px;
-
-    opacity: 0.65;
-}
-
-/* =====================================================
-   TIMELINE TOOLTIP
-===================================================== */
-
-.timeline-tooltip {
-
-  position: fixed;
-
-  min-width: 220px;
-
-  padding: 12px;
-
-  border-radius: 10px;
-
-  background:
-    var(--bg-panel);
-
-  border:
-    1px solid
-    var(--primary);
-
-  z-index: 5000;
-
-  pointer-events: none;
-
-  box-shadow:
-    0 8px 20px
-    rgba(
-      0,
-      0,
-      0,
-      0.35
-    );
-}
-
-.timeline-tooltip.hidden {
-
-  display: none;
-}
-
-.timeline-tooltip-title {
-
-  font-weight: 600;
-
-  margin-bottom: 8px;
-}
-
-.timeline-tooltip-row {
-
-  font-size: 13px;
-
-  margin-top: 4px;
-}
-
-.timeline-tooltip-badge {
-
-    margin-top: 8px;
-
-    padding: 4px 8px;
-
-    border-radius: 999px;
-
-    width: fit-content;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
-
-    font-size: 12px;
-}
-
-
-.timeline-activity-block {
+    padding: 7px 12px;
 
     cursor: pointer;
 }
 
-/* =====================================================
-   CURRENT TIME
-===================================================== */
-
-.timeline-current-time-line {
-
-    position: absolute;
-
-    top: 0;
-
-    bottom: 0;
-
-    width: 2px;
-
-    background:
-        var(--danger);
-
-    z-index: 20;
-}
-
-.timeline-current-time-line::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 10px;
-
-    height: 10px;
-
-    border-radius: 50%;
-
-    background:
-        var(--danger);
-
-    top: -5px;
-
-    left: -4px;
-}
-
-/* =====================================================
-   DRAG SELECTION
-===================================================== */
-
-.timeline-drag-preview {
-
-    position: absolute;
-
-    top: 20px;
-
-    height: 80px;
-
-    display: none;
-
-    border-radius: 10px;
+.time-log-navigation button:hover {
 
     background:
         rgba(
             255,
             255,
             255,
-            0.2
+            0.10
+        );
+}
+
+#timeLogDatePicker {
+
+    border: 1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.10
         );
 
-    border:
-        2px solid
-        var(--primary);
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.05
+        );
+
+    color: white;
+
+    border-radius: 8px;
+
+    padding: 7px 10px;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   TIME LOG ENTRY LAYER
+===================================================== */
+
+#timelineEntryLayer {
 
     pointer-events: none;
+}
 
-    z-index: 5;
+
+/* =====================================================
+   TIME LOG ENTRIES
+===================================================== */
+
+#timelineEntryLayer
+.timetable-entry {
+
+    pointer-events: auto;
+
+    cursor: pointer;
 }

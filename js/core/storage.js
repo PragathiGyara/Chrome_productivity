@@ -566,6 +566,20 @@ function getTimetableWeekKey(
 
 }
 
+// =====================================================
+// GET DATE FROM TIMETABLE WEEK KEY
+// =====================================================
+
+function getDateFromTimetableWeekKey(
+  weekKey
+) {
+
+  return new Date(
+    `${weekKey}T00:00:00`
+  );
+
+}
+
 
 // =====================================================
 // TIMETABLE STORAGE
