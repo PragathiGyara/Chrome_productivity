@@ -531,6 +531,41 @@ function loadProjects() {
 
 }
 
+// =====================================================
+// TIMETABLE WEEK HELPERS
+// =====================================================
+
+function getTimetableWeekKey(
+  date = new Date()
+) {
+
+  const localDate =
+    new Date(date);
+
+  const day =
+    localDate.getDay();
+
+  const diff =
+    day === 0
+      ? -6
+      : 1 - day;
+
+  localDate.setDate(
+    localDate.getDate() + diff
+  );
+
+  return (
+    `${localDate.getFullYear()}-` +
+    `${String(
+      localDate.getMonth() + 1
+    ).padStart(2, "0")}-` +
+    `${String(
+      localDate.getDate()
+    ).padStart(2, "0")}`
+  );
+
+}
+
 
 // =====================================================
 // TIMETABLE STORAGE
@@ -538,78 +573,44 @@ function loadProjects() {
 
 function persistTimetableEntries() {
 
+  const allTimetableData =
+    JSON.parse(
+      localStorage.getItem(
+        TIMETABLE_STORAGE_KEY
+      )
+    ) || {};
+
+  const weekKey =
+    getTimetableWeekKey();
+
+  allTimetableData[weekKey] =
+    timetableEntries;
+
   localStorage.setItem(
-
     TIMETABLE_STORAGE_KEY,
-
     JSON.stringify(
-      timetableEntries
+      allTimetableData
     )
-
   );
 
 }
 
-function loadTimetableEntries() {
+
+function loadTimetableEntries(
+  weekKey = getTimetableWeekKey()
+) {
 
   const stored =
     localStorage.getItem(
       TIMETABLE_STORAGE_KEY
     );
 
-  timetableEntries =
+  const allTimetableData =
     stored
       ? JSON.parse(stored)
-      : [];
+      : {};
 
-  let dataChanged =
-    false;
-
-  timetableEntries.forEach(
-    entry => {
-
-      if (
-
-        entry.days == null
-
-      ) {
-
-        entry.days =
-          entry.day
-            ? [entry.day]
-            : [];
-
-        delete entry.day;
-
-        dataChanged =
-          true;
-
-      }
-
-      if (
-
-        entry.categoryId ==
-        null
-
-      ) {
-
-        entry.categoryId =
-          tracks.length > 0
-            ? tracks[0].id
-            : null;
-
-        dataChanged =
-          true;
-
-      }
-
-    }
-  );
-
-  if (dataChanged) {
-
-    persistTimetableEntries();
-
-  }
+  timetableEntries =
+    allTimetableData[weekKey] || [];
 
 }
