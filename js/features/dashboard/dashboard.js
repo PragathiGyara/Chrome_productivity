@@ -17,7 +17,7 @@ let currentDashboardPage = 0;
 
 const dashboardPages = [
   "projects",
-  "timeline",
+  "timelog",
   "tracks",
   "timetable"
 ];
@@ -104,15 +104,15 @@ function renderCurrentDashboardPage() {
 
       break;
 
-    case "timeline":
+    case "timelog":
 
       title.textContent =
-        "Timeline";
+        "Time Log";
 
       settingsBtn.style.display =
         "none";
 
-      renderTimelineView();
+      renderTimeLogView();
 
       break;
 

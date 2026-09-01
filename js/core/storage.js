@@ -2,11 +2,20 @@
 // STORAGE LAYER
 // =====================================================
 
-const TRACK_STORAGE_KEY = "dashboardTracks";
-const TODO_STORAGE_KEY = "dailyTodos";
-const PROJECT_STORAGE_KEY = "dashboardProjects";
-const TODO_DISPLAY_SETTINGS_KEY = "todoDisplaySettings";
-const TIMETABLE_STORAGE_KEY = "dashboardTimetable";
+const TRACK_STORAGE_KEY =
+  "dashboardTracks";
+
+const TODO_STORAGE_KEY =
+  "dailyTodos";
+
+const PROJECT_STORAGE_KEY =
+  "dashboardProjects";
+
+const TODO_DISPLAY_SETTINGS_KEY =
+  "todoDisplaySettings";
+
+const TIMETABLE_STORAGE_KEY =
+  "dashboardTimetable";
 
 
 // =====================================================
@@ -27,7 +36,9 @@ function persistTracks() {
 function loadTracks() {
 
   const stored =
-    localStorage.getItem(TRACK_STORAGE_KEY);
+    localStorage.getItem(
+      TRACK_STORAGE_KEY
+    );
 
   tracks = stored
     ? JSON.parse(stored)
@@ -121,227 +132,233 @@ function getDefaultTracks() {
 
 function loadTodos() {
 
-    const stored =
-        localStorage.getItem(
-            TODO_STORAGE_KEY
-        );
+  const stored =
+    localStorage.getItem(
+      TODO_STORAGE_KEY
+    );
 
-    if (!stored) {
+  if (!stored) {
 
-        return {
-            tasks: []
-        };
+    return {
+      tasks: []
+    };
 
-    }
+  }
 
-    const parsed =
-        JSON.parse(stored);
+  const parsed =
+    JSON.parse(stored);
 
-    // =====================================
-    // OLD ARRAY FORMAT
-    // =====================================
+  // =====================================
+  // OLD ARRAY FORMAT
+  // =====================================
 
-    if (Array.isArray(parsed)) {
+  if (Array.isArray(parsed)) {
 
-        let order = 0;
+    let order = 0;
 
-        return {
+    return {
 
-            tasks:
+      tasks:
 
-                parsed.flatMap(day =>
+        parsed.flatMap(day =>
 
-                    day.items.map(item => ({
+          day.items.map(item => ({
 
-                        id: item.id,
+            id: item.id,
 
-                        text: item.text,
+            text: item.text,
 
-                        trackId: "general",
+            trackId: "general",
 
-                        completed:
-                            item.completed ??
-                            item.done ??
-                            false,
+            completed:
+              item.completed ??
+              item.done ??
+              false,
 
-                        archived: false,
+            archived: false,
 
-                        order: order++,
+            order: order++,
 
-                        createdAt:
-                            item.createdAt ??
-                            `${day.date}T00:00:00`,
+            createdAt:
+              item.createdAt ??
+              `${day.date}T00:00:00`,
 
-                        completedAt:
-                            item.completed
-                                ? `${day.date}T00:00:00`
-                                : null
+            completedAt:
+              item.completed
+                ? `${day.date}T00:00:00`
+                : null
 
-                    }))
+          }))
 
-                )
+        )
 
-        };
+    };
 
-    }
+  }
 
-    // =====================================
-    // PREVIOUS CURRENT / ALLTIME FORMAT
-    // =====================================
+  // =====================================
+  // PREVIOUS CURRENT / ALLTIME FORMAT
+  // =====================================
 
-    if (parsed.current || parsed.allTime) {
-
-        let currentOrder = 0;
-        let archivedOrder = 0;
-
-        const current =
-
-            (parsed.current || []).map(task => ({
-
-                id: task.id,
-
-                text: task.text,
-
-                trackId:
-                    task.trackId ??
-                    "general",
-
-                completed:
-                    task.completed ??
-                    task.done ??
-                    false,
-
-                archived: false,
-
-                order:
-                    currentOrder++,
-
-                createdAt:
-                    task.createdAt ??
-                    new Date().toISOString(),
-
-                completedAt:
-                    task.completed
-                        ? (
-                            task.completedAt ??
-                            new Date().toISOString()
-                        )
-                        : null
-
-            }));
-
-        const archived =
-
-            (parsed.allTime || []).map(task => ({
-
-                id: task.id,
-
-                text: task.text,
-
-                trackId:
-                    task.trackId ??
-                    "general",
-
-                completed:
-                    task.completed ??
-                    task.done ??
-                    false,
-
-                archived: true,
-
-                order:
-                    archivedOrder++,
-
-                createdAt:
-                    task.createdAt ??
-                    new Date().toISOString(),
-
-                completedAt:
-                    task.completed
-                        ? (
-                            task.completedAt ??
-                            new Date().toISOString()
-                        )
-                        : null
-
-            }));
-
-        return {
-
-            tasks: [
-
-                ...current,
-
-                ...archived
-
-            ]
-
-        };
-
-    }
-
-    // =====================================
-    // CURRENT FORMAT
-    // =====================================
-
-    if (!parsed.tasks) {
-
-        parsed.tasks = [];
-
-    }
-
-    // =====================================
-    // NORMALIZE TODO TRACK
-    // =====================================
-
-    parsed.tasks.forEach(task => {
-
-        if (
-            task.trackId == null
-        ) {
-
-            task.trackId =
-                "general";
-
-        }
-
-    });
-
-    // =====================================
-    // ENSURE EVERY TASK HAS AN ORDER
-    // =====================================
+  if (
+    parsed.current ||
+    parsed.allTime
+  ) {
 
     let currentOrder = 0;
     let archivedOrder = 0;
 
-    parsed.tasks.forEach(task => {
+    const current =
 
-        if (task.order == null) {
+      (parsed.current || [])
+        .map(task => ({
 
-            task.order =
-                task.archived
-                    ? archivedOrder++
-                    : currentOrder++;
+          id: task.id,
 
-        }
+          text: task.text,
 
-    });
+          trackId:
+            task.trackId ??
+            "general",
 
-    return parsed;
+          completed:
+            task.completed ??
+            task.done ??
+            false,
+
+          archived: false,
+
+          order:
+            currentOrder++,
+
+          createdAt:
+            task.createdAt ??
+            new Date().toISOString(),
+
+          completedAt:
+            task.completed
+              ? (
+                  task.completedAt ??
+                  new Date().toISOString()
+                )
+              : null
+
+        }));
+
+    const archived =
+
+      (parsed.allTime || [])
+        .map(task => ({
+
+          id: task.id,
+
+          text: task.text,
+
+          trackId:
+            task.trackId ??
+            "general",
+
+          completed:
+            task.completed ??
+            task.done ??
+            false,
+
+          archived: true,
+
+          order:
+            archivedOrder++,
+
+          createdAt:
+            task.createdAt ??
+            new Date().toISOString(),
+
+          completedAt:
+            task.completed
+              ? (
+                  task.completedAt ??
+                  new Date().toISOString()
+                )
+              : null
+
+        }));
+
+    return {
+
+      tasks: [
+
+        ...current,
+
+        ...archived
+
+      ]
+
+    };
+
+  }
+
+  // =====================================
+  // CURRENT FORMAT
+  // =====================================
+
+  if (!parsed.tasks) {
+
+    parsed.tasks = [];
+
+  }
+
+  // =====================================
+  // NORMALIZE TODO TRACK
+  // =====================================
+
+  parsed.tasks.forEach(task => {
+
+    if (
+      task.trackId == null
+    ) {
+
+      task.trackId =
+        "general";
+
+    }
+
+  });
+
+  // =====================================
+  // ENSURE EVERY TASK HAS AN ORDER
+  // =====================================
+
+  let currentOrder = 0;
+  let archivedOrder = 0;
+
+  parsed.tasks.forEach(task => {
+
+    if (task.order == null) {
+
+      task.order =
+        task.archived
+          ? archivedOrder++
+          : currentOrder++;
+
+    }
+
+  });
+
+  return parsed;
 
 }
 
-function persistTodos(todoData) {
+
+function persistTodos(
+  todoData
+) {
 
   localStorage.setItem(
-
     TODO_STORAGE_KEY,
-
     JSON.stringify(todoData)
-
   );
 
 }
+
 
 // =====================================================
 // TODO DISPLAY SETTINGS
@@ -349,38 +366,39 @@ function persistTodos(todoData) {
 
 function loadTodoDisplaySettings() {
 
-    const stored =
-        localStorage.getItem(
-            TODO_DISPLAY_SETTINGS_KEY
-        );
-
-    if (!stored) {
-
-        return {
-
-            showCompleted: true,
-
-            showDates: true
-
-        };
-
-    }
-
-    return JSON.parse(stored);
-
-}
-
-function persistTodoDisplaySettings(settings) {
-
-    localStorage.setItem(
-
-        TODO_DISPLAY_SETTINGS_KEY,
-
-        JSON.stringify(settings)
-
+  const stored =
+    localStorage.getItem(
+      TODO_DISPLAY_SETTINGS_KEY
     );
 
+  if (!stored) {
+
+    return {
+
+      showCompleted: true,
+
+      showDates: true
+
+    };
+
+  }
+
+  return JSON.parse(stored);
+
 }
+
+
+function persistTodoDisplaySettings(
+  settings
+) {
+
+  localStorage.setItem(
+    TODO_DISPLAY_SETTINGS_KEY,
+    JSON.stringify(settings)
+  );
+
+}
+
 
 // =====================================================
 // TODAY HELPERS
@@ -391,43 +409,44 @@ function getTodayKey() {
   return new Date()
     .toISOString()
     .split("T")[0];
+
 }
 
 
 function getCurrentTodos() {
 
-    const todoData =
-        loadTodos();
+  const todoData =
+    loadTodos();
 
-    return {
+  return {
 
-        todoData,
+    todoData,
 
-        current:
-            todoData.tasks.filter(
-                task => !task.archived
-            )
+    current:
+      todoData.tasks.filter(
+        task => !task.archived
+      )
 
-    };
+  };
 
 }
 
 
 function getAllTimeTodos() {
 
-    const todoData =
-        loadTodos();
+  const todoData =
+    loadTodos();
 
-    return {
+  return {
 
-        todoData,
+    todoData,
 
-        allTime:
-            todoData.tasks.filter(
-                task => task.archived
-            )
+    allTime:
+      todoData.tasks.filter(
+        task => task.archived
+      )
 
-    };
+  };
 
 }
 
@@ -442,6 +461,7 @@ function persistProjects() {
     PROJECT_STORAGE_KEY,
     JSON.stringify(projects)
   );
+
 }
 
 
@@ -457,10 +477,6 @@ function loadProjects() {
     : [];
 
   let dataChanged = false;
-
-  // =========================================
-  // NORMALIZE PROJECTS
-  // =========================================
 
   projects.forEach(project => {
 
@@ -481,11 +497,8 @@ function loadProjects() {
     }
 
     if (
-
       !project.statusHistory ||
-
       project.statusHistory.length === 0
-
     ) {
 
       const createdAt =
@@ -519,10 +532,6 @@ function loadProjects() {
 
   });
 
-  // =========================================
-  // SAVE MIGRATED PROJECTS
-  // =========================================
-
   if (dataChanged) {
 
     persistProjects();
@@ -531,8 +540,11 @@ function loadProjects() {
 
 }
 
+
 // =====================================================
-// TIMETABLE WEEK HELPERS
+// WEEK HELPERS
+//
+// Shared by Timetable and Time Log.
 // =====================================================
 
 function getTimetableWeekKey(
@@ -566,9 +578,6 @@ function getTimetableWeekKey(
 
 }
 
-// =====================================================
-// GET DATE FROM TIMETABLE WEEK KEY
-// =====================================================
 
 function getDateFromTimetableWeekKey(
   weekKey
@@ -611,7 +620,8 @@ function persistTimetableEntries() {
 
 
 function loadTimetableEntries(
-  weekKey = getTimetableWeekKey()
+  weekKey =
+    getTimetableWeekKey()
 ) {
 
   const stored =

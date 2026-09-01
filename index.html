@@ -1,260 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-      <meta charset="UTF-8" />
-      <title>My Productivity Hub</title>
-      <link rel="stylesheet" href="styles/main.css">
+
+    <meta charset="UTF-8" />
+
+    <title>
+        My Productivity Hub
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="styles/main.css"
+    >
+
 </head>
 
+
 <body>
-  <div class="app">
+
+    <div class="app">
+
+
         <!-- ================= LEFT SIDEBAR ================= -->
-        <aside id="leftPanel" class="panel left">
 
-        <header>
-            <h3>Overview</h3>
-            <div class="left-controls">
-                <button id="leftToggleBtn">☰</button>
-            </div>
-        </header>
-        <div class="left-panel-sections">
-            <section class="left-panel-section">
-                <div class="left-section-header">
-                    <div class="section-title-row">
-                        <button
-                            id="toggleDeadlinesBtn"
-                            class="section-collapse-btn"
-                        >
-                            ▼
-                        </button>
-                        <h4>Deadlines</h4>
-                    </div>
-                    <select
-                        id="globalDeadlineFilter"
-                        class="vault-language-filter"
-                    >
-                        <option value="unfinished">Unfinished</option>
-                        <option value="upcoming">Upcoming</option>
-                        <option value="missed">Missed</option>
-                        <option value="finished">Finished</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
-                <div id="deadlinesSectionBody">
+        <aside
+            id="leftPanel"
+            class="panel left"
+        >
 
-                    <div
-                        id="globalDeadlineList"
-                        class="deadline-list"
-                    ></div>
+            <header>
 
-                    <button
-                        id="addDeadlineBtn"
-                        class="section-add-btn"
-                    >
-                        + New Deadline
+                <h3>
+                    Overview
+                </h3>
+
+                <div class="left-controls">
+
+                    <button id="leftToggleBtn">
+                        ☰
                     </button>
 
                 </div>
-            </section>
-            <section class="left-panel-section">
 
-                <div class="left-section-header">
+            </header>
 
-                    <div class="section-title-row">
 
-                        <button
-                            id="toggleTodosBtn"
-                            class="section-collapse-btn"
-                        >
-                            ▼
-                        </button>
+            <div class="left-panel-sections">
 
-                        <h4>To Do</h4>
 
-                    </div>
+                <!-- ================= DEADLINES ================= -->
 
-                    <select
-                        id="todoTrackFilter"
-                        class="todo-track-filter"
-                        title="Filter todos by track"
-                    >
-                        <option value="all">
-                            All
-                        </option>
+                <section class="left-panel-section">
 
-                        <option value="general">
-                            Others
-                        </option>
-                    </select>
+                    <div class="left-section-header">
 
-                </div>
+                        <div class="section-title-row">
 
-                <div
-                    id="todosSectionBody"
-                    class="section-body"
-                >
+                            <button
+                                id="toggleDeadlinesBtn"
+                                class="section-collapse-btn"
+                            >
+                                ▼
+                            </button>
 
-                    <div
-                        id="todoDateDisplay"
-                        class="todo-date-display"
-                    ></div>
-
-                    <div
-                        id="todoViewToggle"
-                        class="todo-view-toggle"
-                    >
-
-                        <button
-                            class="todo-toggle-btn active"
-                            data-view="current"
-                        >
-                            Current
-                        </button>
-
-                        <button
-                            class="todo-toggle-btn"
-                            data-view="allTime"
-                        >
-                            Archived
-                        </button>
-
-                    </div>
-
-                    <div
-                        class="todo-settings-wrapper"
-                    >
-
-                        <button
-                            id="todoSettingsBtn"
-                            class="todo-settings-btn"
-                            title="Display Options"
-                        >
-                            ⚙ Display Options
-                        </button>
-
-                        <div
-                            id="todoSettingsMenu"
-                            class="todo-settings-menu hidden"
-                        >
-
-                            <label class="todo-setting-item">
-
-                                <input
-                                    type="checkbox"
-                                    id="showCompletedToggle"
-                                    checked
-                                >
-
-                                Show completed tasks
-
-                            </label>
-
-                            <label class="todo-setting-item">
-
-                                <input
-                                    type="checkbox"
-                                    id="showDatesToggle"
-                                    checked
-                                >
-
-                                Show dates
-
-                            </label>
+                            <h4>
+                                Deadlines
+                            </h4>
 
                         </div>
 
+
+                        <select
+                            id="globalDeadlineFilter"
+                            class="vault-language-filter"
+                        >
+
+                            <option value="unfinished">
+                                Unfinished
+                            </option>
+
+                            <option value="upcoming">
+                                Upcoming
+                            </option>
+
+                            <option value="missed">
+                                Missed
+                            </option>
+
+                            <option value="finished">
+                                Finished
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
                     </div>
 
+
+                    <div id="deadlinesSectionBody">
+
+                        <div
+                            id="globalDeadlineList"
+                            class="deadline-list"
+                        ></div>
+
+
+                        <button
+                            id="addDeadlineBtn"
+                            class="section-add-btn"
+                        >
+                            + New Deadline
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= TODOS ================= -->
+
+                <section class="left-panel-section">
+
+                    <div class="left-section-header">
+
+                        <div class="section-title-row">
+
+                            <button
+                                id="toggleTodosBtn"
+                                class="section-collapse-btn"
+                            >
+                                ▼
+                            </button>
+
+                            <h4>
+                                To Do
+                            </h4>
+
+                        </div>
+
+
+                        <select
+                            id="todoTrackFilter"
+                            class="todo-track-filter"
+                            title="Filter todos by track"
+                        >
+
+                            <option value="all">
+                                All
+                            </option>
+
+                            <option value="general">
+                                Others
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
                     <div
-                        id="todayTodoList"
-                        class="todo-list"
-                    ></div>
-
-                    <button
-                        id="addTodoBtn"
-                        class="section-add-btn"
+                        id="todosSectionBody"
+                        class="section-body"
                     >
-                        + Add Task
-                    </button>
 
-                </div>
+                        <div
+                            id="todoDateDisplay"
+                            class="todo-date-display"
+                        ></div>
 
-            </section>
-        </div>
-        </aside>
-        <!-- ================= CENTER DASHBOARD ================= -->
-        <main class="center"></main>
-      <!-- ================= RIGHT SIDEBAR ================= -->
-      <aside id="rightPanel" class="panel right">
-          <header>
-            <h3>Vocabulary Vault</h3>
 
-            <button id="rightToggleBtn">
-                ☰
-            </button>
-          </header>
+                        <div
+                            id="todoViewToggle"
+                            class="todo-view-toggle"
+                        >
 
-          <button
-            id="takeQuizBtn"
-            class="quiz-btn quiz-full-width"
-          >
-            🧠 Take Quiz
-          </button>
-          
-          <select
-            id="vaultLanguageFilter"
-            class="vault-language-filter"
-            >
-            <option value="All">
-                All Languages
-            </option>
-          </select>
-          <br>
-          <div class="vault-stats">
-            <span>Total: <b id="totalWords">0</b></span>
-            <span>Learning: <b id="learningWords">0</b></span>
-            <span>Learned: <b id="learnedWords">0</b></span>
+                            <button
+                                class="todo-toggle-btn active"
+                                data-view="current"
+                            >
+                                Current
+                            </button>
+
+                            <button
+                                class="todo-toggle-btn"
+                                data-view="allTime"
+                            >
+                                Archived
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="todo-settings-wrapper"
+                        >
+
+                            <button
+                                id="todoSettingsBtn"
+                                class="todo-settings-btn"
+                                title="Display Options"
+                            >
+                                ⚙ Display Options
+                            </button>
+
+
+                            <div
+                                id="todoSettingsMenu"
+                                class="todo-settings-menu hidden"
+                            >
+
+                                <label class="todo-setting-item">
+
+                                    <input
+                                        type="checkbox"
+                                        id="showCompletedToggle"
+                                        checked
+                                    >
+
+                                    Show completed tasks
+
+                                </label>
+
+
+                                <label class="todo-setting-item">
+
+                                    <input
+                                        type="checkbox"
+                                        id="showDatesToggle"
+                                        checked
+                                    >
+
+                                    Show dates
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="todayTodoList"
+                            class="todo-list"
+                        ></div>
+
+
+                        <button
+                            id="addTodoBtn"
+                            class="section-add-btn"
+                        >
+                            + Add Task
+                        </button>
+
+                    </div>
+
+                </section>
+
             </div>
+
+        </aside>
+
+
+        <!-- ================= CENTER DASHBOARD ================= -->
+
+        <main class="center"></main>
+
+
+        <!-- ================= RIGHT SIDEBAR ================= -->
+
+        <aside
+            id="rightPanel"
+            class="panel right"
+        >
+
+            <header>
+
+                <h3>
+                    Vocabulary Vault
+                </h3>
+
+                <button id="rightToggleBtn">
+                    ☰
+                </button>
+
+            </header>
+
+
+            <button
+                id="takeQuizBtn"
+                class="quiz-btn quiz-full-width"
+            >
+                🧠 Take Quiz
+            </button>
+
+
+            <select
+                id="vaultLanguageFilter"
+                class="vault-language-filter"
+            >
+
+                <option value="All">
+                    All Languages
+                </option>
+
+            </select>
+
+
             <br>
-                    <!-- WORD LIST -->
-          <div id="wordList" class="word-list">
-              <!-- Words will appear here -->
-          </div>
-          <button class="add-word-btn">
-            + Add Word
-          </button>
-            <div id="wordForm" class="word-form hidden">
+
+
+            <div class="vault-stats">
+
+                <span>
+                    Total:
+                    <b id="totalWords">
+                        0
+                    </b>
+                </span>
+
+                <span>
+                    Learning:
+                    <b id="learningWords">
+                        0
+                    </b>
+                </span>
+
+                <span>
+                    Learned:
+                    <b id="learnedWords">
+                        0
+                    </b>
+                </span>
+
+            </div>
+
+
+            <br>
+
+
+            <!-- WORD LIST -->
+
+            <div
+                id="wordList"
+                class="word-list"
+            ></div>
+
+
+            <button class="add-word-btn">
+                + Add Word
+            </button>
+
+
+            <div
+                id="wordForm"
+                class="word-form hidden"
+            >
+
                 <div class="language-input-row">
+
                     <select id="languageInput">
+
                         <option value="English">
                             English
                         </option>
+
                         <option value="Urdu">
                             Urdu
                         </option>
+
                     </select>
+
+
                     <button
-                    id="addLanguageBtn"
-                    type="button"
+                        id="addLanguageBtn"
+                        type="button"
                     >
                         + Add
                     </button>
+
                 </div>
 
+
                 <input
-                id="wordInput"
-                placeholder="Word"
+                    id="wordInput"
+                    placeholder="Word"
                 />
 
-                <textarea
-                id="meaningInput"
-                placeholder="Meaning"
-                ></textarea>
 
                 <textarea
-                id="sentenceInput"
-                placeholder="Sample sentence"
+                    id="meaningInput"
+                    placeholder="Meaning"
                 ></textarea>
+
+
+                <textarea
+                    id="sentenceInput"
+                    placeholder="Sample sentence"
+                ></textarea>
+
 
                 <div class="word-form-actions">
 
@@ -263,8 +410,8 @@
                     </button>
 
                     <button
-                    class="cancel-word-btn"
-                    type="button"
+                        class="cancel-word-btn"
+                        type="button"
                     >
                         Cancel
                     </button>
@@ -272,26 +419,68 @@
                 </div>
 
             </div>
-      </aside>
-  </div>
-  <div id="overlay-root">
-    <!-- all modals -->
-  </div>
-  <!-- ================= TRACK SETTINGS MODAL ================= -->
-  <div id="trackSettingsModal" class="modal hidden">
-      <div class="modal-content">
-          <button id="closeTrackModalBtn" class="modal-close-btn">✖</button>
-          <h3>Manage Tracks</h3>
-          <div id="trackList"></div>
-          <div class="add-track-header">
-              <span>Add New Track</span>
-              <button id="addTrackInlineBtn" class="add-icon-btn">➕</button>
-          </div>
-      </div>
-  </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-- ================= OVERLAY ROOT ================= -->
+
+    <div id="overlay-root">
+        <!-- all modals -->
+    </div>
+
+
+    <!-- ================= TRACK SETTINGS MODAL ================= -->
+
+    <div
+        id="trackSettingsModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <button
+                id="closeTrackModalBtn"
+                class="modal-close-btn"
+            >
+                ✖
+            </button>
+
+            <h3>
+                Manage Tracks
+            </h3>
+
+            <div id="trackList"></div>
+
+
+            <div class="add-track-header">
+
+                <span>
+                    Add New Track
+                </span>
+
+                <button
+                    id="addTrackInlineBtn"
+                    class="add-icon-btn"
+                >
+                    ➕
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <!-- ================= DELETE TRACK MODAL ================= -->
 
-    <div id="deleteConfirmModal" class="modal hidden">
+    <div
+        id="deleteConfirmModal"
+        class="modal hidden"
+    >
 
         <div class="modal-content">
 
@@ -299,7 +488,9 @@
                 Delete Track
             </h3>
 
+
             <p id="deleteConfirmText"></p>
+
 
             <p class="delete-warning-text">
 
@@ -311,6 +502,7 @@
 
             </p>
 
+
             <div class="confirm-actions vertical-actions">
 
                 <button
@@ -320,12 +512,14 @@
                     📄 Back Up & Delete
                 </button>
 
+
                 <button
                     id="confirmDeleteBtn"
                     class="danger-btn"
                 >
                     🗑 Delete Without Backup
                 </button>
+
 
                 <button
                     id="cancelDeleteBtn"
@@ -339,122 +533,120 @@
         </div>
 
     </div>
-  <div id="toastMessage" class="toast hidden"></div>
-  
-<!-- CORE -->
-<script src="js/core/storage.js"></script>
-<script src="js/core/app.js"></script>
-<script src="js/core/dateUtils.js"></script>
 
-<script src="vendor/jspdf.umd.min.js"></script>
 
-<!-- COMPONENTS -->
-<script src="js/components/toast.js"></script>
-<script src="js/components/modals.js"></script>
-<script src="js/components/iconPicker.js"></script>
-<script src="js/components/progressRing.js"></script>
+    <!-- ================= TOAST ================= -->
 
-<!-- DASHBOARD -->
-<script src="js/features/dashboard/dashboardTemplate.js"></script>
-<script src="js/features/dashboard/dashboard.js"></script>
+    <div
+        id="toastMessage"
+        class="toast hidden"
+    ></div>
 
-<!-- PANELS -->
-<script src="js/features/dashboard/panels/deadlines.js"></script>
-<script src="js/features/dashboard/panels/todos.js"></script>
-<script src="js/features/dashboard/panels/leftPanel.js"></script>
-<script src="js/features/dashboard/panels/quiz/quiz.js"></script>
 
-<!-- TRACKS -->
-<script src="js/features/dashboard/tracks/trackStats.js"></script>
-<script src="js/features/dashboard/tracks/trackDragDrop.js"></script>
-<script src="js/features/dashboard/tracks/trackModal.js"></script>
-<script src="js/features/dashboard/tracks/trackBackup.js"></script>
-<script src="js/features/dashboard/tracks/tracksView.js"></script>
+    <!-- ================= DELETE WORD MODAL ================= -->
 
-<!-- PROJECTS -->
-<script src="js/features/dashboard/projects/projectActions.js"></script>
-<script src="js/features/dashboard/projects/projectAnalytics.js"></script>
-<script src="js/features/dashboard/projects/trendAnalytics.js"></script>
-<script src="js/features/dashboard/projects/projectDragDrop.js"></script>
-<script src="js/features/dashboard/projects/projectModal.js"></script>
-<script src="js/features/dashboard/projects/hourDistribution.js"></script>
-<script src="js/features/dashboard/projects/projectsView.js"></script>
+    <div
+        id="deleteWordModal"
+        class="modal hidden"
+    >
 
-<script src="js/features/dashboard/timeline/timelineModal.js"></script>
-<script src="js/features/dashboard/timeline/timelineStorage.js"></script>
-<script src="js/features/dashboard/timeline/timelineClock.js"></script>
-<script src="js/features/dashboard/timeline/timelineView.js"></script>
+        <div class="modal-content">
 
-<script src="js/features/dashboard/timetable/timetableModal.js"></script>
-<script src="js/features/dashboard/timetable/timetableView.js"></script>
+            <h3>
+                Delete Word
+            </h3>
 
-<!-- WOTD -->
-<script src="js/features/wotd.js"></script>
-<script src="js/features/wotdEvents.js"></script>
+            <p id="deleteWordText"></p>
 
-<!-- OTHER FEATURES -->
-<script src="js/features/deadlines.js"></script>
-<script src="js/features/workspace.js"></script>
 
-<!-- APP -->
-<script src="js/panels.js"></script>
-<script src="js/words.js"></script>
-<script src="js/googleDictionaryIntegration.js"></script>
-<script src="js/main.js"></script>
-  <!-- ================= DELETE WORD MODAL ================= -->
-   <div id="deleteWordModal" class="modal hidden">
-    <div class="modal-content">
-        <h3>Delete Word</h3>
-        <p id="deleteWordText"></p>
-        <div class="confirm-actions">
-        <button id="cancelDeleteWordBtn" class="neutral-btn">
-            Cancel
-        </button>
-        <button id="confirmDeleteWordBtn" class="danger-btn">
-            Delete
-        </button>
+            <div class="confirm-actions">
+
+                <button
+                    id="cancelDeleteWordBtn"
+                    class="neutral-btn"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="confirmDeleteWordBtn"
+                    class="danger-btn"
+                >
+                    Delete
+                </button>
+
+            </div>
+
         </div>
 
     </div>
-    </div>
+
 
     <!-- ================= DISCARD WORD MODAL ================= -->
-    <div id="discardWordModal" class="modal hidden">
-    <div class="modal-content">
-        <h3>Discard Word Entry</h3>
-        <p>
-            Are you sure you want to discard this entry?
-        </p>
-        <div class="confirm-actions">
-            <button
-            id="cancelDiscardWordBtn"
-            class="neutral-btn"
-            >
-            Continue Editing
-            </button>
-            <button
-            id="confirmDiscardWordBtn"
-            class="danger-btn"
-            >
-            Discard
-            </button>
+
+    <div
+        id="discardWordModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <h3>
+                Discard Word Entry
+            </h3>
+
+
+            <p>
+                Are you sure you want to discard this entry?
+            </p>
+
+
+            <div class="confirm-actions">
+
+                <button
+                    id="cancelDiscardWordBtn"
+                    class="neutral-btn"
+                >
+                    Continue Editing
+                </button>
+
+
+                <button
+                    id="confirmDiscardWordBtn"
+                    class="danger-btn"
+                >
+                    Discard
+                </button>
+
+            </div>
+
         </div>
+
     </div>
-    </div>
+
+
     <!-- ================= QUIZ MODAL ================= -->
-    <div id="quizModal" class="modal hidden">
+
+    <div
+        id="quizModal"
+        class="modal hidden"
+    >
 
         <div class="modal-content">
 
             <div class="modal-header">
 
-                <h2>Vocabulary Quiz</h2>
+                <h2>
+                    Vocabulary Quiz
+                </h2>
 
                 <button id="closeQuizBtn">
                     ✕
                 </button>
 
             </div>
+
 
             <div id="quizContent">
                 Quiz content goes here
@@ -464,308 +656,60 @@
 
     </div>
 
-    <div id="toastMessage" class="toast hidden"></div>
-    <!-- =====================================
-        Add Track Modal
-    ===================================== -->
 
-    <div id="addTrackModal" class="modal hidden">
-    <div class="modal-content add-track-modal-content">
-        <div class="modal-header">
-        <h2>Create New Track</h2>
-        <button id="closeAddTrackModalBtn">
-            ✕
-        </button>
-        </div>
-        <div class="add-track-form">
-        <input
-            type="text"
-            id="newTrackName"
-            placeholder="Track name"
-        />
-        <div
-            id="newTrackIconPicker"
-            class="icon-picker"
-        ></div>
-        <div class="add-track-modal-actions">
-            <button
-            id="saveNewTrackBtn"
-            class="primary-btn"
-            >
-            Create Track
-            </button>
-
-            <button
-            id="cancelNewTrackBtn"
-            class="neutral-btn"
-            >
-            Cancel
-            </button>
-        </div>
-        </div>
-    </div>
-    </div>
-    <!-- =====================================
-        MANAGE PROJECTS MODAL
-    ===================================== -->
+    <!-- ================= ADD TRACK MODAL ================= -->
 
     <div
-    id="manageProjectsModal"
-    class="modal hidden"
+        id="addTrackModal"
+        class="modal hidden"
     >
 
-    <div
-        class="modal-content manage-projects-modal-content"
-    >
-
-        <!-- =============================
-            HEADER
-        ============================== -->
-
-        <div class="modal-header">
-
-        <h2>
-            Manage Projects
-        </h2>
-
-        <button
-            id="closeManageProjectsModalBtn"
-        >
-            ✕
-        </button>
-
-        </div>
-
-        <!-- =============================
-            NAVIGATION
-        ============================== -->
-
-        <div class="manage-projects-nav">
-        <button
-        id="currentProjectsTab"
-        class="manage-projects-tab active"
-        data-tab="current"
-        >
-        Current (0)
-        </button>
-
-        <button
-        id="pausedProjectsTab"
-        class="manage-projects-tab"
-        data-tab="paused"
-        >
-        Paused (0)
-        </button>
-
-        <button
-        id="completedProjectsTab"
-        class="manage-projects-tab"
-        data-tab="completed"
-        >
-        Completed (0)
-        </button>
-
-        </div>
-
-        <!-- =============================
-            CONTENT
-        ============================== -->
-
-        <div id="manageProjectsContent"></div>
-
-        <!-- =============================
-            FOOTER ACTIONS
-        ============================== -->
-
-        <div class="manage-projects-footer">
-
-            <div class="manage-projects-add-form">
-
-                <input
-                    type="text"
-                    id="projectNameInput"
-                    placeholder="Project name"
-                />
-
-                <input
-                    type="number"
-                    id="projectTargetInput"
-                    placeholder="Hours per day"
-                    min="0.5"
-                    step="0.5"
-                />
-
-                <button
-                    id="saveProjectBtn"
-                    class="primary-btn"
-                >
-                    + Add Project
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    </div>
-
-    <!-- =====================================
-        TIMELINE MODAL
-    ===================================== -->
-
-    <div
-    id="timelineModal"
-    class="modal hidden"
-    >
-
-        <div
-            class="
-                modal-content
-                timeline-modal-content
-            "
-        >
-
-            <!-- HEADER -->
+        <div class="modal-content add-track-modal-content">
 
             <div class="modal-header">
 
                 <h2>
-                    Add Activity
+                    Create New Track
                 </h2>
 
-                <button
-                    id="closeTimelineModalBtn"
-                >
+
+                <button id="closeAddTrackModalBtn">
                     ✕
                 </button>
 
             </div>
 
-            <!-- FORM -->
 
-            <div class="timeline-form">
-
-                <!-- ACTIVITY -->
-
-                <label
-                    class="timeline-field-label"
-                    for="timelineActivityInput"
-                >
-                    Activity
-                </label>
+            <div class="add-track-form">
 
                 <input
-                    id="timelineActivityInput"
-                    list="timelineActivitySuggestions"
-                    placeholder="What were you working on?"
+                    type="text"
+                    id="newTrackName"
+                    placeholder="Track name"
                 />
 
-                <datalist
-                    id="timelineActivitySuggestions"
-                ></datalist>
-
-                <!-- CLOCK -->
 
                 <div
-                    id="timelineClockContainer"
+                    id="newTrackIconPicker"
+                    class="icon-picker"
                 ></div>
 
-                <!-- TIME SUMMARY -->
 
-                <div
-                    class="timeline-selected-times"
-                >
-
-                    <span>
-
-                        <small>
-                            START
-                        </small>
-
-                        <b
-                            id="selectedStartTime"
-                        >
-                            --:--
-                        </b>
-
-                    </span>
-
-                    <span>
-
-                        <small>
-                            END
-                        </small>
-
-                        <b
-                            id="selectedEndTime"
-                        >
-                            --:--
-                        </b>
-
-                    </span>
-
-                </div>
-
-                <!-- DETAILS CARD -->
-
-                <div
-                    class="timeline-details-card"
-                >
-
-                    <div
-                        class="timeline-meta-row"
-                    >
-
-                        <div
-                            class="timeline-meta-field"
-                        >
-
-                            <label
-                                class="timeline-field-label"
-                            >
-                                Project
-                            </label>
-
-                            <select
-                                id="timelineProjectSelect"
-                            >
-                            </select>
-
-                        </div>
-
-                        <div
-                            class="timeline-meta-field"
-                        >
-
-                            <label
-                                class="timeline-field-label"
-                            >
-                                Track
-                            </label>
-
-                            <select
-                                id="timelineTrackSelect"
-                            >
-                            </select>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- ACTIONS -->
-
-                <div
-                    class="timeline-actions"
-                >
+                <div class="add-track-modal-actions">
 
                     <button
-                        id="saveTimelineEntryBtn"
-                        class="timeline-save-btn primary-btn"
+                        id="saveNewTrackBtn"
+                        class="primary-btn"
                     >
-                        Save Activity
+                        Create Track
+                    </button>
+
+
+                    <button
+                        id="cancelNewTrackBtn"
+                        class="neutral-btn"
+                    >
+                        Cancel
                     </button>
 
                 </div>
@@ -776,8 +720,258 @@
 
     </div>
 
+
+    <!-- ================= MANAGE PROJECTS MODAL ================= -->
+
+    <div
+        id="manageProjectsModal"
+        class="modal hidden"
+    >
+
+        <div
+            class="
+                modal-content
+                manage-projects-modal-content
+            "
+        >
+
+            <div class="modal-header">
+
+                <h2>
+                    Manage Projects
+                </h2>
+
+
+                <button
+                    id="closeManageProjectsModalBtn"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="manage-projects-nav">
+
+                <button
+                    id="currentProjectsTab"
+                    class="manage-projects-tab active"
+                    data-tab="current"
+                >
+                    Current (0)
+                </button>
+
+
+                <button
+                    id="pausedProjectsTab"
+                    class="manage-projects-tab"
+                    data-tab="paused"
+                >
+                    Paused (0)
+                </button>
+
+
+                <button
+                    id="completedProjectsTab"
+                    class="manage-projects-tab"
+                    data-tab="completed"
+                >
+                    Completed (0)
+                </button>
+
+            </div>
+
+
+            <div
+                id="manageProjectsContent"
+            ></div>
+
+
+            <div class="manage-projects-footer">
+
+                <div class="manage-projects-add-form">
+
+                    <input
+                        type="text"
+                        id="projectNameInput"
+                        placeholder="Project name"
+                    />
+
+
+                    <input
+                        type="number"
+                        id="projectTargetInput"
+                        placeholder="Hours per day"
+                        min="0.5"
+                        step="0.5"
+                    />
+
+
+                    <button
+                        id="saveProjectBtn"
+                        class="primary-btn"
+                    >
+                        + Add Project
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <!-- =====================================
-        TIMETABLE MODAL
+         TIME LOG MODAL
+    ===================================== -->
+
+    <div
+        id="timeLogModal"
+        class="modal hidden"
+    >
+
+        <div
+            class="
+                modal-content
+                timetable-modal-content
+            "
+        >
+
+            <!-- HEADER -->
+
+            <div class="modal-header">
+
+                <h2
+                    id="timeLogModalTitle"
+                >
+                    Add Time Log Entry
+                </h2>
+
+
+                <button
+                    id="closeTimeLogModalBtn"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <div
+                class="timetable-form"
+            >
+
+                <!-- ACTIVITY -->
+
+                <label
+                    class="timetable-field-label"
+                    for="timeLogActivityInput"
+                >
+                    Activity
+                </label>
+
+
+                <input
+                    id="timeLogActivityInput"
+                    placeholder="Activity name"
+                />
+
+
+                <!-- TRACK -->
+
+                <label
+                    class="timetable-field-label"
+                    for="timeLogTrackSelect"
+                >
+                    Track
+                </label>
+
+
+                <select
+                    id="timeLogTrackSelect"
+                >
+                </select>
+
+
+                <!-- TIME -->
+
+                <div
+                    class="timetable-time-row"
+                >
+
+                    <div>
+
+                        <label
+                            class="timetable-field-label"
+                        >
+                            Start Time
+                        </label>
+
+
+                        <select
+                            id="timeLogStartTime"
+                        >
+                        </select>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            class="timetable-field-label"
+                        >
+                            End Time
+                        </label>
+
+
+                        <select
+                            id="timeLogEndTime"
+                        >
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div
+                    class="timetable-actions"
+                >
+
+                    <button
+                        id="deleteTimeLogEntryBtn"
+                        class="secondary-btn"
+                        style="display:none;"
+                    >
+                        Delete
+                    </button>
+
+
+                    <button
+                        id="saveTimeLogEntryBtn"
+                        class="primary-btn"
+                    >
+                        Save
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         TIMETABLE MODAL
     ===================================== -->
 
     <div
@@ -802,6 +996,7 @@
                     Add Timetable Entry
                 </h2>
 
+
                 <button
                     id="closeTimetableModalBtn"
                 >
@@ -809,6 +1004,7 @@
                 </button>
 
             </div>
+
 
             <!-- FORM -->
 
@@ -825,12 +1021,14 @@
                     Task
                 </label>
 
+
                 <input
                     id="timetableTaskInput"
                     placeholder="Task name"
                 />
 
-                <!-- CATEGORY -->
+
+                <!-- TRACK -->
 
                 <label
                     class="timetable-field-label"
@@ -839,10 +1037,12 @@
                     Track
                 </label>
 
+
                 <select
                     id="timetableTrackSelect"
                 >
                 </select>
+
 
                 <!-- TIME -->
 
@@ -858,12 +1058,14 @@
                             Start Time
                         </label>
 
+
                         <select
                             id="timetableStartTime"
                         >
                         </select>
 
                     </div>
+
 
                     <div>
 
@@ -872,6 +1074,7 @@
                         >
                             End Time
                         </label>
+
 
                         <select
                             id="timetableEndTime"
@@ -882,6 +1085,7 @@
 
                 </div>
 
+
                 <!-- DAYS -->
 
                 <label
@@ -889,6 +1093,7 @@
                 >
                     Days
                 </label>
+
 
                 <div
                     id="timetableDaySelector"
@@ -911,6 +1116,7 @@
 
                 </div>
 
+
                 <!-- ACTIONS -->
 
                 <div
@@ -924,6 +1130,7 @@
                     >
                         Delete
                     </button>
+
 
                     <button
                         id="saveTimetableEntryBtn"
@@ -939,6 +1146,113 @@
         </div>
 
     </div>
-</body>
-</html>
 
+
+    <!-- =====================================================
+         CORE
+    ===================================================== -->
+
+    <script src="js/core/storage.js"></script>
+    <script src="js/core/app.js"></script>
+    <script src="js/core/dateUtils.js"></script>
+
+
+    <script src="vendor/jspdf.umd.min.js"></script>
+
+
+    <!-- =====================================================
+         COMPONENTS
+    ===================================================== -->
+
+    <script src="js/components/toast.js"></script>
+    <script src="js/components/modals.js"></script>
+    <script src="js/components/iconPicker.js"></script>
+    <script src="js/components/progressRing.js"></script>
+
+
+    <!-- =====================================================
+         DASHBOARD
+    ===================================================== -->
+
+    <script src="js/features/dashboard/dashboardTemplate.js"></script>
+    <script src="js/features/dashboard/dashboard.js"></script>
+
+
+    <!-- =====================================================
+         PANELS
+    ===================================================== -->
+
+    <script src="js/features/dashboard/panels/deadlines.js"></script>
+    <script src="js/features/dashboard/panels/todos.js"></script>
+    <script src="js/features/dashboard/panels/leftPanel.js"></script>
+    <script src="js/features/dashboard/panels/quiz/quiz.js"></script>
+
+
+    <!-- =====================================================
+         TRACKS
+    ===================================================== -->
+
+    <script src="js/features/dashboard/tracks/trackStats.js"></script>
+    <script src="js/features/dashboard/tracks/trackDragDrop.js"></script>
+    <script src="js/features/dashboard/tracks/trackModal.js"></script>
+    <script src="js/features/dashboard/tracks/trackBackup.js"></script>
+    <script src="js/features/dashboard/tracks/tracksView.js"></script>
+
+
+    <!-- =====================================================
+         PROJECTS
+    ===================================================== -->
+
+    <script src="js/features/dashboard/projects/projectActions.js"></script>
+    <script src="js/features/dashboard/projects/projectAnalytics.js"></script>
+    <script src="js/features/dashboard/projects/trendAnalytics.js"></script>
+    <script src="js/features/dashboard/projects/projectDragDrop.js"></script>
+    <script src="js/features/dashboard/projects/projectModal.js"></script>
+    <script src="js/features/dashboard/projects/hourDistribution.js"></script>
+    <script src="js/features/dashboard/projects/projectsView.js"></script>
+
+
+    <!-- =====================================================
+         TIME LOG
+    ===================================================== -->
+
+    <script src="js/features/dashboard/timeLog/timeLogView.js"></script>
+    <script src="js/features/dashboard/timeLog/timeLogModal.js"></script>
+
+
+    <!-- =====================================================
+         TIMETABLE
+    ===================================================== -->
+
+    <script src="js/features/dashboard/timetable/timetableModal.js"></script>
+    <script src="js/features/dashboard/timetable/timetableView.js"></script>
+
+
+    <!-- =====================================================
+         WOTD
+    ===================================================== -->
+
+    <script src="js/features/wotd.js"></script>
+    <script src="js/features/wotdEvents.js"></script>
+
+
+    <!-- =====================================================
+         OTHER FEATURES
+    ===================================================== -->
+
+    <script src="js/features/deadlines.js"></script>
+    <script src="js/features/workspace.js"></script>
+
+
+    <!-- =====================================================
+         APP
+    ===================================================== -->
+
+    <script src="js/panels.js"></script>
+    <script src="js/words.js"></script>
+    <script src="js/googleDictionaryIntegration.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

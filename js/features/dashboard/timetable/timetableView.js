@@ -1,5 +1,5 @@
 // =====================================================
-// TIMETABLE VIEW
+// TIMETABLE VIEW / TIME PLAN VIEW
 //
 // Responsibilities:
 // - Render weekly timetable

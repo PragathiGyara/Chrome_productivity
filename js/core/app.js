@@ -13,8 +13,6 @@ function initializeApp() {
 
   loadProjects();
 
-  loadTimelineEntries();
-
   loadTimetableEntries();
 
   renderDashboardView();
@@ -25,9 +23,9 @@ function initializeApp() {
 
   attachManageProjectsEvents();
 
-  attachTimelineModalEvents();
-
   initializeTimetableModal();
+
+  initializeTimeLogModal();
 
   attachQuizEvents();
 
