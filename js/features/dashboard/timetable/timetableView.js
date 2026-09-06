@@ -8,13 +8,13 @@
 // =====================================================
 
 const timetableDays = [
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday",
-  "Sunday"
+  "Saturday"
 ];
 
 let currentTimetableWeekKey =

@@ -590,13 +590,9 @@ function getTimetableWeekKey(
   const day =
     localDate.getDay();
 
-  const diff =
-    day === 0
-      ? -6
-      : 1 - day;
-
+  // Sunday is the start of the week
   localDate.setDate(
-    localDate.getDate() + diff
+    localDate.getDate() - day
   );
 
   return (

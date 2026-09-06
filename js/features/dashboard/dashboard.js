@@ -145,7 +145,6 @@ let currentTimeScheduleView =
 
 
 function renderTimeScheduleView() {
-
   const content =
     document.getElementById(
       "dashboardContent"
@@ -153,28 +152,10 @@ function renderTimeScheduleView() {
 
   if (!content) return;
 
-
   content.innerHTML = `
+    <div class="time-schedule-view">
 
-    <div
-      class="time-schedule-view"
-    >
-
-      <!-- =========================================
-           VIEW TOGGLE
-      ========================================== -->
-
-      <div
-        class="time-schedule-toggle"
-      >
-
-        <button
-          type="button"
-          id="timeScheduleTimeLogBtn"
-          class="time-schedule-toggle-btn"
-        >
-          Time Log
-        </button>
+      <div class="time-schedule-toggle">
 
         <button
           type="button"
@@ -184,26 +165,29 @@ function renderTimeScheduleView() {
           Timetable
         </button>
 
+        <button
+          type="button"
+          id="timeScheduleTimeLogBtn"
+          class="time-schedule-toggle-btn"
+        >
+          Time Log
+        </button>
+
       </div>
-
-
-      <!-- =========================================
-           ACTIVE VIEW
-      ========================================== -->
 
       <div
         id="timeScheduleContent"
       ></div>
 
     </div>
-
   `;
 
+  // Timetable is the default view
+  currentTimeScheduleView = "timetable";
 
   attachTimeScheduleEvents();
 
   renderCurrentTimeScheduleView();
-
 }
 
 
@@ -213,29 +197,20 @@ function renderTimeScheduleView() {
 
 function attachTimeScheduleEvents() {
 
-  const timeLogBtn =
-    document.getElementById(
-      "timeScheduleTimeLogBtn"
-    );
-
   const timetableBtn =
     document.getElementById(
       "timeScheduleTimetableBtn"
     );
 
+  const timeLogBtn =
+    document.getElementById(
+      "timeScheduleTimeLogBtn"
+    );
 
-  timeLogBtn?.addEventListener(
-    "click",
-    () => {
 
-      currentTimeScheduleView =
-        "timelog";
-
-      renderCurrentTimeScheduleView();
-
-    }
-  );
-
+  // ===================================================
+  // TIMETABLE
+  // ===================================================
 
   timetableBtn?.addEventListener(
     "click",
@@ -243,6 +218,23 @@ function attachTimeScheduleEvents() {
 
       currentTimeScheduleView =
         "timetable";
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+
+  // ===================================================
+  // TIME LOG
+  // ===================================================
+
+  timeLogBtn?.addEventListener(
+    "click",
+    () => {
+
+      currentTimeScheduleView =
+        "timelog";
 
       renderCurrentTimeScheduleView();
 
