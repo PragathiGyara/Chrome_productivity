@@ -47,6 +47,8 @@ function openManageProjectsModal() {
 
   resetManageProjectsTabs();
 
+  populateProjectTrackSelect();
+
   updateManageProjectsCounts();
 
   renderManageProjectsContent();

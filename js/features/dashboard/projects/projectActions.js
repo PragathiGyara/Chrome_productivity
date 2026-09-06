@@ -40,6 +40,42 @@ function refreshProjectsUI() {
 
 }
 
+// =====================================================
+// POPULATE PROJECT TRACK SELECT
+// =====================================================
+
+function populateProjectTrackSelect() {
+
+  const select =
+    document.getElementById(
+      "projectTrackSelect"
+    );
+
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">
+      Select Track
+    </option>
+  `;
+
+  tracks.forEach(track => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      track.id;
+
+    option.textContent =
+      `${track.icon} ${track.name}`;
+
+    select.appendChild(option);
+
+  });
+
+}
+
 
 // =====================================================
 // SAVE PROJECT
@@ -57,11 +93,20 @@ function saveProject() {
       "projectTargetInput"
     );
 
+  const trackSelect =
+    document.getElementById(
+      "projectTrackSelect"
+    );
+
   const name =
     nameInput.value.trim();
 
   const targetHours =
     Number(targetInput.value);
+
+  const selectedTrackId =
+    trackSelect?.value || "";
+
 
   // =========================================
   // VALIDATION
@@ -88,6 +133,39 @@ function saveProject() {
     return;
   }
 
+  if (!selectedTrackId) {
+
+    alert(
+      "Please select a track."
+    );
+
+    return;
+  }
+
+
+  // =========================================
+  // VERIFY TRACK STILL EXISTS
+  // =========================================
+
+  const selectedTrack =
+    tracks.find(
+      track =>
+        String(track.id) ===
+        String(selectedTrackId)
+    );
+
+  if (!selectedTrack) {
+
+    alert(
+      "Selected track could not be found."
+    );
+
+    populateProjectTrackSelect();
+
+    return;
+  }
+
+
   // =========================================
   // DUPLICATE NAME CHECK
   // =========================================
@@ -113,15 +191,20 @@ function saveProject() {
     return;
   }
 
+
   // =========================================
   // CREATE PROJECT
   // =========================================
 
   projects.push({
 
-    id: Date.now(),
+    id:
+      Date.now(),
 
     name,
+
+    trackId:
+      selectedTrack.id,
 
     targetHoursPerDay:
       targetHours,
@@ -137,7 +220,9 @@ function saveProject() {
     statusHistory: [
 
       {
-        status: "active",
+        status:
+          "active",
+
         date:
           getLocalDateKey(),
 
@@ -149,10 +234,28 @@ function saveProject() {
 
   });
 
+
+  // =========================================
+  // RESET FORM
+  // =========================================
+
   nameInput.value = "";
+
   targetInput.value = "";
 
+  if (trackSelect) {
+
+    trackSelect.value = "";
+
+  }
+
+
+  // =========================================
+  // REFRESH
+  // =========================================
+
   refreshProjectsUI();
+
 
   showToast(
     `Project "${name}" added`
