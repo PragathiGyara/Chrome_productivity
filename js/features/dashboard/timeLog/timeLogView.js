@@ -314,21 +314,17 @@ function attachTimeLogNavigation() {
           currentTimeLogWeekKey
         );
 
-
       weekStart.setDate(
         weekStart.getDate() - 7
       );
-
 
       currentTimeLogWeekKey =
         getTimetableWeekKey(
           weekStart
         );
 
-
       currentTimetableWeekKey =
         currentTimeLogWeekKey;
-
 
       renderCurrentTimeScheduleView();
 
@@ -349,21 +345,17 @@ function attachTimeLogNavigation() {
           currentTimeLogWeekKey
         );
 
-
       weekStart.setDate(
         weekStart.getDate() + 7
       );
-
 
       currentTimeLogWeekKey =
         getTimetableWeekKey(
           weekStart
         );
 
-
       currentTimetableWeekKey =
         currentTimeLogWeekKey;
-
 
       renderCurrentTimeScheduleView();
 
@@ -382,12 +374,18 @@ function attachTimeLogNavigation() {
       currentTimeLogWeekKey =
         getTimetableWeekKey();
 
-
       currentTimetableWeekKey =
         currentTimeLogWeekKey;
 
-
       renderCurrentTimeScheduleView();
+
+
+      // Wait for the new grid to render
+      setTimeout(() => {
+
+        highlightTodayColumn();
+
+      }, 50);
 
     }
   );
@@ -421,22 +419,18 @@ function attachTimeLogNavigation() {
         return;
       }
 
-
       const selectedDate =
         new Date(
           `${datePicker.value}T00:00:00`
         );
-
 
       currentTimeLogWeekKey =
         getTimetableWeekKey(
           selectedDate
         );
 
-
       currentTimetableWeekKey =
         currentTimeLogWeekKey;
-
 
       renderCurrentTimeScheduleView();
 

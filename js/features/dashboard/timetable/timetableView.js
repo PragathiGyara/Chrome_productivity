@@ -362,17 +362,22 @@ function attachTimetableNavigation() {
       currentTimetableWeekKey =
         getTimetableWeekKey();
 
-
       currentTimeLogWeekKey =
         currentTimetableWeekKey;
-
 
       loadTimetableEntries(
         currentTimetableWeekKey
       );
 
-
       renderCurrentTimeScheduleView();
+
+
+      // Wait for the new grid to render
+      setTimeout(() => {
+
+        highlightTodayColumn();
+
+      }, 50);
 
     }
   );
@@ -406,7 +411,6 @@ function attachTimetableNavigation() {
         return;
       }
 
-
       currentTimetableWeekKey =
         getTimetableWeekKey(
           new Date(
@@ -414,15 +418,12 @@ function attachTimetableNavigation() {
           )
         );
 
-
       currentTimeLogWeekKey =
         currentTimetableWeekKey;
-
 
       loadTimetableEntries(
         currentTimetableWeekKey
       );
-
 
       renderCurrentTimeScheduleView();
 
@@ -655,5 +656,97 @@ function attachTimetableCellEvents() {
       );
 
     });
+
+}
+
+function highlightTodayColumn() {
+
+  const today =
+    new Date();
+
+  const todayDay =
+    today.toLocaleDateString(
+      undefined,
+      {
+        weekday: "long"
+      }
+    );
+
+
+  // ===============================================
+  // HIGHLIGHT TODAY'S HEADER
+  // ===============================================
+
+  document
+    .querySelectorAll(
+      ".timetable-day"
+    )
+    .forEach(dayElement => {
+
+      const dayName =
+        dayElement
+          .querySelector(
+            ".timetable-day-name"
+          )
+          ?.textContent
+          .trim();
+
+      if (
+        dayName ===
+        todayDay
+      ) {
+
+        dayElement.classList.add(
+          "today-highlight"
+        );
+
+      }
+
+    });
+
+
+  // ===============================================
+  // HIGHLIGHT TODAY'S CELLS
+  // ===============================================
+
+  document
+    .querySelectorAll(
+      ".timetable-cell"
+    )
+    .forEach(cell => {
+
+      if (
+        cell.dataset.day ===
+        todayDay
+      ) {
+
+        cell.classList.add(
+          "today-highlight"
+        );
+
+      }
+
+    });
+
+
+  // ===============================================
+  // REMOVE HIGHLIGHT
+  // ===============================================
+
+  setTimeout(() => {
+
+    document
+      .querySelectorAll(
+        ".today-highlight"
+      )
+      .forEach(element => {
+
+        element.classList.remove(
+          "today-highlight"
+        );
+
+      });
+
+  }, 3000);
 
 }

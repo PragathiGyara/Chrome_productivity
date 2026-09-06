@@ -748,3 +748,50 @@
 
   color: white;
 }
+
+/* =====================================================
+   TODAY HIGHLIGHT
+   ===================================================== */
+
+.timetable-day.today-highlight {
+  animation:
+    timetableTodayHeaderHighlight
+    3s ease-out;
+}
+
+.timetable-cell.today-highlight {
+  animation:
+    timetableTodayCellHighlight
+    3s ease-out;
+}
+
+@keyframes timetableTodayHeaderHighlight {
+
+  0% {
+    background: var(--accent-color);
+    color: white;
+  }
+
+  100% {
+    background: transparent;
+    color: inherit;
+  }
+
+}
+
+@keyframes timetableTodayCellHighlight {
+
+  0% {
+    background: rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+  }
+
+  100% {
+    background: transparent;
+  }
+
+}
