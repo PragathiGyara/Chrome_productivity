@@ -1,4 +1,3 @@
-
 // =====================================================
 // DASHBOARD VIEW
 //
@@ -17,16 +16,17 @@ let currentDashboardPage = 0;
 
 const dashboardPages = [
   "projects",
-  "timelog",
   "tracks",
-  "timetable"
+  "timeschedule"
 ];
 
 function renderDashboardView() {
 
-  const center = document.querySelector(".center");
+  const center =
+    document.querySelector(".center");
 
-  center.innerHTML = getDashboardTemplate();
+  center.innerHTML =
+    getDashboardTemplate();
 
   renderCurrentDashboardPage();
 
@@ -59,88 +59,258 @@ function renderCurrentDashboardPage() {
       "trackSettingsBtn"
     );
 
-  switch (page) {
 
-    case "tracks":
+  // ===================================================
+  // TRACKS
+  // ===================================================
 
-      settingsBtn.style.display =
-        "block";
+  if (page === "tracks") {
 
-      title.textContent =
-        "My Tracks";
+    settingsBtn.style.display =
+      "block";
 
-      settingsBtn.textContent =
-        "Manage Tracks";
+    title.textContent =
+      "My Tracks";
 
-      settingsBtn.onclick =
-        openTrackSettings;
+    settingsBtn.textContent =
+      "Manage Tracks";
 
-      content.innerHTML = `
-        <div
-          id="trackGrid"
-          class="grid"
-        ></div>
-      `;
+    settingsBtn.onclick =
+      openTrackSettings;
 
-      renderTracks();
+    content.innerHTML = `
 
-      break;
+      <div
+        id="trackGrid"
+        class="grid"
+      ></div>
 
-    case "projects":
+    `;
 
-      settingsBtn.style.display =
-        "block";
+    renderTracks();
 
-      title.textContent =
-        "Projects";
+    return;
+  }
 
-      settingsBtn.textContent =
-        "Manage Projects";
 
-      settingsBtn.onclick =
-        openManageProjectsModal;
+  // ===================================================
+  // PROJECTS
+  // ===================================================
 
-      renderProjectsView();
+  if (page === "projects") {
 
-      break;
+    settingsBtn.style.display =
+      "block";
 
-    case "timelog":
+    title.textContent =
+      "Projects";
 
-      title.textContent =
-        "Time Log";
+    settingsBtn.textContent =
+      "Manage Projects";
 
-      settingsBtn.style.display =
-        "none";
+    settingsBtn.onclick =
+      openManageProjectsModal;
 
-      renderTimeLogView();
+    renderProjectsView();
 
-      break;
+    return;
+  }
 
-    case "timetable":
 
-      title.textContent =
-        "Timetable";
+  // ===================================================
+  // TIME & SCHEDULE
+  // ===================================================
 
-      settingsBtn.style.display =
-        "none";
+  if (page === "timeschedule") {
 
-      renderTimetableView();
+    settingsBtn.style.display =
+      "none";
 
-      break;
+    title.textContent =
+      "Time & Schedule";
 
-    default:
+    renderTimeScheduleView();
 
-      title.textContent =
-        "My Tracks";
+    return;
+  }
 
-      content.innerHTML = `
-        <div
-          id="trackGrid"
-          class="grid"
-        ></div>
-      `;
+}
 
-      renderTracks();
+// =====================================================
+// TIME & SCHEDULE VIEW
+// =====================================================
+
+let currentTimeScheduleView =
+  "timelog";
+
+
+function renderTimeScheduleView() {
+
+  const content =
+    document.getElementById(
+      "dashboardContent"
+    );
+
+  if (!content) return;
+
+
+  content.innerHTML = `
+
+    <div
+      class="time-schedule-view"
+    >
+
+      <!-- =========================================
+           VIEW TOGGLE
+      ========================================== -->
+
+      <div
+        class="time-schedule-toggle"
+      >
+
+        <button
+          type="button"
+          id="timeScheduleTimeLogBtn"
+          class="time-schedule-toggle-btn"
+        >
+          Time Log
+        </button>
+
+        <button
+          type="button"
+          id="timeScheduleTimetableBtn"
+          class="time-schedule-toggle-btn"
+        >
+          Timetable
+        </button>
+
+      </div>
+
+
+      <!-- =========================================
+           ACTIVE VIEW
+      ========================================== -->
+
+      <div
+        id="timeScheduleContent"
+      ></div>
+
+    </div>
+
+  `;
+
+
+  attachTimeScheduleEvents();
+
+  renderCurrentTimeScheduleView();
+
+}
+
+
+// =====================================================
+// TIME & SCHEDULE TOGGLE EVENTS
+// =====================================================
+
+function attachTimeScheduleEvents() {
+
+  const timeLogBtn =
+    document.getElementById(
+      "timeScheduleTimeLogBtn"
+    );
+
+  const timetableBtn =
+    document.getElementById(
+      "timeScheduleTimetableBtn"
+    );
+
+
+  timeLogBtn?.addEventListener(
+    "click",
+    () => {
+
+      currentTimeScheduleView =
+        "timelog";
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+
+  timetableBtn?.addEventListener(
+    "click",
+    () => {
+
+      currentTimeScheduleView =
+        "timetable";
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+}
+
+
+// =====================================================
+// RENDER CURRENT TIME & SCHEDULE VIEW
+// =====================================================
+
+function renderCurrentTimeScheduleView() {
+
+  const timeLogBtn =
+    document.getElementById(
+      "timeScheduleTimeLogBtn"
+    );
+
+  const timetableBtn =
+    document.getElementById(
+      "timeScheduleTimetableBtn"
+    );
+
+
+  if (timeLogBtn) {
+
+    timeLogBtn.classList.toggle(
+      "active",
+      currentTimeScheduleView ===
+      "timelog"
+    );
+
+  }
+
+
+  if (timetableBtn) {
+
+    timetableBtn.classList.toggle(
+      "active",
+      currentTimeScheduleView ===
+      "timetable"
+    );
+
+  }
+
+
+  // ---------------------------------------------------
+  // IMPORTANT:
+  // Tell the individual view which container to render
+  // into instead of replacing dashboardContent.
+  // ---------------------------------------------------
+
+  if (
+    currentTimeScheduleView ===
+    "timelog"
+  ) {
+
+    renderTimeLogView(
+      "timeScheduleContent"
+    );
+
+  } else {
+
+    renderTimetableView(
+      "timeScheduleContent"
+    );
 
   }
 

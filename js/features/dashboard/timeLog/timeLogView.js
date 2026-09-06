@@ -43,11 +43,13 @@ let currentTimeLogWeekKey =
 // RENDER TIME LOG VIEW
 // =====================================================
 
-function renderTimeLogView() {
+function renderTimeLogView(
+  containerId = "dashboardContent"
+) {
 
   const container =
     document.getElementById(
-      "dashboardContent"
+      containerId
     );
 
   if (!container) return;
@@ -129,24 +131,18 @@ function renderTimeLogView() {
 
       <div class="timetable-header">
 
-        <div>
-
-          <div class="projects-section-title">
-            Time Log
-          </div>
-
-          <div class="time-log-week-label">
-            ${weekLabel}
-          </div>
-
+        <div class="projects-section-title">
+          Time Log
         </div>
 
 
-        <div class="time-log-navigation">
+        <div class="timetable-navigation">
 
           <button
             type="button"
             id="previousTimeLogWeekBtn"
+            class="timetable-nav-btn"
+            title="Previous week"
           >
             ‹
           </button>
@@ -154,23 +150,36 @@ function renderTimeLogView() {
 
           <button
             type="button"
-            id="timeLogTodayBtn"
+            id="timeLogWeekPickerBtn"
+            class="timetable-week-picker-btn"
           >
-            Today
+            📅 ${weekLabel}
           </button>
 
 
           <button
             type="button"
             id="nextTimeLogWeekBtn"
+            class="timetable-nav-btn"
+            title="Next week"
           >
             ›
+          </button>
+
+
+          <button
+            type="button"
+            id="timeLogTodayBtn"
+            class="timetable-today-btn"
+          >
+            Today
           </button>
 
 
           <input
             type="date"
             id="timeLogDatePicker"
+            class="timetable-date-picker"
           />
 
         </div>
@@ -266,85 +275,25 @@ function renderTimeLogView() {
 
 function attachTimeLogNavigation() {
 
-  document
-    .getElementById(
+  const previousBtn =
+    document.getElementById(
       "previousTimeLogWeekBtn"
-    )
-    ?.addEventListener(
-      "click",
-      () => {
-
-        const weekStart =
-          getDateFromTimetableWeekKey(
-            currentTimeLogWeekKey
-          );
-
-
-        weekStart.setDate(
-          weekStart.getDate() - 7
-        );
-
-
-        currentTimeLogWeekKey =
-          getTimetableWeekKey(
-            weekStart
-          );
-
-
-        renderTimeLogView();
-
-      }
     );
 
-
-  document
-    .getElementById(
+  const nextBtn =
+    document.getElementById(
       "nextTimeLogWeekBtn"
-    )
-    ?.addEventListener(
-      "click",
-      () => {
-
-        const weekStart =
-          getDateFromTimetableWeekKey(
-            currentTimeLogWeekKey
-          );
-
-
-        weekStart.setDate(
-          weekStart.getDate() + 7
-        );
-
-
-        currentTimeLogWeekKey =
-          getTimetableWeekKey(
-            weekStart
-          );
-
-
-        renderTimeLogView();
-
-      }
     );
 
-
-  document
-    .getElementById(
+  const todayBtn =
+    document.getElementById(
       "timeLogTodayBtn"
-    )
-    ?.addEventListener(
-      "click",
-      () => {
-
-        currentTimeLogWeekKey =
-          getTimetableWeekKey();
-
-
-        renderTimeLogView();
-
-      }
     );
 
+  const weekPickerBtn =
+    document.getElementById(
+      "timeLogWeekPickerBtn"
+    );
 
   const datePicker =
     document.getElementById(
@@ -352,14 +301,125 @@ function attachTimeLogNavigation() {
     );
 
 
-  if (!datePicker) return;
+  // ===================================================
+  // PREVIOUS WEEK
+  // ===================================================
+
+  previousBtn?.addEventListener(
+    "click",
+    () => {
+
+      const weekStart =
+        getDateFromTimetableWeekKey(
+          currentTimeLogWeekKey
+        );
 
 
-  datePicker.addEventListener(
+      weekStart.setDate(
+        weekStart.getDate() - 7
+      );
+
+
+      currentTimeLogWeekKey =
+        getTimetableWeekKey(
+          weekStart
+        );
+
+
+      currentTimetableWeekKey =
+        currentTimeLogWeekKey;
+
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+
+  // ===================================================
+  // NEXT WEEK
+  // ===================================================
+
+  nextBtn?.addEventListener(
+    "click",
+    () => {
+
+      const weekStart =
+        getDateFromTimetableWeekKey(
+          currentTimeLogWeekKey
+        );
+
+
+      weekStart.setDate(
+        weekStart.getDate() + 7
+      );
+
+
+      currentTimeLogWeekKey =
+        getTimetableWeekKey(
+          weekStart
+        );
+
+
+      currentTimetableWeekKey =
+        currentTimeLogWeekKey;
+
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+
+  // ===================================================
+  // TODAY
+  // ===================================================
+
+  todayBtn?.addEventListener(
+    "click",
+    () => {
+
+      currentTimeLogWeekKey =
+        getTimetableWeekKey();
+
+
+      currentTimetableWeekKey =
+        currentTimeLogWeekKey;
+
+
+      renderCurrentTimeScheduleView();
+
+    }
+  );
+
+
+  // ===================================================
+  // WEEK PICKER BUTTON
+  // ===================================================
+
+  weekPickerBtn?.addEventListener(
+    "click",
+    () => {
+
+      datePicker?.showPicker?.();
+
+      datePicker?.focus();
+
+    }
+  );
+
+
+  // ===================================================
+  // DATE PICKER
+  // ===================================================
+
+  datePicker?.addEventListener(
     "change",
     () => {
 
-      if (!datePicker.value) return;
+      if (!datePicker.value) {
+        return;
+      }
 
 
       const selectedDate =
@@ -374,13 +434,16 @@ function attachTimeLogNavigation() {
         );
 
 
-      renderTimeLogView();
+      currentTimetableWeekKey =
+        currentTimeLogWeekKey;
+
+
+      renderCurrentTimeScheduleView();
 
     }
   );
 
 }
-
 
 // =====================================================
 // TIME LOG CELL EVENTS
@@ -823,7 +886,8 @@ function formatTimeLogWeekLabel(
       undefined,
       {
         month: "short",
-        day: "numeric"
+        day: "numeric",
+        year: "numeric"
       }
     );
 

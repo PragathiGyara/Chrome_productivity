@@ -20,11 +20,13 @@ const timetableDays = [
 let currentTimetableWeekKey =
   getTimetableWeekKey();
 
-function renderTimetableView() {
+function renderTimetableView(
+  containerId = "dashboardContent"
+) {
 
   const container =
     document.getElementById(
-      "dashboardContent"
+      containerId
     );
 
   if (!container) return;
@@ -320,27 +322,38 @@ function attachTimetableNavigation() {
       "timetableDatePicker"
     );
 
+
+  // ===================================================
+  // PREVIOUS WEEK
+  // ===================================================
+
   previousBtn?.addEventListener(
     "click",
     () => {
 
-      changeTimetableWeek(
-        -7
-      );
+      changeTimetableWeek(-7);
 
     }
   );
+
+
+  // ===================================================
+  // NEXT WEEK
+  // ===================================================
 
   nextBtn?.addEventListener(
     "click",
     () => {
 
-      changeTimetableWeek(
-        7
-      );
+      changeTimetableWeek(7);
 
     }
   );
+
+
+  // ===================================================
+  // TODAY
+  // ===================================================
 
   todayBtn?.addEventListener(
     "click",
@@ -349,14 +362,25 @@ function attachTimetableNavigation() {
       currentTimetableWeekKey =
         getTimetableWeekKey();
 
+
+      currentTimeLogWeekKey =
+        currentTimetableWeekKey;
+
+
       loadTimetableEntries(
         currentTimetableWeekKey
       );
 
-      renderTimetableView();
+
+      renderCurrentTimeScheduleView();
 
     }
   );
+
+
+  // ===================================================
+  // WEEK PICKER
+  // ===================================================
 
   weekPickerBtn?.addEventListener(
     "click",
@@ -369,6 +393,11 @@ function attachTimetableNavigation() {
     }
   );
 
+
+  // ===================================================
+  // DATE PICKER
+  // ===================================================
+
   datePicker?.addEventListener(
     "change",
     () => {
@@ -377,6 +406,7 @@ function attachTimetableNavigation() {
         return;
       }
 
+
       currentTimetableWeekKey =
         getTimetableWeekKey(
           new Date(
@@ -384,11 +414,17 @@ function attachTimetableNavigation() {
           )
         );
 
+
+      currentTimeLogWeekKey =
+        currentTimetableWeekKey;
+
+
       loadTimetableEntries(
         currentTimetableWeekKey
       );
 
-      renderTimetableView();
+
+      renderCurrentTimeScheduleView();
 
     }
   );
@@ -408,21 +444,29 @@ function changeTimetableWeek(
       currentTimetableWeekKey
     );
 
+
   currentWeekStart.setDate(
     currentWeekStart.getDate() +
     days
   );
+
 
   currentTimetableWeekKey =
     getTimetableWeekKey(
       currentWeekStart
     );
 
+
+  currentTimeLogWeekKey =
+    currentTimetableWeekKey;
+
+
   loadTimetableEntries(
     currentTimetableWeekKey
   );
 
-  renderTimetableView();
+
+  renderCurrentTimeScheduleView();
 
 }
 
