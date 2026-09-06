@@ -11,12 +11,38 @@ function getDashboardTemplate() {
 
         <div class="wotd-main">
 
+            <!-- =========================================
+                 WOTD HEADER
+            ========================================== -->
+
             <div class="wotd-header">
 
-                <div class="wotd-title">
-                    🌟 Word of the Day —
-                    <span id="centerWOTDLanguage"></span>
+                <div class="wotd-header-left">
+
+                    <!-- COLLAPSE BUTTON -->
+
+                    <button
+                        type="button"
+                        id="wotdCollapseBtn"
+                        class="wotd-collapse-btn"
+                        title="Collapse Word of the Day"
+                        aria-label="Collapse Word of the Day"
+                    >
+                        ▲
+                    </button>
+
+
+                    <!-- TITLE -->
+
+                    <div class="wotd-title">
+                        🌟 Word of the Day —
+                        <span id="centerWOTDLanguage"></span>
+                    </div>
+
                 </div>
+
+
+                <!-- GUESS WORD TOGGLE -->
 
                 <div class="wotd-quiz-toggle">
 
@@ -39,85 +65,119 @@ function getDashboardTemplate() {
 
             </div>
 
-            <div
-              id="centerWOTDWord"
-              class="wotd-word"
-            ></div>
+
+            <!-- =========================================
+                 COLLAPSIBLE WOTD CONTENT
+            ========================================== -->
 
             <div
-              id="centerWOTDMeaning"
-              class="wotd-meaning"
-            ></div>
-
-            <div
-              id="wotdToggleContainer"
-              class="wotd-toggle hidden"
+                id="wotdCollapsibleContent"
+                class="wotd-collapsible-content"
             >
 
-                <label class="toggle-switch">
+                <!-- WORD -->
 
-                    <input
-                      type="checkbox"
-                      id="wotdSentenceToggle"
-                    >
+                <div
+                    id="centerWOTDWord"
+                    class="wotd-word"
+                ></div>
 
-                    <span class="slider"></span>
 
-                </label>
+                <!-- MEANING -->
 
-                <div class="toggle-label">
-                  Show example sentence
-                </div>
+                <div
+                    id="centerWOTDMeaning"
+                    class="wotd-meaning"
+                ></div>
 
-            </div>
 
-            <div
-              id="wotdSentence"
-              class="wotd-sentence hidden"
-            ></div>
+                <!-- SENTENCE TOGGLE -->
 
-            <button
-                id="wotdRevealBtn"
-                class="wotd-action-btn hidden"
-            >
-                Show Word
-            </button>
+                <div
+                    id="wotdToggleContainer"
+                    class="wotd-toggle hidden"
+                >
 
-            <div class="wotd-footer">
+                    <label class="toggle-switch">
 
-                <div class="wotd-actions">
+                        <input
+                            type="checkbox"
+                            id="wotdSentenceToggle"
+                        >
 
-                    <button
-                    id="wotdLearnBtn"
-                    class="wotd-action-btn"
-                    >
-                    ✓ Learned
-                    </button>
+                        <span class="slider"></span>
 
-                    <button
-                    id="wotdVaultBtn"
-                    class="wotd-action-btn"
-                    >
-                    📖 Vault
-                    </button>
+                    </label>
+
+                    <div class="toggle-label">
+                        Show example sentence
+                    </div>
 
                 </div>
 
-                <div class="wotd-nav-inline">
 
-                    <button
-                      id="wotdPrev"
-                      class="wotd-nav"
-                    >
-                      ←
-                    </button>
+                <!-- SENTENCE -->
 
-                    <button
-                      id="wotdNext"
-                      class="wotd-nav"
-                    >
-                      →
-                    </button>
+                <div
+                    id="wotdSentence"
+                    class="wotd-sentence hidden"
+                ></div>
+
+
+                <!-- REVEAL BUTTON -->
+
+                <button
+                    id="wotdRevealBtn"
+                    class="wotd-action-btn hidden"
+                >
+                    Show Word
+                </button>
+
+
+                <!-- =====================================
+                     FOOTER
+                ====================================== -->
+
+                <div class="wotd-footer">
+
+                    <div class="wotd-actions">
+
+                        <button
+                            id="wotdLearnBtn"
+                            class="wotd-action-btn"
+                        >
+                            ✓ Learned
+                        </button>
+
+                        <button
+                            id="wotdVaultBtn"
+                            class="wotd-action-btn"
+                        >
+                            📖 Vault
+                        </button>
+
+                    </div>
+
+
+                    <!-- WOTD PREVIOUS / NEXT -->
+
+                    <div class="wotd-nav-inline">
+
+                        <button
+                            id="wotdPrev"
+                            class="wotd-nav"
+                        >
+                            ←
+                        </button>
+
+                        <button
+                            id="wotdNext"
+                            class="wotd-nav"
+                        >
+                            →
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -127,26 +187,39 @@ function getDashboardTemplate() {
 
     </div>
 
-    <!-- HEADER -->
+
+    <!-- ================================================
+         DASHBOARD HEADER
+    ================================================= -->
+
     <div class="center-header">
 
         <button
-          id="dashboardPrevBtn"
-          class="dashboard-nav-btn">
-          ◀
+            id="dashboardPrevBtn"
+            class="dashboard-nav-btn"
+        >
+            ◀
         </button>
 
+
         <h2 id="dashboardTitle">
-          My Tracks
+            My Tracks
         </h2>
 
+
         <button
-          id="dashboardNextBtn"
-          class="dashboard-nav-btn">
-          ▶
+            id="dashboardNextBtn"
+            class="dashboard-nav-btn"
+        >
+            ▶
         </button>
 
     </div>
+
+
+    <!-- ================================================
+         DASHBOARD ACTIONS
+    ================================================= -->
 
     <div class="dashboard-actions">
 
@@ -156,7 +229,13 @@ function getDashboardTemplate() {
 
     </div>
 
-    <!-- DYNAMIC DASHBOARD CONTENT -->
+
+    <!-- ================================================
+         DYNAMIC DASHBOARD CONTENT
+    ================================================= -->
+
     <div id="dashboardContent"></div>
+
   `;
+
 }

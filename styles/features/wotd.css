@@ -354,3 +354,95 @@
 
   margin: 10px auto 0 auto;
 }
+
+/* =====================================================
+   WOTD HEADER ACTIONS
+===================================================== */
+
+.wotd-header-left {
+
+  display: flex;
+
+  align-items: center;
+  
+  gap: 8px;
+}
+
+
+/* =====================================================
+   WOTD COLLAPSE BUTTON
+===================================================== */
+
+.wotd-collapse-btn {
+
+  width: 28px;
+
+  height: 28px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 7px;
+
+  background: var(--bg-hover);
+
+  color: var(--text-muted);
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+
+}
+
+
+.wotd-collapse-btn:hover {
+
+  background: #334155;
+
+  color: white;
+
+}
+
+
+/* =====================================================
+   COLLAPSIBLE CONTENT
+===================================================== */
+
+.wotd-collapsible-content {
+
+  max-height: 1000px;
+
+  overflow: hidden;
+
+  opacity: 1;
+
+  transition:
+    max-height 0.25s ease,
+    opacity 0.18s ease;
+
+}
+
+
+/* =====================================================
+   COLLAPSED STATE
+===================================================== */
+
+.wotd-collapsible-content.collapsed {
+
+  max-height: 0;
+
+  opacity: 0;
+
+}

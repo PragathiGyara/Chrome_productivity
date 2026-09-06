@@ -1,109 +1,226 @@
 // =====================================================
-// WOTD EVENTS
+// WORD OF THE DAY EVENTS
 // =====================================================
 
 function attachWOTDEvents() {
 
+  // ===================================================
+  // COLLAPSE / EXPAND WOTD
+  // ===================================================
+
   document
-    .getElementById("wotdNext")
+    .getElementById("wotdCollapseBtn")
     ?.addEventListener("click", () => {
 
-      nextWOTDLanguage();
-
-    });
-
-  document
-    .getElementById("wotdPrev")
-    ?.addEventListener("click", () => {
-
-      prevWOTDLanguage();
-
-    });
-
-  document
-    .getElementById("wotdSentenceToggle")
-    ?.addEventListener("change", (e) => {
-
-      const sentenceEl =
-        document.getElementById("wotdSentence");
-
-      if (e.target.checked) {
-
-        sentenceEl.classList.remove("hidden");
-
-      } else {
-
-        sentenceEl.classList.add("hidden");
-
-      }
-
-    });
-
-  document
-    .getElementById("wotdGuessModeToggle")
-    ?.addEventListener("change", (e) => {
-
-      wotdGuessMode =
-        e.target.checked;
-
-      wotdRevealed = false;
-
-      const sentenceToggle =
+      const content =
         document.getElementById(
-          "wotdSentenceToggle"
+          "wotdCollapsibleContent"
         );
 
-      const sentenceEl =
+      const button =
         document.getElementById(
-          "wotdSentence"
+          "wotdCollapseBtn"
         );
 
-      if (wotdGuessMode) {
+      if (!content || !button) return;
 
-        sentenceToggle.checked = false;
-
-        sentenceEl.classList.add(
-          "hidden"
+      const isCollapsed =
+        content.classList.toggle(
+          "collapsed"
         );
 
-      }
+      button.textContent =
+        isCollapsed
+          ? "▼"
+          : "▲";
 
-      renderWordOfTheDay();
+      button.title =
+        isCollapsed
+          ? "Expand Word of the Day"
+          : "Collapse Word of the Day";
 
-    });
-
-  document
-    .getElementById("wotdRevealBtn")
-    ?.addEventListener("click", () => {
-
-      wotdRevealed = true;
-
-      renderWordOfTheDay();
-
-    });
-
-  document
-    .getElementById("wotdLearnBtn")
-    ?.addEventListener("click", () => {
-
-      if (!currentWOTDWord) return;
-
-      const learnedWord =
-        currentWOTDWord.word;
-
-      markAsLearned(currentWOTDWord.id);
-
-      showToast(
-        `"${learnedWord}" marked as learned`
+      button.setAttribute(
+        "aria-label",
+        isCollapsed
+          ? "Expand Word of the Day"
+          : "Collapse Word of the Day"
       );
 
     });
 
+
+  // ===================================================
+  // PREVIOUS WOTD
+  // ===================================================
+
+  document
+    .getElementById("wotdPrev")
+    ?.addEventListener(
+      "click",
+      () => {
+        prevWOTDLanguage();
+      }
+    );
+
+
+  // ===================================================
+  // NEXT WOTD
+  // ===================================================
+
+  document
+    .getElementById("wotdNext")
+    ?.addEventListener(
+      "click",
+      () => {
+        nextWOTDLanguage();
+      }
+    );
+
+
+  // ===================================================
+  // EXAMPLE SENTENCE TOGGLE
+  // ===================================================
+
+  document
+    .getElementById("wotdSentenceToggle")
+    ?.addEventListener(
+      "change",
+      (e) => {
+
+        const sentenceEl =
+          document.getElementById(
+            "wotdSentence"
+          );
+
+        if (!sentenceEl) return;
+
+        if (e.target.checked) {
+
+          sentenceEl.classList.remove(
+            "hidden"
+          );
+
+        } else {
+
+          sentenceEl.classList.add(
+            "hidden"
+          );
+
+        }
+
+      }
+    );
+
+
+  // ===================================================
+  // GUESS WORD MODE
+  // ===================================================
+
+  document
+    .getElementById("wotdGuessModeToggle")
+    ?.addEventListener(
+      "change",
+      (e) => {
+
+        wotdGuessMode =
+          e.target.checked;
+
+        wotdRevealed = false;
+
+
+        const sentenceToggle =
+          document.getElementById(
+            "wotdSentenceToggle"
+          );
+
+        const sentenceEl =
+          document.getElementById(
+            "wotdSentence"
+          );
+
+
+        if (wotdGuessMode) {
+
+          if (sentenceToggle) {
+            sentenceToggle.checked = false;
+          }
+
+          if (sentenceEl) {
+            sentenceEl.classList.add(
+              "hidden"
+            );
+          }
+
+        }
+
+
+        renderWordOfTheDay();
+
+      }
+    );
+
+
+  // ===================================================
+  // REVEAL WORD
+  // ===================================================
+
+  document
+    .getElementById("wotdRevealBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        wotdRevealed = true;
+
+        renderWordOfTheDay();
+
+      }
+    );
+
+
+  // ===================================================
+  // MARK AS LEARNED
+  // ===================================================
+
+  document
+    .getElementById("wotdLearnBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        if (!currentWOTDWord) return;
+
+
+        const learnedWord =
+          currentWOTDWord.word;
+
+
+        markAsLearned(
+          currentWOTDWord.id
+        );
+
+
+        showToast(
+          `"${learnedWord}" marked as learned`
+        );
+
+      }
+    );
+
+
+  // ===================================================
+  // OPEN WORD IN VAULT
+  // ===================================================
+
   document
     .getElementById("wotdVaultBtn")
-    ?.addEventListener("click", () => {
+    ?.addEventListener(
+      "click",
+      () => {
 
-      goToCurrentWOTDInVault();
+        goToCurrentWOTDInVault();
 
-    });
+      }
+    );
+
 }
