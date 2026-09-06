@@ -2,6 +2,7 @@
 // STORAGE LAYER
 // =====================================================
 
+
 const TRACK_STORAGE_KEY =
   "dashboardTracks";
 
@@ -15,7 +16,12 @@ const TODO_DISPLAY_SETTINGS_KEY =
   "todoDisplaySettings";
 
 const TIMETABLE_STORAGE_KEY =
-  "dashboardTimetable";
+  "timetableEntries";
+
+const TIME_LOG_STORAGE_KEY =
+  "timeLogEntries";
+
+
 
 
 // =====================================================
@@ -30,6 +36,7 @@ function persistTracks() {
   );
 
   renderGlobalDeadlines();
+
 }
 
 
@@ -66,12 +73,16 @@ function loadTracks() {
           item.link ? [item.link] : [];
 
         delete item.link;
+
       }
 
     });
 
   });
+
 }
+
+
 
 
 // =====================================================
@@ -123,7 +134,10 @@ function getDefaultTracks() {
     }
 
   ];
+
 }
+
+
 
 
 // =====================================================
@@ -147,6 +161,7 @@ function loadTodos() {
 
   const parsed =
     JSON.parse(stored);
+
 
   // =====================================
   // OLD ARRAY FORMAT
@@ -196,6 +211,7 @@ function loadTodos() {
 
   }
 
+
   // =====================================
   // PREVIOUS CURRENT / ALLTIME FORMAT
   // =====================================
@@ -207,6 +223,7 @@ function loadTodos() {
 
     let currentOrder = 0;
     let archivedOrder = 0;
+
 
     const current =
 
@@ -245,6 +262,7 @@ function loadTodos() {
 
         }));
 
+
     const archived =
 
       (parsed.allTime || [])
@@ -282,6 +300,7 @@ function loadTodos() {
 
         }));
 
+
     return {
 
       tasks: [
@@ -296,6 +315,7 @@ function loadTodos() {
 
   }
 
+
   // =====================================
   // CURRENT FORMAT
   // =====================================
@@ -305,6 +325,7 @@ function loadTodos() {
     parsed.tasks = [];
 
   }
+
 
   // =====================================
   // NORMALIZE TODO TRACK
@@ -323,12 +344,14 @@ function loadTodos() {
 
   });
 
+
   // =====================================
   // ENSURE EVERY TASK HAS AN ORDER
   // =====================================
 
   let currentOrder = 0;
   let archivedOrder = 0;
+
 
   parsed.tasks.forEach(task => {
 
@@ -342,6 +365,7 @@ function loadTodos() {
     }
 
   });
+
 
   return parsed;
 
@@ -358,6 +382,8 @@ function persistTodos(
   );
 
 }
+
+
 
 
 // =====================================================
@@ -398,6 +424,8 @@ function persistTodoDisplaySettings(
   );
 
 }
+
+
 
 
 // =====================================================
@@ -451,6 +479,8 @@ function getAllTimeTodos() {
 }
 
 
+
+
 // =====================================================
 // PROJECT STORAGE
 // =====================================================
@@ -476,7 +506,9 @@ function loadProjects() {
     ? JSON.parse(stored)
     : [];
 
+
   let dataChanged = false;
+
 
   projects.forEach(project => {
 
@@ -487,6 +519,7 @@ function loadProjects() {
 
     }
 
+
     if (!project.createdAt) {
 
       project.createdAt =
@@ -495,6 +528,7 @@ function loadProjects() {
       dataChanged = true;
 
     }
+
 
     if (
       !project.statusHistory ||
@@ -505,6 +539,7 @@ function loadProjects() {
         new Date(
           project.createdAt
         );
+
 
       project.statusHistory = [
 
@@ -532,6 +567,7 @@ function loadProjects() {
 
   });
 
+
   if (dataChanged) {
 
     persistProjects();
@@ -540,11 +576,8 @@ function loadProjects() {
 
 }
 
-
 // =====================================================
 // WEEK HELPERS
-//
-// Shared by Timetable and Time Log.
 // =====================================================
 
 function getTimetableWeekKey(
@@ -588,6 +621,8 @@ function getDateFromTimetableWeekKey(
   );
 
 }
+
+
 
 
 // =====================================================
@@ -636,5 +671,62 @@ function loadTimetableEntries(
 
   timetableEntries =
     allTimetableData[weekKey] || [];
+
+}
+
+
+
+
+// =====================================================
+// TIME LOG STORAGE
+// =====================================================
+
+function saveTimeLogEntriesToStorage(
+  entries
+) {
+
+  localStorage.setItem(
+    TIME_LOG_STORAGE_KEY,
+    JSON.stringify(entries)
+  );
+
+}
+
+
+function loadTimeLogEntriesFromStorage() {
+
+  const stored =
+    localStorage.getItem(
+      TIME_LOG_STORAGE_KEY
+    );
+
+  if (!stored) {
+
+    return [];
+
+  }
+
+
+  try {
+
+    const parsed =
+      JSON.parse(stored);
+
+    return Array.isArray(parsed)
+      ? parsed
+      : [];
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Failed to load time log entries:",
+      error
+    );
+
+    return [];
+
+  }
 
 }

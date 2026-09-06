@@ -1,16 +1,17 @@
-
 // =====================================================
 // TIME LOG MODAL
 // =====================================================
 
-let selectedTimeLogSlot = null;
-
 let editingTimeLogEntryId = null;
 
+let timeLogEntries = [];
 
-/* =====================================================
-   INITIALIZE TIME LOG MODAL
-===================================================== */
+let selectedTimeLogDate = null;
+
+
+// =====================================================
+// INITIALIZE TIME LOG MODAL
+// =====================================================
 
 function initializeTimeLogModal() {
 
@@ -61,14 +62,14 @@ function initializeTimeLogModal() {
 }
 
 
-/* =====================================================
-   OPEN TIME LOG MODAL
-===================================================== */
+// =====================================================
+// OPEN TIME LOG MODAL
+// =====================================================
 
 function openTimeLogModal(
-  selectedDate,
-  start,
-  end,
+  selectedDate = null,
+  startTime = "09:00",
+  endTime = "10:00",
   entry = null
 ) {
 
@@ -93,20 +94,9 @@ function openTimeLogModal(
     );
 
 
-  // Store selected slot
-  selectedTimeLogSlot = {
-
-    date:
-      selectedDate,
-
-    start:
-      start,
-
-    end:
-      end
-
-  };
-
+  // ===================================================
+  // EDIT EXISTING ENTRY
+  // ===================================================
 
   if (entry) {
 
@@ -117,7 +107,7 @@ function openTimeLogModal(
     if (activityInput) {
 
       activityInput.value =
-        entry.activity;
+        entry.title || "";
 
     }
 
@@ -125,7 +115,7 @@ function openTimeLogModal(
     if (modalTitle) {
 
       modalTitle.textContent =
-        "Edit Time Log Entry";
+        "Edit Activity";
 
     }
 
@@ -152,11 +142,23 @@ function openTimeLogModal(
 
 
     populateTimeLogTimes(
-      entry.start,
-      entry.end
+      entry.start || "09:00",
+      entry.end || "10:00"
     );
 
+
+    selectedTimeLogDate =
+      entry.date ||
+      getDateKey(
+        new Date()
+      );
+
   }
+
+
+  // ===================================================
+  // ADD NEW ENTRY
+  // ===================================================
 
   else {
 
@@ -166,8 +168,7 @@ function openTimeLogModal(
 
     if (activityInput) {
 
-      activityInput.value =
-        "";
+      activityInput.value = "";
 
     }
 
@@ -175,7 +176,7 @@ function openTimeLogModal(
     if (modalTitle) {
 
       modalTitle.textContent =
-        "Add Time Log Entry";
+        "Add Activity";
 
     }
 
@@ -198,10 +199,21 @@ function openTimeLogModal(
 
     populateTimeLogTracks();
 
+
     populateTimeLogTimes(
-      start,
-      end
+      startTime,
+      endTime
     );
+
+
+    selectedTimeLogDate =
+      selectedDate
+        ? getDateKey(
+            selectedDate
+          )
+        : getDateKey(
+            new Date()
+          );
 
   }
 
@@ -211,14 +223,29 @@ function openTimeLogModal(
   );
 
 
-  activityInput?.focus();
+  // ===================================================
+  // FOCUS ACTIVITY INPUT
+  // ===================================================
+
+  if (activityInput) {
+
+    setTimeout(
+      () => {
+
+        activityInput.focus();
+
+      },
+      0
+    );
+
+  }
 
 }
 
 
-/* =====================================================
-   CLOSE TIME LOG MODAL
-===================================================== */
+// =====================================================
+// CLOSE TIME LOG MODAL
+// =====================================================
 
 function closeTimeLogModal() {
 
@@ -226,12 +253,79 @@ function closeTimeLogModal() {
     "timeLogModal"
   );
 
+  editingTimeLogEntryId =
+    null;
+
 }
 
 
-/* =====================================================
-   POPULATE TRACK DROPDOWN
-===================================================== */
+// =====================================================
+// SET DATE
+// =====================================================
+
+function setTimeLogDate(
+  selectedDate
+) {
+
+  const dateInput =
+    document.getElementById(
+      "timeLogDateInput"
+    );
+
+
+  if (!selectedDate) {
+
+    return;
+
+  }
+
+
+  /*
+     Keep the date internally even
+     when the current modal does not
+     contain a date input.
+  */
+
+  if (
+    selectedDate instanceof Date
+  ) {
+
+    selectedTimeLogDate =
+      getDateKey(
+        selectedDate
+      );
+
+  }
+
+  else {
+
+    selectedTimeLogDate =
+      selectedDate;
+
+  }
+
+
+  /*
+     If a date input exists,
+     update it as well.
+  */
+
+  if (!dateInput) {
+
+    return;
+
+  }
+
+
+  dateInput.value =
+    selectedTimeLogDate;
+
+}
+
+
+// =====================================================
+// POPULATE TRACK DROPDOWN
+// =====================================================
 
 function populateTimeLogTracks(
   selectedTrackId = null
@@ -248,15 +342,17 @@ function populateTimeLogTracks(
   select.innerHTML = "";
 
 
+  // ===================================================
+  // OTHERS / GENERAL
+  // ===================================================
+
   const othersOption =
     document.createElement(
       "option"
     );
 
-
   othersOption.value =
     "";
-
 
   othersOption.textContent =
     "📌 Others";
@@ -277,6 +373,10 @@ function populateTimeLogTracks(
   );
 
 
+  // ===================================================
+  // TRACKS
+  // ===================================================
+
   tracks.forEach(
     track => {
 
@@ -291,12 +391,12 @@ function populateTimeLogTracks(
 
 
       option.textContent =
-        `${track.icon} ${track.name}`;
+        `${track.icon || "📌"} ${track.name}`;
 
 
       if (
-        track.id ===
-        selectedTrackId
+        Number(track.id) ===
+        Number(selectedTrackId)
       ) {
 
         option.selected =
@@ -315,9 +415,9 @@ function populateTimeLogTracks(
 }
 
 
-/* =====================================================
-   POPULATE TIME DROPDOWNS
-===================================================== */
+// =====================================================
+// POPULATE TIME DROPDOWNS
+// =====================================================
 
 function populateTimeLogTimes(
   selectedStart = "09:00",
@@ -352,6 +452,10 @@ function populateTimeLogTimes(
     "";
 
 
+  // ===================================================
+  // 24 HOURS
+  // ===================================================
+
   for (
     let hour = 0;
     hour < 24;
@@ -371,14 +475,12 @@ function populateTimeLogTimes(
     startOption.value =
       time;
 
-
     startOption.textContent =
       time;
 
 
     if (
-      time ===
-      selectedStart
+      time === selectedStart
     ) {
 
       startOption.selected =
@@ -401,14 +503,12 @@ function populateTimeLogTimes(
     endOption.value =
       time;
 
-
     endOption.textContent =
       time;
 
 
     if (
-      time ===
-      selectedEnd
+      time === selectedEnd
     ) {
 
       endOption.selected =
@@ -429,9 +529,9 @@ function populateTimeLogTimes(
 }
 
 
-/* =====================================================
-   TIME LOG TIME CONTROLS
-===================================================== */
+// =====================================================
+// TIME LOG TIME CONTROLS
+// =====================================================
 
 function attachTimeLogTimeControls() {
 
@@ -464,8 +564,18 @@ function attachTimeLogTimeControls() {
 
 
   if (
+    !startContainer ||
+    !endContainer
+  ) {
+
+    return;
+
+  }
+
+
+  if (
     startContainer.querySelector(
-      ".time-log-time-controls"
+      ".timetable-time-controls"
     )
   ) {
 
@@ -488,9 +598,9 @@ function attachTimeLogTimeControls() {
 }
 
 
-/* =====================================================
-   CREATE TIME CONTROLS
-===================================================== */
+// =====================================================
+// CREATE TIME CONTROLS
+// =====================================================
 
 function createTimeLogTimeControls(
   container,
@@ -504,8 +614,12 @@ function createTimeLogTimeControls(
 
 
   controls.className =
-    "time-log-time-controls";
+    "timetable-time-controls";
 
+
+  // ===================================================
+  // MINUS BUTTON
+  // ===================================================
 
   const minusBtn =
     document.createElement(
@@ -516,18 +630,19 @@ function createTimeLogTimeControls(
   minusBtn.type =
     "button";
 
-
   minusBtn.className =
-    "time-log-time-adjust-btn";
-
+    "timetable-time-adjust-btn";
 
   minusBtn.textContent =
     "−5";
 
-
   minusBtn.title =
     "Subtract 5 minutes";
 
+
+  // ===================================================
+  // PLUS BUTTON
+  // ===================================================
 
   const plusBtn =
     document.createElement(
@@ -538,18 +653,19 @@ function createTimeLogTimeControls(
   plusBtn.type =
     "button";
 
-
   plusBtn.className =
-    "time-log-time-adjust-btn";
-
+    "timetable-time-adjust-btn";
 
   plusBtn.textContent =
     "+5";
 
-
   plusBtn.title =
     "Add 5 minutes";
 
+
+  // ===================================================
+  // EVENTS
+  // ===================================================
 
   minusBtn.addEventListener(
     "click",
@@ -594,9 +710,9 @@ function createTimeLogTimeControls(
 }
 
 
-/* =====================================================
-   ADJUST TIME LOG TIME
-===================================================== */
+// =====================================================
+// ADJUST TIME
+// =====================================================
 
 function adjustTimeLogTime(
   select,
@@ -616,7 +732,8 @@ function adjustTimeLogTime(
 
   if (
     newMinutes < 0 ||
-    newMinutes > 23 * 60 + 55
+    newMinutes >
+      23 * 60 + 55
   ) {
 
     return;
@@ -669,9 +786,453 @@ function adjustTimeLogTime(
 }
 
 
-/* =====================================================
-   TIME HELPERS
-===================================================== */
+// =====================================================
+// CHECK TIME LOG OVERLAP
+// =====================================================
+
+function hasTimeLogOverlap(
+  date,
+  start,
+  end,
+  excludeEntryId = null
+) {
+
+  const newStart =
+    timeToMinutes(
+      start
+    );
+
+
+  const newEnd =
+    timeToMinutes(
+      end
+    );
+
+
+  return timeLogEntries.find(
+    entry => {
+
+      // ===============================================
+      // IGNORE CURRENTLY EDITED ENTRY
+      // ===============================================
+
+      if (
+        entry.id ===
+        excludeEntryId
+      ) {
+
+        return false;
+
+      }
+
+
+      // ===============================================
+      // ONLY SAME DATE
+      // ===============================================
+
+      if (
+        entry.date !==
+        date
+      ) {
+
+        return false;
+
+      }
+
+
+      const existingStart =
+        timeToMinutes(
+          entry.start
+        );
+
+
+      const existingEnd =
+        timeToMinutes(
+          entry.end
+        );
+
+
+      return (
+        newStart <
+          existingEnd &&
+        newEnd >
+          existingStart
+      );
+
+    }
+  );
+
+}
+
+
+// =====================================================
+// SAVE TIME LOG ACTIVITY
+// =====================================================
+
+function saveTimeLogActivity() {
+
+  const activityInput =
+    document.getElementById(
+      "timeLogActivityInput"
+    );
+
+
+  const activity =
+    activityInput
+      ? activityInput.value.trim()
+      : "";
+
+
+  if (!activity) {
+
+    activityInput?.focus();
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // TRACK
+  // ===================================================
+
+  const trackValue =
+    document.getElementById(
+      "timeLogTrackSelect"
+    )?.value;
+
+
+  const trackId =
+    trackValue === "" ||
+    trackValue == null
+      ? null
+      : Number(
+          trackValue
+        );
+
+
+  // ===================================================
+  // TIME
+  // ===================================================
+
+  const start =
+    document.getElementById(
+      "timeLogStartTime"
+    )?.value;
+
+
+  const end =
+    document.getElementById(
+      "timeLogEndTime"
+    )?.value;
+
+
+  if (
+    !start ||
+    !end
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    timeToMinutes(start) >=
+    timeToMinutes(end)
+  ) {
+
+    alert(
+      "End time must be after start time."
+    );
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // DATE
+  // ===================================================
+
+  let date = null;
+
+
+  const dateInput =
+    document.getElementById(
+      "timeLogDateInput"
+    );
+
+
+  if (
+    dateInput &&
+    dateInput.value
+  ) {
+
+    date =
+      dateInput.value;
+
+  }
+
+
+  if (!date) {
+
+    date =
+      getTimeLogSelectedDate();
+
+  }
+
+
+  if (!date) {
+
+    alert(
+      "Please select a date."
+    );
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // CHECK OVERLAP
+  // ===================================================
+
+  const conflictingEntry =
+    hasTimeLogOverlap(
+      date,
+      start,
+      end,
+      editingTimeLogEntryId
+    );
+
+
+  if (conflictingEntry) {
+
+    alert(
+      `⚠️ Time conflict!\n\n` +
+      `"${activity}" overlaps with ` +
+      `"${conflictingEntry.title}" ` +
+      `(${conflictingEntry.start} - ${conflictingEntry.end}).`
+    );
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // EDIT EXISTING ENTRY
+  // ===================================================
+
+  if (
+    editingTimeLogEntryId !==
+    null
+  ) {
+
+    const entry =
+      timeLogEntries.find(
+        item =>
+          item.id ===
+          editingTimeLogEntryId
+      );
+
+
+    if (entry) {
+
+      entry.title =
+        activity;
+
+      entry.trackId =
+        trackId;
+
+      entry.start =
+        start;
+
+      entry.end =
+        end;
+
+      entry.date =
+        date;
+
+    }
+
+  }
+
+
+  // ===================================================
+  // ADD NEW ENTRY
+  // ===================================================
+
+  else {
+
+    timeLogEntries.push({
+
+      id:
+        Date.now(),
+
+      title:
+        activity,
+
+      trackId:
+        trackId,
+
+      start:
+        start,
+
+      end:
+        end,
+
+      date:
+        date
+
+    });
+
+  }
+
+
+  // ===================================================
+  // SAVE TO TIME LOG STORAGE ONLY
+  // ===================================================
+
+  saveTimeLogEntriesToStorage(
+    timeLogEntries
+  );
+
+
+  // ===================================================
+  // CLOSE
+  // ===================================================
+
+  closeTimeLogModal();
+
+
+  // ===================================================
+  // REFRESH VIEW
+  // ===================================================
+
+  if (
+    typeof renderTimeLogEntries ===
+    "function"
+  ) {
+
+    renderTimeLogEntries();
+
+  }
+  else if (
+    typeof renderTimeLogView ===
+    "function"
+  ) {
+
+    renderTimeLogView();
+
+  }
+
+}
+
+
+// =====================================================
+// DELETE TIME LOG ACTIVITY
+// =====================================================
+
+function deleteTimeLogActivity() {
+
+  if (
+    editingTimeLogEntryId ===
+    null
+  ) {
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to delete this time log activity?"
+    );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  timeLogEntries =
+    timeLogEntries.filter(
+      entry =>
+        entry.id !==
+        editingTimeLogEntryId
+    );
+
+
+  // ===================================================
+  // SAVE TO TIME LOG STORAGE ONLY
+  // ===================================================
+
+  saveTimeLogEntriesToStorage(
+    timeLogEntries
+  );
+
+
+  editingTimeLogEntryId =
+    null;
+
+
+  closeTimeLogModal();
+
+
+  // ===================================================
+  // REFRESH VIEW
+  // ===================================================
+
+  if (
+    typeof renderTimeLogEntries ===
+    "function"
+  ) {
+
+    renderTimeLogEntries();
+
+  }
+  else if (
+    typeof renderTimeLogView ===
+    "function"
+  ) {
+
+    renderTimeLogView();
+
+  }
+
+}
+
+
+// =====================================================
+// GET SELECTED TIME LOG DATE
+// =====================================================
+
+function getTimeLogSelectedDate() {
+
+  if (
+    selectedTimeLogDate
+  ) {
+
+    return selectedTimeLogDate;
+
+  }
+
+
+  return getDateKey(
+    new Date()
+  );
+
+}
+
+
+// =====================================================
+// TIME HELPERS
+// =====================================================
 
 function timeToMinutes(
   time
@@ -710,32 +1271,6 @@ function minutesToTime(
 
   return (
     `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
-  );
-
-}
-
-
-/* =====================================================
-   SAVE TIME LOG ACTIVITY
-===================================================== */
-
-function saveTimeLogActivity() {
-
-  console.log(
-    "Time Log save clicked"
-  );
-
-}
-
-
-/* =====================================================
-   DELETE TIME LOG ACTIVITY
-===================================================== */
-
-function deleteTimeLogActivity() {
-
-  console.log(
-    "Time Log delete clicked"
   );
 
 }
