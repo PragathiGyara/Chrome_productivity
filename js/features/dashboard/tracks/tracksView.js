@@ -34,142 +34,340 @@ let projects = [];
 // --------------------------
 
 function attachTrackEvents() {
-  
-  const modal = document.getElementById("trackSettingsModal");
-  const closeBtn = document.getElementById("closeTrackModalBtn");
-  const modalContent = modal.querySelector(".modal-content");
+
+  const modal =
+    document.getElementById(
+      "trackSettingsModal"
+    );
+
+  const closeBtn =
+    document.getElementById(
+      "closeTrackModalBtn"
+    );
+
+  const modalContent =
+    modal?.querySelector(
+      ".modal-content"
+    );
+
   const deleteModal =
-    document.getElementById("deleteConfirmModal");
+    document.getElementById(
+      "deleteConfirmModal"
+    );
 
   const backupDeleteBtn =
-    document.getElementById("backupDeleteBtn");
+    document.getElementById(
+      "backupDeleteBtn"
+    );
 
   const confirmBtn =
-    document.getElementById("confirmDeleteBtn");
+    document.getElementById(
+      "confirmDeleteBtn"
+    );
 
   const cancelBtn =
-    document.getElementById("cancelDeleteBtn");
+    document.getElementById(
+      "cancelDeleteBtn"
+    );
 
   const addTrackModal =
-  document.getElementById("addTrackModal");
-  const saveNewTrackBtn =
-    document.getElementById("saveNewTrackBtn");
-  const cancelNewTrackBtn =
-    document.getElementById("cancelNewTrackBtn");
-  const closeAddTrackModalBtn =
-    document.getElementById("closeAddTrackModalBtn");
+    document.getElementById(
+      "addTrackModal"
+    );
 
-  saveNewTrackBtn.onclick = () => {
-    const input =
-      document.getElementById("newTrackName");
-    const name = input.value.trim();
-    if (!name) {
-      alert("Track name required.");
-      return;
+  const saveNewTrackBtn =
+    document.getElementById(
+      "saveNewTrackBtn"
+    );
+
+  const cancelNewTrackBtn =
+    document.getElementById(
+      "cancelNewTrackBtn"
+    );
+
+  const closeAddTrackModalBtn =
+    document.getElementById(
+      "closeAddTrackModalBtn"
+    );
+
+
+  // =====================================================
+  // CREATE NEW TRACK
+  // =====================================================
+
+  saveNewTrackBtn?.addEventListener(
+    "click",
+    () => {
+
+      const input =
+        document.getElementById(
+          "newTrackName"
+        );
+
+      const name =
+        input?.value.trim();
+
+      if (!name) {
+        alert(
+          "Track name required."
+        );
+        return;
+      }
+
+      if (
+        typeof createDefaultProject !==
+        "function"
+      ) {
+        alert(
+          "Unable to create General project. Check storage.js."
+        );
+        return;
+      }
+
+      const generalProject =
+        createDefaultProject();
+
+      const newTrack = {
+
+        id:
+          Date.now(),
+
+        name:
+          name,
+
+        icon:
+          selectedNewTrackIcon,
+
+        projects: [
+          generalProject
+        ]
+
+      };
+
+      tracks.push(
+        newTrack
+      );
+
+      persistTracks();
+
+      renderTracks();
+
+      renderTrackList();
+
+      closeModal(
+        "addTrackModal"
+      );
+
+      showToast(
+        `Track "${name}" added`
+      );
+
     }
-    tracks.push({
-      id: Date.now(),
-      name,
-      icon: selectedNewTrackIcon,
-      deadlines: [],
-      tasks: [],
-      reading: [],
-      notes: ""
-    });
-    persistTracks();
-    renderTracks();
-    closeModal("addTrackModal");
-    showToast(`Track "${name}" added`);
-  };
+  );
+
+
+  // =====================================================
+  // CLOSE ADD TRACK MODAL
+  // =====================================================
+
   function closeAddTrackModal() {
-    closeModal("addTrackModal");
+
+    closeModal(
+      "addTrackModal"
+    );
+
   }
+
   cancelNewTrackBtn?.addEventListener(
     "click",
     closeAddTrackModal
   );
+
   closeAddTrackModalBtn?.addEventListener(
     "click",
     closeAddTrackModal
   );
-  addTrackModal?.addEventListener("click", (e) => {
-    if (e.target === addTrackModal) {
-      closeAddTrackModal();
+
+  addTrackModal?.addEventListener(
+    "click",
+    (e) => {
+
+      if (
+        e.target === addTrackModal
+      ) {
+        closeAddTrackModal();
+      }
+
     }
-  });
+  );
 
-  // Close button (top-right X)
-  closeBtn.addEventListener("click", attemptCloseModal);
 
-  // Backdrop click (only when clicking actual overlay)
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      attemptCloseModal();
+  // =====================================================
+  // CLOSE TRACK SETTINGS MODAL
+  // =====================================================
+
+  closeBtn?.addEventListener(
+    "click",
+    attemptCloseModal
+  );
+
+  modal?.addEventListener(
+    "click",
+    (e) => {
+
+      if (
+        e.target === modal
+      ) {
+        attemptCloseModal();
+      }
+
     }
-  });
-
-  // Prevent bubbling inside modal
-  modalContent.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-
-  // Inline Add Button
-  document.getElementById("addTrackInlineBtn")
-    .addEventListener("click", openInlineAdd);
+  );
 
 
-  backupDeleteBtn.addEventListener("click", () => {
+  // =====================================================
+  // PREVENT MODAL CONTENT BUBBLING
+  // =====================================================
 
-      if (!trackPendingDeletion) return;
+  modalContent?.addEventListener(
+    "click",
+    (e) => {
+      e.stopPropagation();
+    }
+  );
+
+
+  // =====================================================
+  // INLINE ADD TRACK
+  // =====================================================
+
+  const addTrackInlineBtn =
+    document.getElementById(
+      "addTrackInlineBtn"
+    );
+
+  addTrackInlineBtn?.addEventListener(
+    "click",
+    openInlineAdd
+  );
+
+
+  // =====================================================
+  // BACKUP + DELETE
+  // =====================================================
+
+  backupDeleteBtn?.addEventListener(
+    "click",
+    () => {
+
+      if (
+        !trackPendingDeletion
+      ) {
+        return;
+      }
 
       generateTrackBackupPDF(
-          trackPendingDeletion
+        trackPendingDeletion
       );
 
       deleteTrack(
-          trackPendingDeletion.id
+        trackPendingDeletion.id
       );
 
       showToast(
-          `Track "${trackPendingDeletion.name}" backed up and deleted`
+        `Track "${trackPendingDeletion.name}" backed up and deleted`
       );
 
-      trackPendingDeletion = null;
+      trackPendingDeletion =
+        null;
 
-      closeModal("deleteConfirmModal");
-
-  });
-  // Delete Confirm Buttons
-  confirmBtn.addEventListener("click", () => {
-
-      if (!trackPendingDeletion) return;
-
-      deleteTrack(
-          trackPendingDeletion.id
+      closeModal(
+        "deleteConfirmModal"
       );
 
-      showToast(
-          `Track "${trackPendingDeletion.name}" deleted`
-      );
-
-      trackPendingDeletion = null;
-
-      closeModal("deleteConfirmModal");
-
-  });
-  cancelBtn.addEventListener("click", () => {
-    trackPendingDeletion = null;
-    closeModal("deleteConfirmModal");
-  });
-
-  // Optional: close delete modal on backdrop click
-  deleteModal.addEventListener("click", (e) => {
-    if (e.target === deleteModal) {
-      closeModal("deleteConfirmModal");
-      trackPendingDeletion = null;
     }
-  });
+  );
+
+
+  // =====================================================
+  // DELETE CONFIRM
+  // =====================================================
+
+  confirmBtn?.addEventListener(
+    "click",
+    () => {
+
+      if (
+        !trackPendingDeletion
+      ) {
+        return;
+      }
+
+      deleteTrack(
+        trackPendingDeletion.id
+      );
+
+      showToast(
+        `Track "${trackPendingDeletion.name}" deleted`
+      );
+
+      trackPendingDeletion =
+        null;
+
+      closeModal(
+        "deleteConfirmModal"
+      );
+
+    }
+  );
+
+
+  // =====================================================
+  // DELETE CANCEL
+  // =====================================================
+
+  cancelBtn?.addEventListener(
+    "click",
+    () => {
+
+      trackPendingDeletion =
+        null;
+
+      closeModal(
+        "deleteConfirmModal"
+      );
+
+    }
+  );
+
+
+  // =====================================================
+  // DELETE MODAL BACKDROP
+  // =====================================================
+
+  deleteModal?.addEventListener(
+    "click",
+    (e) => {
+
+      if (
+        e.target === deleteModal
+      ) {
+
+        closeModal(
+          "deleteConfirmModal"
+        );
+
+        trackPendingDeletion =
+          null;
+
+      }
+
+    }
+  );
+
 }
+
+
 
 // --------------------------
 // Render Center Grid

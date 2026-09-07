@@ -224,33 +224,54 @@ function enableTrackModalEdit(row, track) {
 // Inline Add Logic
 // --------------------------
 
+
 function openInlineAdd() {
+
   if (activeTrackEditId) return;
 
   activeTrackEditId = "new-track";
 
-  const list = document.getElementById("trackList");
+  const list =
+    document.getElementById("trackList");
 
   let selectedIcon = "📌";
 
-  const iconGrid = TRACK_ICONS.map(icon =>
-    `<span class="icon-option ${icon === "📌" ? "selected-icon" : ""}" data-icon="${icon}">
-      ${icon}
-    </span>`
-  ).join("");
+  const iconGrid =
+    TRACK_ICONS.map(icon =>
+      `<span
+        class="icon-option ${
+          icon === "📌"
+            ? "selected-icon"
+            : ""
+        }"
+        data-icon="${icon}"
+      >
+        ${icon}
+      </span>`
+    ).join("");
 
-  const row = document.createElement("div");
+  const row =
+    document.createElement("div");
+
   row.classList.add("track-row");
 
   row.innerHTML = `
     <div class="edit-container">
 
       <div class="edit-preview">
-        <span class="preview-icon">${selectedIcon}</span>
-        <span class="preview-name">New Track</span>
+        <span class="preview-icon">
+          ${selectedIcon}
+        </span>
+
+        <span class="preview-name">
+          New Track
+        </span>
       </div>
 
-      <input class="edit-name" placeholder="Track name" />
+      <input
+        class="edit-name"
+        placeholder="Track name"
+      />
 
       <div class="icon-picker">
         ${iconGrid}
@@ -259,58 +280,200 @@ function openInlineAdd() {
     </div>
 
     <div class="track-actions">
-      <button class="save-edit-btn">✔</button>
-      <button class="cancel-edit-btn">✖</button>
+
+      <button class="save-edit-btn">
+        ✔
+      </button>
+
+      <button class="cancel-edit-btn">
+        ✖
+      </button>
+
     </div>
   `;
 
   list.appendChild(row);
 
-  const nameInput = row.querySelector(".edit-name");
-  const previewIcon = row.querySelector(".preview-icon");
-  const previewName = row.querySelector(".preview-name");
+  const nameInput =
+    row.querySelector(
+      ".edit-name"
+    );
 
-  nameInput.addEventListener("input", () => {
-    previewName.textContent = nameInput.value || "New Track";
+  const previewIcon =
+    row.querySelector(
+      ".preview-icon"
+    );
+
+  const previewName =
+    row.querySelector(
+      ".preview-name"
+    );
+
+  // =========================================
+  // LIVE NAME PREVIEW
+  // =========================================
+
+  nameInput.addEventListener(
+    "input",
+    () => {
+
+      previewName.textContent =
+        nameInput.value.trim() ||
+        "New Track";
+
+    }
+  );
+
+  // =========================================
+  // ICON SELECTION
+  // =========================================
+
+  row.querySelectorAll(
+    ".icon-option"
+  ).forEach(el => {
+
+    el.addEventListener(
+      "click",
+      () => {
+
+        row.querySelectorAll(
+          ".icon-option"
+        ).forEach(i =>
+          i.classList.remove(
+            "selected-icon"
+          )
+        );
+
+        el.classList.add(
+          "selected-icon"
+        );
+
+        selectedIcon =
+          el.dataset.icon;
+
+        previewIcon.textContent =
+          selectedIcon;
+
+      }
+    );
+
   });
 
-  row.querySelectorAll(".icon-option").forEach(el => {
-    el.addEventListener("click", () => {
-      row.querySelectorAll(".icon-option")
-        .forEach(i => i.classList.remove("selected-icon"));
+  // =========================================
+  // SAVE NEW TRACK
+  // =========================================
 
-      el.classList.add("selected-icon");
-      selectedIcon = el.dataset.icon;
-      previewIcon.textContent = selectedIcon;
-    });
-  });
+  row.querySelector(
+    ".save-edit-btn"
+  ).addEventListener(
+    "click",
+    () => {
 
-  row.querySelector(".save-edit-btn").addEventListener("click", () => {
-    const name = nameInput.value.trim();
-    if (!name) return;
+      const name =
+        nameInput.value.trim();
 
-    tracks.push({
-    id: Date.now(),
-    name,
-    icon: selectedIcon,
-    deadlines: [],
-    tasks: [],
-    reading: [],
-    notes: ""
-    });
+      if (!name) {
+        alert(
+          "Track name required."
+        );
+        return;
+      }
 
-    persistTracks();
-    renderTracks();
-    renderTrackList();
-    showToast(`Track "${name}" added`);
+      // =========================================
+      // CREATE GENERAL PROJECT
+      // =========================================
 
-    activeTrackEditId = null;
-  });
+      if (
+        typeof createDefaultProject !==
+        "function"
+      ) {
 
-  row.querySelector(".cancel-edit-btn").addEventListener("click", () => {
-    activeTrackEditId = null;
-    row.remove();
-  });
+        console.error(
+          "[TRACK DEBUG] createDefaultProject() is not available."
+        );
+
+        alert(
+          "Unable to create General project. Check storage.js."
+        );
+
+        return;
+      }
+
+      const generalProject =
+        createDefaultProject();
+
+      // =========================================
+      // CREATE NEW TRACK
+      // =========================================
+
+      const newTrack = {
+
+        id:
+          Date.now(),
+
+        name:
+          name,
+
+        icon:
+          selectedIcon,
+
+        projects: [
+          generalProject
+        ]
+
+      };
+
+      console.log(
+        "[TRACK DEBUG] New inline track:",
+        newTrack
+      );
+
+      // =========================================
+      // SAVE
+      // =========================================
+
+      tracks.push(
+        newTrack
+      );
+
+      persistTracks();
+
+      // =========================================
+      // REFRESH UI
+      // =========================================
+
+      renderTracks();
+
+      renderTrackList();
+
+      showToast(
+        `Track "${name}" added`
+      );
+
+      activeTrackEditId =
+        null;
+
+    }
+  );
+
+  // =========================================
+  // CANCEL
+  // =========================================
+
+  row.querySelector(
+    ".cancel-edit-btn"
+  ).addEventListener(
+    "click",
+    () => {
+
+      activeTrackEditId =
+        null;
+
+      row.remove();
+
+    }
+  );
+
 }
 
 

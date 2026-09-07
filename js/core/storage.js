@@ -40,6 +40,55 @@ function persistTracks() {
 
 }
 
+function createDefaultProject() {
+
+  return {
+
+    id: "general",
+
+    name: "General",
+
+    reading: [],
+
+    tasks: [],
+
+    deadlines: [],
+
+    todos: [],
+
+    notes: "",
+
+    logs: {},
+
+    createdAt:
+      new Date().toISOString(),
+
+    status: "active",
+
+    statusHistory: [
+
+      {
+
+        status: "active",
+
+        date:
+          getLocalDateKey(
+            new Date()
+          ),
+
+        time:
+          getLocalTime(
+            new Date()
+          )
+
+      }
+
+    ]
+
+  };
+
+}
+
 
 function loadTracks() {
 
@@ -59,50 +108,10 @@ function loadTracks() {
   tracks.forEach(track => {
 
     // =====================================
-    // TRACK DATA
-    // =====================================
-
-    if (!track.deadlines) {
-
-      track.deadlines = [];
-
-      dataChanged = true;
-
-    }
-
-
-    if (!track.tasks) {
-
-      track.tasks = [];
-
-      dataChanged = true;
-
-    }
-
-
-    if (!track.reading) {
-
-      track.reading = [];
-
-      dataChanged = true;
-
-    }
-
-
-    if (!track.notes) {
-
-      track.notes = "";
-
-      dataChanged = true;
-
-    }
-
-
-    // =====================================
     // TRACK PROJECTS
     // =====================================
 
-    if (!track.projects) {
+    if (!Array.isArray(track.projects)) {
 
       track.projects = [];
 
@@ -112,23 +121,28 @@ function loadTracks() {
 
 
     // =====================================
-    // NORMALIZE TRACK READING
+    // ENSURE GENERAL PROJECT
     // =====================================
 
-    track.reading.forEach(item => {
+    let generalProject =
+      track.projects.find(
+        project =>
+          project.id === "general"
+      );
 
-      if (!item.links) {
 
-        item.links =
-          item.link ? [item.link] : [];
+    if (!generalProject) {
 
-        delete item.link;
+      generalProject =
+        createDefaultProject();
 
-        dataChanged = true;
+      track.projects.unshift(
+        generalProject
+      );
 
-      }
+      dataChanged = true;
 
-    });
+    }
 
 
     // =====================================
@@ -138,7 +152,122 @@ function loadTracks() {
     track.projects.forEach(project => {
 
       // ===================================
-      // EXISTING PROJECT DATA
+      // PROJECT ID
+      // ===================================
+
+      if (!project.id) {
+
+        project.id =
+          `project-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 8)}`;
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT NAME
+      // ===================================
+
+      if (!project.name) {
+
+        project.name =
+          "Untitled Project";
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT READING
+      // ===================================
+
+      if (!Array.isArray(project.reading)) {
+
+        project.reading = [];
+
+        dataChanged = true;
+
+      }
+
+
+      project.reading.forEach(item => {
+
+        if (!item.links) {
+
+          item.links =
+            item.link
+              ? [item.link]
+              : [];
+
+          delete item.link;
+
+          dataChanged = true;
+
+        }
+
+      });
+
+
+      // ===================================
+      // PROJECT TASKS
+      // ===================================
+
+      if (!Array.isArray(project.tasks)) {
+
+        project.tasks = [];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT DEADLINES
+      // =====================================
+
+      if (!Array.isArray(project.deadlines)) {
+
+        project.deadlines = [];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT TODOS
+      // ===================================
+
+      if (!Array.isArray(project.todos)) {
+
+        project.todos = [];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT NOTES
+      // ===================================
+
+      if (
+        typeof project.notes !== "string"
+      ) {
+
+        project.notes = "";
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT LOGS
       // ===================================
 
       if (!project.logs) {
@@ -150,6 +279,10 @@ function loadTracks() {
       }
 
 
+      // ===================================
+      // PROJECT CREATED DATE
+      // ===================================
+
       if (!project.createdAt) {
 
         project.createdAt =
@@ -159,6 +292,10 @@ function loadTracks() {
 
       }
 
+
+      // ===================================
+      // PROJECT STATUS
+      // ===================================
 
       if (!project.status) {
 
@@ -174,7 +311,9 @@ function loadTracks() {
       // ===================================
 
       if (
-        !project.statusHistory ||
+        !Array.isArray(
+          project.statusHistory
+        ) ||
         project.statusHistory.length === 0
       ) {
 
@@ -189,7 +328,7 @@ function loadTracks() {
           {
 
             status:
-              project.status || "active",
+              project.status,
 
             date:
               getLocalDateKey(
@@ -204,74 +343,6 @@ function loadTracks() {
           }
 
         ];
-
-        dataChanged = true;
-
-      }
-
-
-      // ===================================
-      // PROJECT READING
-      // ===================================
-
-      if (!project.reading) {
-
-        project.reading = [];
-
-        dataChanged = true;
-
-      }
-
-
-      project.reading.forEach(item => {
-
-        if (!item.links) {
-
-          item.links =
-            item.link ? [item.link] : [];
-
-          delete item.link;
-
-          dataChanged = true;
-
-        }
-
-      });
-
-
-      // ===================================
-      // PROJECT DEADLINES
-      // ===================================
-
-      if (!project.deadlines) {
-
-        project.deadlines = [];
-
-        dataChanged = true;
-
-      }
-
-
-      // ===================================
-      // PROJECT TASKS
-      // ===================================
-
-      if (!project.tasks) {
-
-        project.tasks = [];
-
-        dataChanged = true;
-
-      }
-
-
-      // ===================================
-      // PROJECT NOTES
-      // ===================================
-
-      if (!project.notes) {
-
-        project.notes = "";
 
         dataChanged = true;
 
@@ -312,15 +383,9 @@ function getDefaultTracks() {
 
       icon: "📚",
 
-      deadlines: [],
-
-      tasks: [],
-
-      reading: [],
-
-      notes: "",
-
-      projects: []
+      projects: [
+        createDefaultProject()
+      ]
 
     },
 
@@ -332,15 +397,9 @@ function getDefaultTracks() {
 
       icon: "💻",
 
-      deadlines: [],
-
-      tasks: [],
-
-      reading: [],
-
-      notes: "",
-
-      projects: []
+      projects: [
+        createDefaultProject()
+      ]
 
     },
 
@@ -352,15 +411,9 @@ function getDefaultTracks() {
 
       icon: "🧠",
 
-      deadlines: [],
-
-      tasks: [],
-
-      reading: [],
-
-      notes: "",
-
-      projects: []
+      projects: [
+        createDefaultProject()
+      ]
 
     },
 
@@ -372,15 +425,9 @@ function getDefaultTracks() {
 
       icon: "🏃",
 
-      deadlines: [],
-
-      tasks: [],
-
-      reading: [],
-
-      notes: "",
-
-      projects: []
+      projects: [
+        createDefaultProject()
+      ]
 
     }
 
@@ -434,7 +481,13 @@ function loadTodos() {
 
             text: item.text,
 
-            trackId: "general",
+            trackId:
+              item.trackId ??
+              "general",
+
+            projectId:
+              item.projectId ??
+              "general",
 
             completed:
               item.completed ??
@@ -443,7 +496,8 @@ function loadTodos() {
 
             archived: false,
 
-            order: order++,
+            order:
+              order++,
 
             createdAt:
               item.createdAt ??
@@ -490,6 +544,10 @@ function loadTodos() {
             task.trackId ??
             "general",
 
+          projectId:
+            task.projectId ??
+            "general",
+
           completed:
             task.completed ??
             task.done ??
@@ -526,6 +584,10 @@ function loadTodos() {
 
           trackId:
             task.trackId ??
+            "general",
+
+          projectId:
+            task.projectId ??
             "general",
 
           completed:
@@ -580,7 +642,7 @@ function loadTodos() {
 
 
   // =====================================
-  // NORMALIZE TODO TRACK
+  // NORMALIZE TODO LOCATION
   // =====================================
 
   parsed.tasks.forEach(task => {
@@ -590,6 +652,16 @@ function loadTodos() {
     ) {
 
       task.trackId =
+        "general";
+
+    }
+
+
+    if (
+      task.projectId == null
+    ) {
+
+      task.projectId =
         "general";
 
     }
