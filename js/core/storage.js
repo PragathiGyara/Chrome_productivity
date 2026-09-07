@@ -97,13 +97,32 @@ function loadTracks() {
       TRACK_STORAGE_KEY
     );
 
-  tracks = stored
-    ? JSON.parse(stored)
-    : getDefaultTracks();
 
+  // =====================================
+  // LOAD OR CREATE TRACKS
+  // =====================================
 
   let dataChanged = false;
 
+
+  if (stored) {
+
+    tracks =
+      JSON.parse(stored);
+
+  } else {
+
+    tracks =
+      getDefaultTracks();
+
+    dataChanged = true;
+
+  }
+
+
+  // =====================================
+  // NORMALIZE TRACKS
+  // =====================================
 
   tracks.forEach(track => {
 
@@ -127,7 +146,8 @@ function loadTracks() {
     let generalProject =
       track.projects.find(
         project =>
-          project.id === "general"
+          String(project.id) ===
+          "general"
       );
 
 
@@ -185,7 +205,11 @@ function loadTracks() {
       // PROJECT READING
       // ===================================
 
-      if (!Array.isArray(project.reading)) {
+      if (
+        !Array.isArray(
+          project.reading
+        )
+      ) {
 
         project.reading = [];
 
@@ -216,7 +240,11 @@ function loadTracks() {
       // PROJECT TASKS
       // ===================================
 
-      if (!Array.isArray(project.tasks)) {
+      if (
+        !Array.isArray(
+          project.tasks
+        )
+      ) {
 
         project.tasks = [];
 
@@ -227,9 +255,13 @@ function loadTracks() {
 
       // ===================================
       // PROJECT DEADLINES
-      // =====================================
+      // ===================================
 
-      if (!Array.isArray(project.deadlines)) {
+      if (
+        !Array.isArray(
+          project.deadlines
+        )
+      ) {
 
         project.deadlines = [];
 
@@ -242,7 +274,11 @@ function loadTracks() {
       // PROJECT TODOS
       // ===================================
 
-      if (!Array.isArray(project.todos)) {
+      if (
+        !Array.isArray(
+          project.todos
+        )
+      ) {
 
         project.todos = [];
 
@@ -256,7 +292,8 @@ function loadTracks() {
       // ===================================
 
       if (
-        typeof project.notes !== "string"
+        typeof project.notes !==
+        "string"
       ) {
 
         project.notes = "";
@@ -299,7 +336,8 @@ function loadTracks() {
 
       if (!project.status) {
 
-        project.status = "active";
+        project.status =
+          "active";
 
         dataChanged = true;
 
@@ -308,7 +346,7 @@ function loadTracks() {
 
       // ===================================
       // PROJECT STATUS HISTORY
-      // ===================================
+      // =====================================
 
       if (
         !Array.isArray(
@@ -326,7 +364,6 @@ function loadTracks() {
         project.statusHistory = [
 
           {
-
             status:
               project.status,
 
@@ -339,7 +376,6 @@ function loadTracks() {
               getLocalTime(
                 createdAt
               )
-
           }
 
         ];
@@ -354,7 +390,7 @@ function loadTracks() {
 
 
   // =====================================
-  // SAVE NORMALIZED DATA
+  // SAVE DATA
   // =====================================
 
   if (dataChanged) {
@@ -364,7 +400,6 @@ function loadTracks() {
   }
 
 }
-
 
 
 
