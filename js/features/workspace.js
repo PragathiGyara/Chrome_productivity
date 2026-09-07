@@ -43,23 +43,42 @@ function backToDashboard() {
 // =====================================================
 
 function renderTrackWorkspace() {
-  const center = document.querySelector(".center");
-  const track = tracks.find(t => t.id === activeTrackId);
+
+  const center =
+    document.querySelector(".center");
+
+  const track =
+    tracks.find(t => t.id === activeTrackId);
+
   if (!track) return;
 
   center.innerHTML = `
+
     <div class="workspace-header">
-      <button id="backBtn">← Back</button>
+
+      <button id="backBtn">
+        ← Back
+      </button>
+
 
       <div class="track-navigation">
+
         <div class="nav-left">
-          <button id="prevTrackBtn" class="nav-btn">
+
+          <button
+            id="prevTrackBtn"
+            class="nav-btn"
+          >
             ← <span>Prev</span>
           </button>
+
         </div>
 
+
         <h2 class="track-title">
+
           <span class="workspace-track-header">
+
             <span
               id="workspaceTrackIcon"
               class="workspace-track-icon"
@@ -74,102 +93,263 @@ function renderTrackWorkspace() {
             >
               ${track.name}
             </span>
+
           </span>
+
         </h2>
 
+
         <div class="nav-right">
-          <button id="nextTrackBtn" class="nav-btn">
+
+          <button
+            id="nextTrackBtn"
+            class="nav-btn"
+          >
             <span>Next</span> →
           </button>
+
         </div>
+
       </div>
 
+
       <div class="workspace-divider">
+
         ${tracks.map(t => `
-          <span 
-            class="track-chip ${t.id === activeTrackId ? "active-chip" : ""}" 
-            data-id="${t.id}">
+
+          <span
+            class="track-chip ${
+              t.id === activeTrackId
+                ? "active-chip"
+                : ""
+            }"
+            data-id="${t.id}"
+          >
             ${t.icon} ${t.name}
           </span>
+
         `).join("")}
+
       </div>
+
+
+      <!-- PROJECT DROPDOWN -->
+
+      <select
+        id="trackProjectDropdown"
+        class="track-project-dropdown"
+      >
+
+        <option value="">
+          Select Project
+        </option>
+
+        ${(track.projects || []).map(project => `
+
+          <option value="${project.id}">
+            ${project.name}
+          </option>
+
+        `).join("")}
+
+      </select>
+
 
       <div class="workspace-layout">
 
+
         <div class="workspace-card">
+
           <div class="section-header">
+
             <div class="reading-section-title">
-              <h3>Reading</h3>
+
+              <h3>
+                Reading
+              </h3>
 
               <div class="reading-stats">
+
                 ${
-                  track.reading.filter(r => r.completed).length
-                } / ${track.reading.length} completed
+                  track.reading.filter(
+                    r => r.completed
+                  ).length
+                }
+
+                /
+
+                ${track.reading.length}
+
+                completed
+
               </div>
+
             </div>
 
-            <button id="addReadingBtn">+ Add</button>
+            <button id="addReadingBtn">
+              + Add
+            </button>
+
           </div>
 
           <div id="readingList"></div>
+
         </div>
 
+
         <div class="workspace-card">
+
           <div class="section-header">
-            <h3>Tasks</h3>
+
+            <h3>
+              Tasks
+            </h3>
 
             <div>
-              <button id="addTaskBtn">+ Add</button>
+
+              <button id="addTaskBtn">
+                + Add
+              </button>
+
             </div>
+
           </div>
 
           <div id="taskList"></div>
+
         </div>
 
+
         <div class="workspace-card">
+
           <div class="section-header">
-            <h3>To-Do</h3>
-            <button id="addWorkspaceTodoBtn">+ Add</button>
+
+            <h3>
+              To-Do
+            </h3>
+
+            <button id="addWorkspaceTodoBtn">
+              + Add
+            </button>
+
           </div>
 
           <div id="todoList"></div>
+
         </div>
 
+
         <div class="workspace-card">
+
           <div class="deadline-header">
-            <h3>Deadlines</h3>
-            <button id="trackAddDeadlineBtn">+ Add</button>
+
+            <h3>
+              Deadlines
+            </h3>
+
+            <button id="trackAddDeadlineBtn">
+              + Add
+            </button>
+
           </div>
 
           <div id="deadlineList"></div>
+
         </div>
+
 
         <div class="workspace-card workspace-notes">
-          <h3>Notes</h3>
 
-          <div id="notesDisplay" class="editable-notes">
-            ${track.notes || "Double-click to add notes..."}
+          <h3>
+            Notes
+          </h3>
+
+          <div
+            id="notesDisplay"
+            class="editable-notes"
+          >
+            ${
+              track.notes ||
+              "Double-click to add notes..."
+            }
           </div>
+
         </div>
 
+
       </div>
+
     </div>
+
   `;
+
 
   attachWorkspaceEvents();
 
-  renderDeadlines(track); 
+  renderDeadlines(track);
+
   renderReading(track);
+
   renderTasks(track);
+
   renderWorkspaceTodos(track);
+
   renderNotes(track);
 
-  const divider = document.querySelector(".workspace-divider");
+
+  const divider =
+    document.querySelector(
+      ".workspace-divider"
+    );
 
   if (divider) {
+
     enableSmartScrollbar(divider);
+
   }
+
+
+  // =====================================================
+  // PROJECT DROPDOWN EVENT
+  // =====================================================
+
+  const projectDropdown =
+    document.getElementById(
+      "trackProjectDropdown"
+    );
+
+  if (projectDropdown) {
+
+    projectDropdown.addEventListener(
+      "change",
+      function () {
+
+        const projectId =
+          this.value;
+
+        if (!projectId) return;
+
+        const project =
+          (track.projects || []).find(
+            p =>
+              String(p.id) ===
+              String(projectId)
+          );
+
+        if (!project) return;
+
+        console.log(
+          "Selected project:",
+          project
+        );
+
+      }
+    );
+
+  }
+
 }
+
 
 // =====================================================
 // WORKSPACE EVENT BINDING

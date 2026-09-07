@@ -3,14 +3,15 @@
 // =====================================================
 
 
+// =====================================================
+// STORAGE KEYS
+// =====================================================
+
 const TRACK_STORAGE_KEY =
   "dashboardTracks";
 
 const TODO_STORAGE_KEY =
   "dailyTodos";
-
-const PROJECT_STORAGE_KEY =
-  "dashboardProjects";
 
 const TODO_DISPLAY_SETTINGS_KEY =
   "todoDisplaySettings";
@@ -51,19 +52,68 @@ function loadTracks() {
     ? JSON.parse(stored)
     : getDefaultTracks();
 
+
+  let dataChanged = false;
+
+
   tracks.forEach(track => {
 
-    if (!track.deadlines)
+    // =====================================
+    // TRACK DATA
+    // =====================================
+
+    if (!track.deadlines) {
+
       track.deadlines = [];
 
-    if (!track.tasks)
+      dataChanged = true;
+
+    }
+
+
+    if (!track.tasks) {
+
       track.tasks = [];
 
-    if (!track.reading)
+      dataChanged = true;
+
+    }
+
+
+    if (!track.reading) {
+
       track.reading = [];
 
-    if (!track.notes)
+      dataChanged = true;
+
+    }
+
+
+    if (!track.notes) {
+
       track.notes = "";
+
+      dataChanged = true;
+
+    }
+
+
+    // =====================================
+    // TRACK PROJECTS
+    // =====================================
+
+    if (!track.projects) {
+
+      track.projects = [];
+
+      dataChanged = true;
+
+    }
+
+
+    // =====================================
+    // NORMALIZE TRACK READING
+    // =====================================
 
     track.reading.forEach(item => {
 
@@ -74,11 +124,173 @@ function loadTracks() {
 
         delete item.link;
 
+        dataChanged = true;
+
+      }
+
+    });
+
+
+    // =====================================
+    // NORMALIZE PROJECTS
+    // =====================================
+
+    track.projects.forEach(project => {
+
+      // ===================================
+      // EXISTING PROJECT DATA
+      // ===================================
+
+      if (!project.logs) {
+
+        project.logs = {};
+
+        dataChanged = true;
+
+      }
+
+
+      if (!project.createdAt) {
+
+        project.createdAt =
+          new Date().toISOString();
+
+        dataChanged = true;
+
+      }
+
+
+      if (!project.status) {
+
+        project.status = "active";
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT STATUS HISTORY
+      // ===================================
+
+      if (
+        !project.statusHistory ||
+        project.statusHistory.length === 0
+      ) {
+
+        const createdAt =
+          new Date(
+            project.createdAt
+          );
+
+
+        project.statusHistory = [
+
+          {
+
+            status:
+              project.status || "active",
+
+            date:
+              getLocalDateKey(
+                createdAt
+              ),
+
+            time:
+              getLocalTime(
+                createdAt
+              )
+
+          }
+
+        ];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT READING
+      // ===================================
+
+      if (!project.reading) {
+
+        project.reading = [];
+
+        dataChanged = true;
+
+      }
+
+
+      project.reading.forEach(item => {
+
+        if (!item.links) {
+
+          item.links =
+            item.link ? [item.link] : [];
+
+          delete item.link;
+
+          dataChanged = true;
+
+        }
+
+      });
+
+
+      // ===================================
+      // PROJECT DEADLINES
+      // ===================================
+
+      if (!project.deadlines) {
+
+        project.deadlines = [];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT TASKS
+      // ===================================
+
+      if (!project.tasks) {
+
+        project.tasks = [];
+
+        dataChanged = true;
+
+      }
+
+
+      // ===================================
+      // PROJECT NOTES
+      // ===================================
+
+      if (!project.notes) {
+
+        project.notes = "";
+
+        dataChanged = true;
+
       }
 
     });
 
   });
+
+
+  // =====================================
+  // SAVE NORMALIZED DATA
+  // =====================================
+
+  if (dataChanged) {
+
+    persistTracks();
+
+  }
 
 }
 
@@ -95,42 +307,81 @@ function getDefaultTracks() {
 
     {
       id: 1,
+
       name: "College",
+
       icon: "📚",
+
       deadlines: [],
+
       tasks: [],
+
       reading: [],
-      notes: ""
+
+      notes: "",
+
+      projects: []
+
     },
+
 
     {
       id: 2,
+
       name: "Projects",
+
       icon: "💻",
+
       deadlines: [],
+
       tasks: [],
+
       reading: [],
-      notes: ""
+
+      notes: "",
+
+      projects: []
+
     },
+
 
     {
       id: 3,
+
       name: "Learning",
+
       icon: "🧠",
+
       deadlines: [],
+
       tasks: [],
+
       reading: [],
-      notes: ""
+
+      notes: "",
+
+      projects: []
+
     },
+
 
     {
       id: 4,
+
       name: "Health",
+
       icon: "🏃",
+
       deadlines: [],
+
       tasks: [],
+
       reading: [],
-      notes: ""
+
+      notes: "",
+
+      projects: []
+
     }
 
   ];
@@ -222,6 +473,7 @@ function loadTodos() {
   ) {
 
     let currentOrder = 0;
+
     let archivedOrder = 0;
 
 
@@ -350,6 +602,7 @@ function loadTodos() {
   // =====================================
 
   let currentOrder = 0;
+
   let archivedOrder = 0;
 
 
@@ -482,101 +735,6 @@ function getAllTimeTodos() {
 
 
 // =====================================================
-// PROJECT STORAGE
-// =====================================================
-
-function persistProjects() {
-
-  localStorage.setItem(
-    PROJECT_STORAGE_KEY,
-    JSON.stringify(projects)
-  );
-
-}
-
-
-function loadProjects() {
-
-  const stored =
-    localStorage.getItem(
-      PROJECT_STORAGE_KEY
-    );
-
-  projects = stored
-    ? JSON.parse(stored)
-    : [];
-
-
-  let dataChanged = false;
-
-
-  projects.forEach(project => {
-
-    if (!project.logs) {
-
-      project.logs = {};
-      dataChanged = true;
-
-    }
-
-
-    if (!project.createdAt) {
-
-      project.createdAt =
-        new Date().toISOString();
-
-      dataChanged = true;
-
-    }
-
-
-    if (
-      !project.statusHistory ||
-      project.statusHistory.length === 0
-    ) {
-
-      const createdAt =
-        new Date(
-          project.createdAt
-        );
-
-
-      project.statusHistory = [
-
-        {
-
-          status: "active",
-
-          date:
-            getLocalDateKey(
-              createdAt
-            ),
-
-          time:
-            getLocalTime(
-              createdAt
-            )
-
-        }
-
-      ];
-
-      dataChanged = true;
-
-    }
-
-  });
-
-
-  if (dataChanged) {
-
-    persistProjects();
-
-  }
-
-}
-
-// =====================================================
 // WEEK HELPERS
 // =====================================================
 
@@ -591,6 +749,7 @@ function getTimetableWeekKey(
     localDate.getDay();
 
   // Sunday is the start of the week
+
   localDate.setDate(
     localDate.getDate() - day
   );

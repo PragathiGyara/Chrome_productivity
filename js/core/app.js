@@ -11,8 +11,6 @@ function initializeApp() {
 
   loadTracks();
 
-  loadProjects();
-
   loadTimetableEntries();
 
   renderDashboardView();

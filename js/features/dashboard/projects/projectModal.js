@@ -113,15 +113,41 @@ function getProjectsForCurrentTab() {
 
     completed:
       "completed"
+
   };
 
-  return projects.filter(
+
+  const targetStatus =
+    statusMap[
+      currentManageProjectsTab
+    ];
+
+
+  return tracks.flatMap(track =>
+
+    (track.projects || []).map(project => ({
+
+      ...project,
+
+      trackId:
+        track.id,
+
+      trackName:
+        track.name,
+
+      trackIcon:
+        track.icon
+
+    }))
+
+  ).filter(
+
     project =>
       project.status ===
-      statusMap[
-        currentManageProjectsTab
-      ]
+      targetStatus
+
   );
+
 }
 
 

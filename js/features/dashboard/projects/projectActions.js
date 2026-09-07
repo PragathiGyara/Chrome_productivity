@@ -144,7 +144,7 @@ function saveProject() {
 
 
   // =========================================
-  // VERIFY TRACK STILL EXISTS
+  // FIND SELECTED TRACK
   // =========================================
 
   const selectedTrack =
@@ -167,25 +167,34 @@ function saveProject() {
 
 
   // =========================================
+  // ENSURE PROJECT ARRAY EXISTS
+  // =========================================
+
+  if (!selectedTrack.projects) {
+
+    selectedTrack.projects = [];
+
+  }
+
+
+  // =========================================
   // DUPLICATE NAME CHECK
   // =========================================
 
   const duplicateProject =
-    projects.find(project =>
-
-      project.name
-        .trim()
-        .toLowerCase()
-
-      ===
-
-      name.toLowerCase()
+    selectedTrack.projects.find(
+      project =>
+        project.name
+          .trim()
+          .toLowerCase()
+        ===
+        name.toLowerCase()
     );
 
   if (duplicateProject) {
 
     alert(
-      "A project with this name already exists."
+      "A project with this name already exists in this track."
     );
 
     return;
@@ -196,21 +205,18 @@ function saveProject() {
   // CREATE PROJECT
   // =========================================
 
-  projects.push({
+  const project = {
 
     id:
       Date.now(),
 
     name,
 
-    trackId:
-      selectedTrack.id,
-
     targetHoursPerDay:
       targetHours,
 
     createdAt:
-      getLocalDateKey(),
+      new Date().toISOString(),
 
     status:
       "active",
@@ -230,9 +236,33 @@ function saveProject() {
           getLocalTime()
       }
 
-    ]
+    ],
 
-  });
+    reading: [],
+
+    deadlines: [],
+
+    tasks: [],
+
+    notes: ""
+
+  };
+
+
+  // =========================================
+  // SAVE PROJECT INSIDE SELECTED TRACK
+  // =========================================
+
+  selectedTrack.projects.push(
+    project
+  );
+
+
+  // =========================================
+  // PERSIST TRACKS
+  // =========================================
+
+  persistTracks();
 
 
   // =========================================
@@ -251,15 +281,13 @@ function saveProject() {
 
 
   // =========================================
-  // REFRESH
+  // CONFIRMATION
   // =========================================
 
-  refreshProjectsUI();
-
-
   showToast(
-    `Project "${name}" added`
+    `Project "${name}" added to ${selectedTrack.name}`
   );
+
 }
 
 
