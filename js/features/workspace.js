@@ -52,6 +52,13 @@ function renderTrackWorkspace() {
 
   if (!track) return;
 
+  const project =
+    track.projects?.find(
+      p => String(p.id) === "general"
+    ) || track.projects?.[0];
+
+  if (!project) return;
+
   center.innerHTML = `
 
     <div class="workspace-header">
@@ -59,7 +66,6 @@ function renderTrackWorkspace() {
       <button id="backBtn">
         ← Back
       </button>
-
 
       <div class="track-navigation">
 
@@ -73,7 +79,6 @@ function renderTrackWorkspace() {
           </button>
 
         </div>
-
 
         <h2 class="track-title">
 
@@ -98,7 +103,6 @@ function renderTrackWorkspace() {
 
         </h2>
 
-
         <div class="nav-right">
 
           <button
@@ -111,7 +115,6 @@ function renderTrackWorkspace() {
         </div>
 
       </div>
-
 
       <div class="workspace-divider">
 
@@ -131,7 +134,6 @@ function renderTrackWorkspace() {
         `).join("")}
 
       </div>
-
 
       <!-- PROJECT DROPDOWN -->
 
@@ -154,9 +156,11 @@ function renderTrackWorkspace() {
 
       </select>
 
-
       <div class="workspace-layout">
 
+        <!-- ========================================= -->
+        <!-- READING -->
+        <!-- ========================================= -->
 
         <div class="workspace-card">
 
@@ -171,14 +175,14 @@ function renderTrackWorkspace() {
               <div class="reading-stats">
 
                 ${
-                  track.reading.filter(
+                  (project.reading || []).filter(
                     r => r.completed
                   ).length
                 }
 
                 /
 
-                ${track.reading.length}
+                ${(project.reading || []).length}
 
                 completed
 
@@ -196,6 +200,10 @@ function renderTrackWorkspace() {
 
         </div>
 
+
+        <!-- ========================================= -->
+        <!-- TASKS -->
+        <!-- ========================================= -->
 
         <div class="workspace-card">
 
@@ -220,6 +228,10 @@ function renderTrackWorkspace() {
         </div>
 
 
+        <!-- ========================================= -->
+        <!-- TO-DO -->
+        <!-- ========================================= -->
+
         <div class="workspace-card">
 
           <div class="section-header">
@@ -238,6 +250,10 @@ function renderTrackWorkspace() {
 
         </div>
 
+
+        <!-- ========================================= -->
+        <!-- DEADLINES -->
+        <!-- ========================================= -->
 
         <div class="workspace-card">
 
@@ -258,6 +274,10 @@ function renderTrackWorkspace() {
         </div>
 
 
+        <!-- ========================================= -->
+        <!-- NOTES -->
+        <!-- ========================================= -->
+
         <div class="workspace-card workspace-notes">
 
           <h3>
@@ -276,25 +296,23 @@ function renderTrackWorkspace() {
 
         </div>
 
-
       </div>
 
     </div>
 
   `;
 
-
   attachWorkspaceEvents();
 
-  renderDeadlines(track);
+  renderDeadlines(project);
 
-  renderReading(track);
+  renderReading(project);
 
-  renderTasks(track);
+  renderTasks(project);
 
   renderWorkspaceTodos(track);
 
-  renderNotes(track);
+  renderNotes(project);
 
 
   const divider =
@@ -320,6 +338,9 @@ function renderTrackWorkspace() {
 
   if (projectDropdown) {
 
+    projectDropdown.value =
+      project.id;
+
     projectDropdown.addEventListener(
       "change",
       function () {
@@ -329,18 +350,56 @@ function renderTrackWorkspace() {
 
         if (!projectId) return;
 
-        const project =
+        const selectedProject =
           (track.projects || []).find(
             p =>
               String(p.id) ===
               String(projectId)
           );
 
-        if (!project) return;
+        if (!selectedProject) return;
 
-        console.log(
-          "Selected project:",
-          project
+
+        // =====================================
+        // READING
+        // =====================================
+
+        renderReading(
+          selectedProject
+        );
+
+        const readingStats =
+          document.querySelector(
+            ".reading-stats"
+          );
+
+        if (readingStats) {
+
+          readingStats.innerHTML = `
+
+            ${
+              (selectedProject.reading || []).filter(
+                r => r.completed
+              ).length
+            }
+
+            /
+
+            ${(selectedProject.reading || []).length}
+
+            completed
+
+          `;
+
+        }
+
+
+        // =====================================
+        // TASKS
+        // =====================================
+
+        renderTasks(
+          selectedProject
         );
 
       }
@@ -357,507 +416,1413 @@ function renderTrackWorkspace() {
 
 function attachWorkspaceEvents() {
 
-  const track = tracks.find(t => t.id === activeTrackId);
+  const track =
+    tracks.find(t => t.id === activeTrackId);
+
   if (!track) return;
 
-  // Navigation buttons
-  document.getElementById("backBtn")?.addEventListener("click", backToDashboard);
-  document.getElementById("prevTrackBtn")?.addEventListener("click", goToPreviousTrack);
-  document.getElementById("nextTrackBtn")?.addEventListener("click", goToNextTrack);
 
-  // Track name editing
-  const nameEl = document.getElementById("trackNameDisplay");
-  if (nameEl) {
-    nameEl.addEventListener("click", () => enableWorkspaceTrackNameEdit(nameEl));
+  // =====================================================
+  // HELPER
+  // Get currently selected project
+  // =====================================================
+
+  function getSelectedProject() {
+
+    const dropdown =
+      document.getElementById(
+        "trackProjectDropdown"
+      );
+
+    if (!dropdown) return null;
+
+    const projectId =
+      dropdown.value;
+
+    if (!projectId) return null;
+
+    return (track.projects || []).find(
+      project =>
+        String(project.id) ===
+        String(projectId)
+    );
+
   }
+
+
+  // =====================================================
+  // PROJECT DROPDOWN
+  // =====================================================
+
+  const projectDropdown =
+    document.getElementById(
+      "trackProjectDropdown"
+    );
+
+  if (projectDropdown) {
+
+    projectDropdown.addEventListener(
+      "change",
+      () => {
+
+        const project =
+          getSelectedProject();
+
+        if (!project) return;
+
+
+        // -----------------------------------------------
+        // Refresh project-owned sections
+        // -----------------------------------------------
+
+        renderReading(project);
+
+        renderTasks(project);
+
+        renderDeadlines(project);
+
+        renderNotes(project);
+
+
+        // -----------------------------------------------
+        // Update reading stats
+        // -----------------------------------------------
+
+        const readingStats =
+          document.querySelector(
+            ".reading-stats"
+          );
+
+        if (readingStats) {
+
+          const reading =
+            project.reading || [];
+
+          const completed =
+            reading.filter(
+              item => item.completed
+            ).length;
+
+          const remaining =
+            reading.length - completed;
+
+          readingStats.textContent =
+            `${completed} / ${reading.length} completed`;
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // BACK BUTTON
+  // =====================================================
+
+  document
+    .getElementById("backBtn")
+    ?.addEventListener(
+      "click",
+      backToDashboard
+    );
+
+
+  // =====================================================
+  // PREVIOUS TRACK
+  // =====================================================
+
+  document
+    .getElementById("prevTrackBtn")
+    ?.addEventListener(
+      "click",
+      goToPreviousTrack
+    );
+
+
+  // =====================================================
+  // NEXT TRACK
+  // =====================================================
+
+  document
+    .getElementById("nextTrackBtn")
+    ?.addEventListener(
+      "click",
+      goToNextTrack
+    );
+
+
+  // =====================================================
+  // TRACK NAME
+  // =====================================================
+
+  const nameEl =
+    document.getElementById(
+      "trackNameDisplay"
+    );
+
+  if (nameEl) {
+
+    nameEl.addEventListener(
+      "click",
+      () => {
+
+        enableWorkspaceTrackNameEdit(
+          nameEl
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // TRACK ICON
+  // =====================================================
 
   const iconEl =
-    document.getElementById("workspaceTrackIcon");
+    document.getElementById(
+      "workspaceTrackIcon"
+    );
 
   if (iconEl) {
-    iconEl.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openWorkspaceIconPicker(iconEl, track);
-    });
+
+    iconEl.addEventListener(
+      "click",
+      (e) => {
+
+        e.stopPropagation();
+
+        openWorkspaceIconPicker(
+          iconEl,
+          track
+        );
+
+      }
+    );
+
   }
 
-  // Deadline add button
-  document.getElementById("trackAddDeadlineBtn")?.addEventListener(
-    "click",
-    () => openTrackDeadlineForm(track)
-  );
 
-  // Reading add button
-  document.getElementById("addReadingBtn")?.addEventListener(
-    "click",
-    () => openReadingForm(track)
-  );
+  // =====================================================
+  // ADD DEADLINE
+  // =====================================================
 
-  // Task add button
-  document.getElementById("addTaskBtn")?.addEventListener(
-    "click",
-    () => openTaskForm(track)
-  );
+  const addDeadlineBtn =
+    document.getElementById(
+      "trackAddDeadlineBtn"
+    );
 
-  // To-Do add button
-  document.getElementById("addWorkspaceTodoBtn")?.addEventListener(
-    "click",
-    () => openWorkspaceTodoForm(track)
-  );
+  if (addDeadlineBtn) {
 
-  // Notes edit
-  const notesEl = document.getElementById("notesDisplay");
+    addDeadlineBtn.addEventListener(
+      "click",
+      () => {
+
+        const project =
+          getSelectedProject();
+
+        if (!project) {
+
+          showToast(
+            "Please select a project first"
+          );
+
+          return;
+
+        }
+
+        openTrackDeadlineForm(
+          project
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // ADD READING
+  // =====================================================
+
+  const addReadingBtn =
+    document.getElementById(
+      "addReadingBtn"
+    );
+
+  if (addReadingBtn) {
+
+    addReadingBtn.addEventListener(
+      "click",
+      () => {
+
+        const project =
+          getSelectedProject();
+
+        if (!project) {
+
+          showToast(
+            "Please select a project first"
+          );
+
+          return;
+
+        }
+
+        openReadingForm(
+          project
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // ADD TASK
+  // =====================================================
+
+  const addTaskBtn =
+    document.getElementById(
+      "addTaskBtn"
+    );
+
+  if (addTaskBtn) {
+
+    addTaskBtn.addEventListener(
+      "click",
+      () => {
+
+        const project =
+          getSelectedProject();
+
+        if (!project) {
+
+          showToast(
+            "Please select a project first"
+          );
+
+          return;
+
+        }
+
+        openTaskForm(
+          project
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // ADD TO-DO
+  // =====================================================
+
+  const addTodoBtn =
+    document.getElementById(
+      "addWorkspaceTodoBtn"
+    );
+
+  if (addTodoBtn) {
+
+    addTodoBtn.addEventListener(
+      "click",
+      () => {
+
+        openWorkspaceTodoForm(
+          track
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // NOTES
+  // =====================================================
+
+  const notesEl =
+    document.getElementById(
+      "notesDisplay"
+    );
 
   if (notesEl) {
-    notesEl.addEventListener("dblclick", () => {
-      enableNotesEdit(notesEl, track);
-    });
+
+    notesEl.addEventListener(
+      "dblclick",
+      () => {
+
+        const project =
+          getSelectedProject();
+
+        if (!project) {
+
+          showToast(
+            "Please select a project first"
+          );
+
+          return;
+
+        }
+
+        enableNotesEdit(
+          notesEl,
+          project
+        );
+
+      }
+    );
+
   }
 
-  // Track chips
-  document.querySelectorAll(".track-chip").forEach(el => {
-    el.addEventListener("click", () => {
-      openTrackView(Number(el.dataset.id));
-    });
-  });
-}
 
+  // =====================================================
+  // TRACK CHIPS
+  // =====================================================
+
+  document
+    .querySelectorAll(".track-chip")
+    .forEach(el => {
+
+      el.addEventListener(
+        "click",
+        () => {
+
+          const trackId =
+            Number(
+              el.dataset.id
+            );
+
+          if (
+            Number.isNaN(trackId)
+          ) {
+            return;
+          }
+
+          openTrackView(
+            trackId
+          );
+
+        }
+      );
+
+    });
+
+}
 
 // =====================================================
 // DEADLINE RENDERING
 // =====================================================
 
-function renderDeadlines(track) {
-  const container = document.getElementById("deadlineList");
-    
-  if (!track.deadlines) {
-    track.deadlines = [];
+function renderDeadlines(project) {
+
+  const container =
+    document.getElementById(
+      "deadlineList"
+    );
+
+  if (!container || !project) return;
+
+  if (!Array.isArray(project.deadlines)) {
+    project.deadlines = [];
   }
 
   container.innerHTML = "";
 
-  track.deadlines
+  project.deadlines
     .sort((a, b) => {
-      if (a.status === "finished" && b.status !== "finished") return 1;
-      if (a.status !== "finished" && b.status === "finished") return -1;
 
-      return new Date(a.datetime) - new Date(b.datetime);
-    })
-    .forEach(dl => {
-
-      const computedStatus = getDeadlineStatus(dl);
-
-      const div = document.createElement("div");
-      if (dl.status === "finished") {
-        div.classList.add("deadline-finished");
+      if (
+        a.status === "finished" &&
+        b.status !== "finished"
+      ) {
+        return 1;
       }
-      div.classList.add("deadline-item");
+
+      if (
+        a.status !== "finished" &&
+        b.status === "finished"
+      ) {
+        return -1;
+      }
+
+      return (
+        new Date(a.datetime) -
+        new Date(b.datetime)
+      );
+
+    })
+    .forEach(deadline => {
+
+      const computedStatus =
+        getDeadlineStatus(deadline);
+
+      const div =
+        document.createElement("div");
+
+      if (
+        deadline.status === "finished"
+      ) {
+        div.classList.add(
+          "deadline-finished"
+        );
+      }
+
+      div.classList.add(
+        "deadline-item"
+      );
 
       div.innerHTML = `
+
         <div>
-          <strong>${dl.title}</strong>
-          <div>${new Date(dl.datetime).toLocaleString()}</div>
+
+          <strong>
+            ${deadline.title}
+          </strong>
+
+          <div>
+            ${
+              new Date(
+                deadline.datetime
+              ).toLocaleString()
+            }
+          </div>
+
         </div>
 
-        <div class="deadline-status ${computedStatus}">
+        <div
+          class="deadline-status ${computedStatus}"
+        >
           ${computedStatus}
         </div>
-      `;
-    
-      div.addEventListener("dblclick", () => {
-        openEditDeadlineForm(track, dl,"track");
-        });
 
-      container.appendChild(div);
+      `;
+
+      div.addEventListener(
+        "dblclick",
+        () => {
+
+          openEditDeadlineForm(
+            project,
+            deadline,
+            "track"
+          );
+
+        }
+      );
+
+      container.appendChild(
+        div
+      );
+
     });
+
 }
 
 // =====================================================
 // DEADLINE FORM
 // =====================================================
 
-function openTrackDeadlineForm(track) {
+function openTrackDeadlineForm(project) {
 
-  const container = document.getElementById("deadlineList");
+  const container =
+    document.getElementById("deadlineList");
 
-  // Prevent multiple forms
-  if (container.querySelector(".deadline-form")) return;
+  if (!container || !project) return;
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
+
+  // =====================================================
+  // PREVENT DUPLICATE FORM
+  // =====================================================
+
+  if (
+    container.querySelector(".deadline-form")
+  ) {
+    return;
+  }
+
+
+  // =====================================================
+  // ENSURE DEADLINES ARRAY
+  // =====================================================
+
+  if (
+    !Array.isArray(project.deadlines)
+  ) {
+    project.deadlines = [];
+  }
+
+
+  // =====================================================
+  // CREATE FORM
+  // =====================================================
+
+  const form =
+    document.createElement("div");
+
+  form.classList.add(
+    "deadline-form"
+  );
 
   form.innerHTML = `
-    <input type="text" id="deadlineTitle" placeholder="Deadline name" />
+
+    <input
+      type="text"
+      id="deadlineTitle"
+      placeholder="Deadline name"
+    />
 
     <div class="deadline-datetime-row">
-      <input type="date" id="deadlineDate" />
-      <input type="time" id="deadlineTime" />
+
+      <input
+        type="date"
+        id="deadlineDate"
+      />
+
+      <input
+        type="time"
+        id="deadlineTime"
+      />
+
     </div>
 
     <div class="deadline-form-actions">
-    <button type="button" class="neutral-btn" id="todayEODBtn">
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="todayEODBtn"
+      >
         Today EOD
-    </button>
+      </button>
 
-    <button type="button" class="primary-btn" id="saveDeadlineBtn" disabled>
+      <button
+        type="button"
+        class="primary-btn"
+        id="saveDeadlineBtn"
+        disabled
+      >
         Save
-    </button>
+      </button>
 
-    <button type="button" class="neutral-btn" id="cancelDeadlineBtn">
+      <button
+        type="button"
+        class="neutral-btn"
+        id="cancelDeadlineBtn"
+      >
         Cancel
-    </button>
+      </button>
+
     </div>
 
   `;
 
+
+  // =====================================================
+  // INSERT FORM
+  // =====================================================
+
   container.prepend(form);
 
-  // Scoped DOM references
-  const titleInput = form.querySelector("#deadlineTitle");
-  const dateInput = form.querySelector("#deadlineDate");
-  const timeInput = form.querySelector("#deadlineTime");
-  const todayBtn = form.querySelector("#todayEODBtn");
-  const saveBtn = form.querySelector("#saveDeadlineBtn");
-  const cancelBtn = form.querySelector("#cancelDeadlineBtn");
 
-  // ---------------------------------------------------
+  // =====================================================
+  // ELEMENTS
+  // =====================================================
+
+  const titleInput =
+    form.querySelector("#deadlineTitle");
+
+  const dateInput =
+    form.querySelector("#deadlineDate");
+
+  const timeInput =
+    form.querySelector("#deadlineTime");
+
+  const todayBtn =
+    form.querySelector("#todayEODBtn");
+
+  const saveBtn =
+    form.querySelector("#saveDeadlineBtn");
+
+  const cancelBtn =
+    form.querySelector("#cancelDeadlineBtn");
+
+
+  // =====================================================
   // VALIDATION
-  // ---------------------------------------------------
+  // =====================================================
 
   function validateForm() {
-    const title = titleInput.value.trim();
-    const date = dateInput.value;
-    const time = timeInput.value;
 
-    saveBtn.disabled = !(title && date && time);
+    const title =
+      titleInput.value.trim();
+
+    const date =
+      dateInput.value;
+
+    const time =
+      timeInput.value;
+
+    saveBtn.disabled =
+      !(title && date && time);
+
   }
 
-  titleInput.addEventListener("input", validateForm);
-  dateInput.addEventListener("input", validateForm);
-  timeInput.addEventListener("input", validateForm);
 
-  // ---------------------------------------------------
-  // TODAY EOD BUTTON
-  // ---------------------------------------------------
+  titleInput.addEventListener(
+    "input",
+    validateForm
+  );
 
-  todayBtn.addEventListener("click", () => {
+  dateInput.addEventListener(
+    "input",
+    validateForm
+  );
 
-    const now = new Date();
+  timeInput.addEventListener(
+    "input",
+    validateForm
+  );
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
 
-    dateInput.value = `${year}-${month}-${day}`;
-    timeInput.value = "23:59";
+  // =====================================================
+  // TODAY EOD
+  // =====================================================
 
-    validateForm(); // important
-  });
+  todayBtn.addEventListener(
+    "click",
+    () => {
 
-  // ---------------------------------------------------
-  // SAVE DEADLINE
-  // ---------------------------------------------------
+      const now =
+        new Date();
+
+      const year =
+        now.getFullYear();
+
+      const month =
+        String(
+          now.getMonth() + 1
+        ).padStart(2, "0");
+
+      const day =
+        String(
+          now.getDate()
+        ).padStart(2, "0");
+
+      dateInput.value =
+        `${year}-${month}-${day}`;
+
+      timeInput.value =
+        "23:59";
+
+      validateForm();
+
+    }
+  );
+
+
+  // =====================================================
+  // SAVE
+  // =====================================================
 
   function saveDeadline() {
 
-    const title = titleInput.value.trim();
-    const date = dateInput.value;
-    const time = timeInput.value;
+    const title =
+      titleInput.value.trim();
 
-    const datetime = new Date(`${date}T${time}`);
+    const date =
+      dateInput.value;
 
-    if (isNaN(datetime.getTime())) {
-      alert("Invalid date/time.");
+    const time =
+      timeInput.value;
+
+
+    const datetime =
+      new Date(
+        `${date}T${time}`
+      );
+
+
+    if (
+      isNaN(
+        datetime.getTime()
+      )
+    ) {
+
+      alert(
+        "Invalid date/time."
+      );
+
       return;
+
     }
 
-    // Prevent duplicate
-    const alreadyExists = track.deadlines.some(dl =>
-      dl.title === title &&
-      dl.datetime === datetime.toISOString()
-    );
+
+    // -----------------------------------------------
+    // DUPLICATE CHECK
+    // -----------------------------------------------
+
+    const alreadyExists =
+      project.deadlines.some(
+        deadline =>
+          deadline.title === title &&
+          deadline.datetime ===
+            datetime.toISOString()
+      );
+
 
     if (alreadyExists) {
-      alert("This deadline already exists.");
+
+      alert(
+        "This deadline already exists."
+      );
+
       return;
+
     }
 
-    saveBtn.disabled = true;
 
-    track.deadlines.push({
-      id: Date.now(),
+    // -----------------------------------------------
+    // SAVE
+    // -----------------------------------------------
+
+    saveBtn.disabled =
+      true;
+
+
+    project.deadlines.push({
+
+      id:
+        Date.now(),
+
       title,
-      datetime: datetime.toISOString()
+
+      datetime:
+        datetime.toISOString()
+
     });
 
-    persistTracks();              // saves + refreshes sidebar
 
-    showToast(`Deadline "${title}" saved`);
+    persistTracks();
 
-    form.remove();                // remove form first
-    renderDeadlines(track);       // re-render only track list
+
+    showToast(
+      `Deadline "${title}" saved`
+    );
+
+
+    // -----------------------------------------------
+    // REMOVE FORM
+    // -----------------------------------------------
+
+    form.remove();
+
+
+    // -----------------------------------------------
+    // REFRESH CURRENT PROJECT
+    // -----------------------------------------------
+
+    renderDeadlines(
+      project
+    );
+
   }
 
-  saveBtn.addEventListener("click", saveDeadline);
 
-  // Enter key support
-  form.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !saveBtn.disabled) {
-      e.preventDefault();
-      saveDeadline();
+  saveBtn.addEventListener(
+    "click",
+    saveDeadline
+  );
+
+
+  // =====================================================
+  // ENTER KEY
+  // =====================================================
+
+  form.addEventListener(
+    "keypress",
+    (e) => {
+
+      if (
+        e.key === "Enter" &&
+        !saveBtn.disabled
+      ) {
+
+        e.preventDefault();
+
+        saveDeadline();
+
+      }
+
     }
-  });
+  );
 
-  // ---------------------------------------------------
+
+  // =====================================================
   // CANCEL
-  // ---------------------------------------------------
+  // =====================================================
 
-  cancelBtn.addEventListener("click", () => {
-    form.remove();
-  });
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
+    }
+  );
+
+
+  // =====================================================
+  // FOCUS
+  // =====================================================
+
+  titleInput.focus();
+
 }
 
 // =====================================================
 // EDIT DEADLINE FORM
 // =====================================================
 
-function findTrackByDeadline(deadlineId) {
-  return tracks.find(t =>
-    (t.deadlines || []).some(d => d.id === deadlineId)
-  );
+function findProjectByDeadline(
+  deadlineId
+) {
+
+  for (const track of tracks) {
+
+    const projects =
+      track.projects || [];
+
+    for (const project of projects) {
+
+      if (
+        (project.deadlines || [])
+          .some(
+            deadline =>
+              deadline.id ===
+              deadlineId
+          )
+      ) {
+
+        return project;
+
+      }
+
+    }
+
+  }
+
+  return null;
+
 }
 
-function openEditDeadlineForm(track, deadline, source = "track") {
+function openEditDeadlineForm(
+  project,
+  deadline,
+  source = "track"
+) {
 
   let container;
 
-  if (source === "global") {
-    container = document.getElementById("globalDeadlineList");
+  if (
+    source === "global"
+  ) {
+
+    container =
+      document.getElementById(
+        "globalDeadlineList"
+      );
+
   } else {
-    container = document.getElementById("deadlineList");
+
+    container =
+      document.getElementById(
+        "deadlineList"
+      );
+
   }
 
-  // Prevent multiple edit forms
-  if (container.querySelector(".deadline-form")) return;
+  if (
+    !container ||
+    !project ||
+    !deadline
+  ) {
+    return;
+  }
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
 
-  const existingDate = new Date(deadline.datetime);
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
+  }
 
-  const yyyy = existingDate.getFullYear();
-  const mm = String(existingDate.getMonth() + 1).padStart(2, "0");
-  const dd = String(existingDate.getDate()).padStart(2, "0");
-  const hh = String(existingDate.getHours()).padStart(2, "0");
-  const min = String(existingDate.getMinutes()).padStart(2, "0");
+
+  const form =
+    document.createElement(
+      "div"
+    );
+
+  form.classList.add(
+    "deadline-form"
+  );
+
+
+  const existingDate =
+    new Date(
+      deadline.datetime
+    );
+
+
+  const yyyy =
+    existingDate.getFullYear();
+
+  const mm =
+    String(
+      existingDate.getMonth() + 1
+    ).padStart(2, "0");
+
+  const dd =
+    String(
+      existingDate.getDate()
+    ).padStart(2, "0");
+
+  const hh =
+    String(
+      existingDate.getHours()
+    ).padStart(2, "0");
+
+  const min =
+    String(
+      existingDate.getMinutes()
+    ).padStart(2, "0");
+
 
   form.innerHTML = `
 
     <!-- STATUS ACTIONS -->
-    ${deadline.status !== "finished" && deadline.status !== "cancelled" ? `
-      <div class="deadline-status-actions">
 
-        <button
-          type="button"
-          class="status-btn complete-btn"
-          id="markFinishedBtn"
-        >
-          ✓ Mark Finished
-        </button>
+    ${
+      deadline.status !== "finished" &&
+      deadline.status !== "cancelled"
+        ? `
 
-        <button
-          type="button"
-          class="status-btn cancel-btn"
-          id="markCancelledBtn"
-        >
-          ✕ Mark Cancelled
-        </button>
+          <div
+            class="deadline-status-actions"
+          >
 
-      </div>
-    ` : ""}
+            <button
+              type="button"
+              class="status-btn complete-btn"
+              id="markFinishedBtn"
+            >
+              ✓ Mark Finished
+            </button>
 
-    <input type="text" id="editTitle" value="${deadline.title}" />
+            <button
+              type="button"
+              class="status-btn cancel-btn"
+              id="markCancelledBtn"
+            >
+              ✕ Mark Cancelled
+            </button>
 
-    <div class="deadline-datetime-row">
-      <input type="date" id="editDate" value="${yyyy}-${mm}-${dd}" />
-      <input type="time" id="editTime" value="${hh}:${min}" />
+          </div>
+
+        `
+        : ""
+    }
+
+
+    <input
+      type="text"
+      id="editTitle"
+      value="${deadline.title}"
+    />
+
+
+    <div
+      class="deadline-datetime-row"
+    >
+
+      <input
+        type="date"
+        id="editDate"
+        value="${yyyy}-${mm}-${dd}"
+      />
+
+      <input
+        type="time"
+        id="editTime"
+        value="${hh}:${min}"
+      />
+
     </div>
 
-    <div class="deadline-form-actions">
-      <button type="button" class="neutral-btn" id="cancelEditBtn">
+
+    <div
+      class="deadline-form-actions"
+    >
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="cancelEditBtn"
+      >
         Cancel
       </button>
 
-      <button type="button" class="primary-btn" id="updateDeadlineBtn">
+      <button
+        type="button"
+        class="primary-btn"
+        id="updateDeadlineBtn"
+      >
         Update
       </button>
 
-      <button type="button" class="danger-btn" id="deleteDeadlineBtn">
+      <button
+        type="button"
+        class="danger-btn"
+        id="deleteDeadlineBtn"
+      >
         Delete
       </button>
+
     </div>
+
   `;
 
-  container.prepend(form);
 
-  const titleInput = form.querySelector("#editTitle");
-  const dateInput = form.querySelector("#editDate");
-  const timeInput = form.querySelector("#editTime");
+  container.prepend(
+    form
+  );
 
-  const updateBtn = form.querySelector("#updateDeadlineBtn");
-  const cancelBtn = form.querySelector("#cancelEditBtn");
-  const deleteBtn = form.querySelector("#deleteDeadlineBtn");
 
-  const finishBtn = form.querySelector("#markFinishedBtn");
-  const cancelStatusBtn = form.querySelector("#markCancelledBtn");
+  const titleInput =
+    form.querySelector(
+      "#editTitle"
+    );
 
-  updateBtn.disabled = true;
+  const dateInput =
+    form.querySelector(
+      "#editDate"
+    );
 
-  const originalTitle = deadline.title;
-  const originalDatetime = deadline.datetime;
+  const timeInput =
+    form.querySelector(
+      "#editTime"
+    );
+
+  const updateBtn =
+    form.querySelector(
+      "#updateDeadlineBtn"
+    );
+
+  const cancelBtn =
+    form.querySelector(
+      "#cancelEditBtn"
+    );
+
+  const deleteBtn =
+    form.querySelector(
+      "#deleteDeadlineBtn"
+    );
+
+  const finishBtn =
+    form.querySelector(
+      "#markFinishedBtn"
+    );
+
+  const cancelStatusBtn =
+    form.querySelector(
+      "#markCancelledBtn"
+    );
+
+
+  updateBtn.disabled =
+    true;
+
+
+  const originalTitle =
+    deadline.title;
+
+  const originalDatetime =
+    deadline.datetime;
+
+
+  // =====================================================
+  // CHANGE DETECTION
+  // =====================================================
 
   function checkForChanges() {
 
-    const newTitle = titleInput.value.trim();
-    const newDate = dateInput.value;
-    const newTime = timeInput.value;
+    const newTitle =
+      titleInput.value.trim();
 
-    const newDatetime = newDate && newTime
-      ? new Date(`${newDate}T${newTime}`).toISOString()
-      : null;
+    const newDate =
+      dateInput.value;
+
+    const newTime =
+      timeInput.value;
+
+
+    const newDatetime =
+      newDate && newTime
+        ? new Date(
+            `${newDate}T${newTime}`
+          ).toISOString()
+        : null;
+
 
     const isChanged =
-      newTitle !== originalTitle ||
-      newDatetime !== originalDatetime;
+      newTitle !==
+        originalTitle ||
 
-    updateBtn.disabled = !isChanged;
+      newDatetime !==
+        originalDatetime;
+
+
+    updateBtn.disabled =
+      !isChanged;
 
   }
 
-  titleInput.addEventListener("input", checkForChanges);
-  dateInput.addEventListener("input", checkForChanges);
-  timeInput.addEventListener("input", checkForChanges);
+
+  titleInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  dateInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  timeInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+
+  // =====================================================
+  // MARK FINISHED
+  // =====================================================
 
   if (finishBtn) {
 
-    finishBtn.addEventListener("click", () => {
+    finishBtn.addEventListener(
+      "click",
+      () => {
 
-      const correctTrack = findTrackByDeadline(deadline.id);
+        deadline.status =
+          "finished";
 
-      if (!correctTrack) return;
+        persistTracks();
 
-      deadline.status = "finished";
+        showToast(
+          `"${deadline.title}" marked as finished`
+        );
 
-      persistTracks();
+        form.remove();
 
-      showToast(`"${deadline.title}" marked as finished`);
+        renderDeadlines(
+          project
+        );
 
-      form.remove();
+        renderGlobalDeadlines();
 
-      renderDeadlines(correctTrack);
-      renderGlobalDeadlines();
-      refreshCurrentView();
-
-    });
+      }
+    );
 
   }
+
+
+  // =====================================================
+  // MARK CANCELLED
+  // =====================================================
 
   if (cancelStatusBtn) {
 
-    cancelStatusBtn.addEventListener("click", () => {
+    cancelStatusBtn.addEventListener(
+      "click",
+      () => {
 
-      const correctTrack = findTrackByDeadline(deadline.id);
+        deadline.status =
+          "cancelled";
 
-      if (!correctTrack) return;
+        persistTracks();
 
-      deadline.status = "cancelled";
+        showToast(
+          `"${deadline.title}" marked as cancelled`
+        );
 
-      persistTracks();
+        form.remove();
 
-      showToast(`"${deadline.title}" marked as cancelled`);
+        renderDeadlines(
+          project
+        );
 
-      form.remove();
+        renderGlobalDeadlines();
 
-      renderDeadlines(correctTrack);
-      renderGlobalDeadlines();
-      refreshCurrentView();
-
-    });
+      }
+    );
 
   }
 
-  updateBtn.addEventListener("click", () => {
 
-    const newTitle = titleInput.value.trim();
-    const newDate = dateInput.value;
-    const newTime = timeInput.value;
+  // =====================================================
+  // UPDATE
+  // =====================================================
 
-    if (!newTitle || !newDate || !newTime) {
-      alert("All fields required.");
-      return;
+  updateBtn.addEventListener(
+    "click",
+    () => {
+
+      const newTitle =
+        titleInput.value.trim();
+
+      const newDate =
+        dateInput.value;
+
+      const newTime =
+        timeInput.value;
+
+
+      if (
+        !newTitle ||
+        !newDate ||
+        !newTime
+      ) {
+
+        alert(
+          "All fields required."
+        );
+
+        return;
+
+      }
+
+
+      const newDatetime =
+        new Date(
+          `${newDate}T${newTime}`
+        );
+
+
+      if (
+        isNaN(
+          newDatetime.getTime()
+        )
+      ) {
+
+        alert(
+          "Invalid date/time."
+        );
+
+        return;
+
+      }
+
+
+      deadline.title =
+        newTitle;
+
+      deadline.datetime =
+        newDatetime.toISOString();
+
+
+      if (
+        deadline.status ===
+        "finished"
+      ) {
+
+        delete deadline.status;
+
+      }
+
+
+      persistTracks();
+
+      renderGlobalDeadlines();
+
+      renderDeadlines(
+        project
+      );
+
+      showToast(
+        "Deadline updated"
+      );
+
+      form.remove();
+
     }
+  );
 
-    const newDatetime = new Date(`${newDate}T${newTime}`);
 
-    if (isNaN(newDatetime.getTime())) {
-      alert("Invalid date/time.");
-      return;
+  // =====================================================
+  // DELETE
+  // =====================================================
+
+  deleteBtn.addEventListener(
+    "click",
+    () => {
+
+      const confirmed =
+        confirm(
+          `Are you sure you want to delete "${deadline.title}"?`
+        );
+
+      if (!confirmed) return;
+
+
+      project.deadlines =
+        project.deadlines.filter(
+          item =>
+            item.id !==
+            deadline.id
+        );
+
+
+      persistTracks();
+
+      renderGlobalDeadlines();
+
+      showToast(
+        `Deadline "${deadline.title}" deleted`
+      );
+
+      form.remove();
+
+      renderDeadlines(
+        project
+      );
+
     }
+  );
 
-    deadline.title = newTitle;
-    deadline.datetime = newDatetime.toISOString();
 
-    if (deadline.status === "finished") {
-      delete deadline.status;
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
     }
-
-    persistTracks();
-
-    renderGlobalDeadlines();
-
-    const correctTrack = findTrackByDeadline(deadline.id);
-
-    renderDeadlines(correctTrack);
-
-    refreshCurrentView();
-
-    showToast("Deadline updated");
-
-    form.remove();
-
-  });
-
-  deleteBtn.addEventListener("click", () => {
-
-    const confirmed = confirm(
-      `Are you sure you want to delete "${deadline.title}"?`
-    );
-
-    if (!confirmed) return;
-
-    track.deadlines = track.deadlines.filter(
-      dl => dl.id !== deadline.id
-    );
-
-    persistTracks();
-
-    renderGlobalDeadlines();
-
-    showToast(`Deadline "${deadline.title}" deleted`);
-
-    form.remove();
-
-    const correctTrack = findTrackByDeadline(deadline.id);
-
-    renderDeadlines(correctTrack);
-
-  });
-
-  cancelBtn.addEventListener("click", () => {
-
-    form.remove();
-
-  });
+  );
 
 }
 
@@ -865,218 +1830,490 @@ function openEditDeadlineForm(track, deadline, source = "track") {
 // READING RENDERING
 // =====================================================
 
-function renderReading(track) {
-  const container = document.getElementById("readingList");
-  if (!container) return;
+function renderReading(project) {
+
+  const container =
+    document.getElementById(
+      "readingList"
+    );
+
+  if (!container || !project) return;
+
+  if (!Array.isArray(project.reading)) {
+
+    project.reading = [];
+
+  }
 
   container.innerHTML = "";
-  const sortedReading = [...track.reading].sort((a, b) => {
-    return Number(a.completed) - Number(b.completed);
-  });
 
-  sortedReading.forEach((item, index) => {
-    const div = document.createElement("div");
-    div.draggable = !item.completed;
-    div.dataset.id = item.id;
-    div.classList.add("deadline-item");
+  const sortedReading =
+    [...project.reading].sort(
+      (a, b) =>
+        Number(a.completed) -
+        Number(b.completed)
+    );
 
-    if (item.completed) {
-      div.classList.add("reading-complete");
-    }
 
-    const linksHTML =
-      item.links && item.links.length
-        ? item.links.map((link, index) => `
-            <div>
-              <a href="${link}"
-                target="_blank"
-                class="reading-link"
-                title="${link}">
-                Material ${index + 1}
-              </a>
+  sortedReading.forEach(
+    (item, index) => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.draggable =
+        !item.completed;
+
+      div.dataset.id =
+        item.id;
+
+      div.classList.add(
+        "deadline-item"
+      );
+
+      if (item.completed) {
+
+        div.classList.add(
+          "reading-complete"
+        );
+
+      }
+
+
+      const linksHTML =
+        item.links &&
+        item.links.length
+          ? item.links
+              .map(
+                (link, linkIndex) => `
+
+                  <div>
+
+                    <a
+                      href="${link}"
+                      target="_blank"
+                      class="reading-link"
+                      title="${link}"
+                    >
+                      Material ${linkIndex + 1}
+                    </a>
+
+                  </div>
+
+                `
+              )
+              .join("")
+          : "";
+
+
+      div.innerHTML = `
+
+        <div class="reading-item-content">
+
+          <div class="reading-top-row">
+
+            <div class="reading-header">
+
+              ${
+                !item.completed
+                  ? `<span class="drag-handle">⋮⋮</span>`
+                  : `<span class="reading-check">✔</span>`
+              }
+
+              <strong>
+                ${index + 1}. ${item.topic}
+              </strong>
+
             </div>
-          `).join("")
-        : "";
 
-    div.innerHTML = `
-      <div class="reading-item-content">
-
-        <div class="reading-top-row">
-
-          <div class="reading-header">
 
             ${
               !item.completed
-                ? `<span class="drag-handle">⋮⋮</span>`
-                : `<span class="reading-check">✔</span>`
+                ? `
+                  <button
+                    class="reading-complete-btn"
+                  >
+                    ✓
+                  </button>
+                `
+                : ""
             }
-
-            <strong>
-              ${index + 1}. ${item.topic}
-            </strong>
 
           </div>
 
-          ${
-            !item.completed
-              ? `
-                <button class="reading-complete-btn">
-                  ✓
-                </button>
-              `
-              : ""
-          }
+          ${linksHTML}
 
         </div>
 
-        ${linksHTML}
+      `;
 
-      </div>
-    `;
 
-    const completeBtn =
-      div.querySelector(".reading-complete-btn");
+      // =====================================================
+      // COMPLETE
+      // =====================================================
 
-    if (completeBtn) {
+      const completeBtn =
+        div.querySelector(
+          ".reading-complete-btn"
+        );
 
-      completeBtn.addEventListener("click", (e) => {
+      if (completeBtn) {
 
-        e.stopPropagation();
+        completeBtn.addEventListener(
+          "click",
+          (e) => {
 
-        item.completed = true;
+            e.stopPropagation();
 
-        persistTracks();
+            item.completed =
+              true;
 
-        renderReading(track);
+            persistTracks();
 
-        refreshCurrentView();
+            renderReading(
+              project
+            );
 
-        showToast(`Completed "${item.topic}"`);
+            refreshCurrentView();
 
-      });
+            showToast(
+              `Completed "${item.topic}"`
+            );
+
+          }
+        );
+
+      }
+
+
+      // =====================================================
+      // EDIT
+      // =====================================================
+
+      div.addEventListener(
+        "dblclick",
+        () => {
+
+          openEditReadingForm(
+            project,
+            item
+          );
+
+        }
+      );
+
+
+      // =====================================================
+      // DRAG START
+      // =====================================================
+
+      div.addEventListener(
+        "dragstart",
+        () => {
+
+          draggedReadingId =
+            item.id;
+
+          div.classList.add(
+            "dragging"
+          );
+
+        }
+      );
+
+
+      // =====================================================
+      // DRAG END
+      // =====================================================
+
+      div.addEventListener(
+        "dragend",
+        () => {
+
+          draggedReadingId =
+            null;
+
+          div.classList.remove(
+            "dragging"
+          );
+
+        }
+      );
+
+
+      // =====================================================
+      // DRAG OVER
+      // =====================================================
+
+      div.addEventListener(
+        "dragover",
+        (e) => {
+
+          e.preventDefault();
+
+        }
+      );
+
+
+      // =====================================================
+      // DROP
+      // =====================================================
+
+      div.addEventListener(
+        "drop",
+        () => {
+
+          if (
+            draggedReadingId ===
+            item.id
+          ) {
+            return;
+          }
+
+
+          const fromIndex =
+            project.reading.findIndex(
+              r =>
+                r.id ===
+                draggedReadingId
+            );
+
+
+          const toIndex =
+            project.reading.findIndex(
+              r =>
+                r.id ===
+                item.id
+            );
+
+
+          if (
+            fromIndex === -1 ||
+            toIndex === -1
+          ) {
+            return;
+          }
+
+
+          const [movedItem] =
+            project.reading.splice(
+              fromIndex,
+              1
+            );
+
+
+          project.reading.splice(
+            toIndex,
+            0,
+            movedItem
+          );
+
+
+          persistTracks();
+
+          renderReading(
+            project
+          );
+
+        }
+      );
+
+
+      container.appendChild(
+        div
+      );
 
     }
+  );
 
-    div.addEventListener("dblclick", () => {
-      openEditReadingForm(track, item);
-    });
-    // =====================================
-    // DRAG START
-    // =====================================
-
-    div.addEventListener("dragstart", () => {
-      draggedReadingId = item.id;
-      div.classList.add("dragging");
-    });
-
-    // =====================================
-    // DRAG END
-    // =====================================
-
-    div.addEventListener("dragend", () => {
-      draggedReadingId = null;
-      div.classList.remove("dragging");
-    });
-
-    // =====================================
-    // DRAG OVER
-    // =====================================
-
-    div.addEventListener("dragover", (e) => {
-      e.preventDefault();
-    });
-
-    // =====================================
-    // DROP
-    // =====================================
-
-    div.addEventListener("drop", () => {
-
-      if (draggedReadingId === item.id) return;
-
-      const fromIndex = track.reading.findIndex(
-        r => r.id === draggedReadingId
-      );
-
-      const toIndex = track.reading.findIndex(
-        r => r.id === item.id
-      );
-
-      if (fromIndex === -1 || toIndex === -1) return;
-
-      const [movedItem] =
-        track.reading.splice(fromIndex, 1);
-
-      track.reading.splice(toIndex, 0, movedItem);
-
-      persistTracks();
-
-      renderReading(track);
-    });
-
-    container.appendChild(div);
-  });
 }
-
 // =====================================================
 // READING FORM
 // =====================================================
 
-function openReadingForm(track) {
-  const container = document.getElementById("readingList");
-  if (container.querySelector(".deadline-form")) return;
+function openReadingForm(project) {
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
+  const container =
+    document.getElementById(
+      "readingList"
+    );
+
+  if (!container) return;
+
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
+  }
+
+
+  const form =
+    document.createElement(
+      "div"
+    );
+
+  form.classList.add(
+    "deadline-form"
+  );
+
 
   form.innerHTML = `
-    <input type="text" id="readingTopic" placeholder="Topic" />
-    <div id="readingLinksContainer"></div>
 
-    <div class="deadline-form-actions">
-      <button class="neutral-btn" id="cancelReadingBtn">Cancel</button>
-      <button class="primary-btn" id="saveReadingBtn">Save</button>
+    <input
+      type="text"
+      id="readingTopic"
+      placeholder="Topic"
+    />
+
+    <div
+      id="readingLinksContainer"
+    ></div>
+
+    <div
+      class="deadline-form-actions"
+    >
+
+      <button
+        class="neutral-btn"
+        id="cancelReadingBtn"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="primary-btn"
+        id="saveReadingBtn"
+      >
+        Save
+      </button>
+
     </div>
+
   `;
 
-  container.prepend(form);
 
-  const topicInput = form.querySelector("#readingTopic");
-  const linksContainer = form.querySelector("#readingLinksContainer");
+  container.prepend(
+    form
+  );
 
-  // Add first link field
-  addLinkInput(linksContainer);
 
-  form.querySelector("#saveReadingBtn").onclick = () => {
-    const topic = topicInput.value.trim();
-    if (!topic) {
-      alert("Topic required.");
-      return;
-    }
+  const topicInput =
+    form.querySelector(
+      "#readingTopic"
+    );
 
-    const links = Array.from(
-      linksContainer.querySelectorAll("input")
+  const linksContainer =
+    form.querySelector(
+      "#readingLinksContainer"
+    );
+
+
+  // =====================================================
+  // FIRST LINK FIELD
+  // =====================================================
+
+  addLinkInput(
+    linksContainer
+  );
+
+
+  // =====================================================
+  // SAVE
+  // =====================================================
+
+  form
+    .querySelector(
+      "#saveReadingBtn"
     )
-      .map(input => input.value.trim())
-      .filter(val => val !== "");
+    .onclick = () => {
 
-    track.reading.push({
-      id: Date.now(),
-      topic,
-      links,
-      completed: false
-    });
+      const topic =
+        topicInput.value.trim();
 
-    persistTracks();
+      if (!topic) {
 
-    form.remove();
+        alert(
+          "Topic required."
+        );
 
-    refreshCurrentView();
-  };
+        return;
 
-  form.querySelector("#cancelReadingBtn").onclick = () => {
-    form.remove();
-  };
+      }
+
+
+      const links =
+        Array.from(
+          linksContainer.querySelectorAll(
+            "input"
+          )
+        )
+          .map(
+            input =>
+              input.value.trim()
+          )
+          .filter(
+            val =>
+              val !== ""
+          );
+
+
+      if (
+        !Array.isArray(
+          project.reading
+        )
+      ) {
+
+        project.reading = [];
+
+      }
+
+
+      project.reading.push({
+
+        id:
+          Date.now(),
+
+        topic,
+
+        links,
+
+        completed:
+          false
+
+      });
+
+
+      persistTracks();
+
+      form.remove();
+
+      renderReading(
+        project
+      );
+
+      refreshCurrentView();
+
+    };
+
+
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
+  form
+    .querySelector(
+      "#cancelReadingBtn"
+    )
+    .onclick = () => {
+
+      form.remove();
+
+    };
+
 }
 
 
@@ -1103,75 +2340,237 @@ function addLinkInput(container, value = "") {
 // EDIT READING FORM
 // =====================================================
 
-function openEditReadingForm(track, item) {
-  const container = document.getElementById("readingList");
-  if (container.querySelector(".deadline-form")) return;
+function openEditReadingForm(project, item) {
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
+  const container =
+    document.getElementById(
+      "readingList"
+    );
 
-  form.innerHTML = `
-    <input type="text" id="editReadingTopic" value="${item.topic}" />
-    <div id="editReadingLinksContainer"></div>
+  if (!container) return;
 
-    <div class="deadline-form-actions">
-      <button class="neutral-btn" id="cancelEditReadingBtn">Cancel</button>
-      <button class="primary-btn" id="updateReadingBtn">Update</button>
-      <button class="danger-btn" id="deleteReadingBtn">Delete</button>
-    </div>
-  `;
-
-  container.prepend(form);
-
-  const topicInput = form.querySelector("#editReadingTopic");
-  const linksContainer = form.querySelector("#editReadingLinksContainer");
-
-  // Populate existing links
-  if (item.links && item.links.length) {
-    item.links.forEach(link => {
-      addLinkInput(linksContainer, link);
-    });
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
   }
 
-  // Always ensure one empty input exists
-  addLinkInput(linksContainer);
 
+  const form =
+    document.createElement(
+      "div"
+    );
+
+  form.classList.add(
+    "deadline-form"
+  );
+
+
+  form.innerHTML = `
+
+    <input
+      type="text"
+      id="editReadingTopic"
+      value="${item.topic}"
+    />
+
+    <div
+      id="editReadingLinksContainer"
+    ></div>
+
+    <div
+      class="deadline-form-actions"
+    >
+
+      <button
+        class="neutral-btn"
+        id="cancelEditReadingBtn"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="primary-btn"
+        id="updateReadingBtn"
+      >
+        Update
+      </button>
+
+      <button
+        class="danger-btn"
+        id="deleteReadingBtn"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  `;
+
+
+  container.prepend(
+    form
+  );
+
+
+  const topicInput =
+    form.querySelector(
+      "#editReadingTopic"
+    );
+
+  const linksContainer =
+    form.querySelector(
+      "#editReadingLinksContainer"
+    );
+
+
+  // =====================================================
+  // EXISTING LINKS
+  // =====================================================
+
+  if (
+    item.links &&
+    item.links.length
+  ) {
+
+    item.links.forEach(
+      link => {
+
+        addLinkInput(
+          linksContainer,
+          link
+        );
+
+      }
+    );
+
+  }
+
+
+  // Always provide an empty field
+  addLinkInput(
+    linksContainer
+  );
+
+
+  // =====================================================
   // UPDATE
-  form.querySelector("#updateReadingBtn").onclick = () => {
-    const newTopic = topicInput.value.trim();
-    if (!newTopic) {
-      alert("Topic required.");
-      return;
-    }
+  // =====================================================
 
-    const links = Array.from(
-      linksContainer.querySelectorAll("input")
+  form
+    .querySelector(
+      "#updateReadingBtn"
     )
-      .map(input => input.value.trim())
-      .filter(val => val !== "");
+    .onclick = () => {
 
-    item.topic = newTopic;
-    item.links = links;
-    item.completed = false;
+      const newTopic =
+        topicInput.value.trim();
 
-    persistTracks();
-    form.remove();
-    renderReading(track);
-  };
+      if (!newTopic) {
 
+        alert(
+          "Topic required."
+        );
+
+        return;
+
+      }
+
+
+      const links =
+        Array.from(
+          linksContainer.querySelectorAll(
+            "input"
+          )
+        )
+          .map(
+            input =>
+              input.value.trim()
+          )
+          .filter(
+            val =>
+              val !== ""
+          );
+
+
+      item.topic =
+        newTopic;
+
+      item.links =
+        links;
+
+      item.completed =
+        false;
+
+
+      persistTracks();
+
+      form.remove();
+
+      renderReading(
+        project
+      );
+
+      refreshCurrentView();
+
+    };
+
+
+  // =====================================================
   // DELETE
-  form.querySelector("#deleteReadingBtn").onclick = () => {
-    track.reading = track.reading.filter(r => r.id !== item.id);
+  // =====================================================
 
-    persistTracks();
-    form.remove();
-    renderReading(track);
-  };
+  form
+    .querySelector(
+      "#deleteReadingBtn"
+    )
+    .onclick = () => {
 
+      const confirmed =
+        confirm(
+          `Are you sure you want to delete "${item.topic}"?`
+        );
+
+      if (!confirmed) return;
+
+
+      project.reading =
+        project.reading.filter(
+          readingItem =>
+            readingItem.id !==
+            item.id
+        );
+
+
+      persistTracks();
+
+      form.remove();
+
+      renderReading(
+        project
+      );
+
+      refreshCurrentView();
+
+    };
+
+
+  // =====================================================
   // CANCEL
-  form.querySelector("#cancelEditReadingBtn").onclick = () => {
-    form.remove();
-  };
+  // =====================================================
+
+  form
+    .querySelector(
+      "#cancelEditReadingBtn"
+    )
+    .onclick = () => {
+
+      form.remove();
+
+    };
+
 }
 
 // =====================================================
@@ -1189,217 +2588,522 @@ function formatHours(hours) {
   return `${h}h ${m}m`;
 }
 
-function attachProgressSlider(slider, span, task, type, track) {
+function attachProgressSlider(
+  slider,
+  span,
+  task,
+  type,
+  project
+) {
 
-  let previousValue = slider.value;
+  let previousValue =
+    slider.value;
 
-  slider.addEventListener("mousedown", () => {
-    previousValue = slider.value;
-  });
 
-  slider.addEventListener("input", (e) => {
+  slider.addEventListener(
+    "mousedown",
+    () => {
 
-    let newValue = Number(e.target.value);
-
-    const max = type === "prereq" ? task.prereqTime : task.taskTime;
-
-    // snap slider to max if close
-    if (max - newValue < slider.step) {
-      newValue = max;
-    }
-
-    // clean floating precision
-    newValue = Number(newValue.toFixed(3));
-
-    slider.value = newValue;
-
-    if (type === "prereq") {
-
-      task.prereqSpent = newValue;
-
-      const percent =
-        task.prereqTime === 0
-          ? 100
-          : Math.round((task.prereqSpent / task.prereqTime) * 100);
-
-      span.innerText = `${percent}%`;
-
-      const hours = span.parentElement.querySelector(".progress-hours");
-      hours.innerText =
-        `${formatHours(task.prereqSpent)} / ${formatHours(task.prereqTime)}`;
+      previousValue =
+        slider.value;
 
     }
+  );
 
-    if (type === "task") {
 
-      task.taskSpent = newValue;
+  slider.addEventListener(
+    "input",
+    (e) => {
 
-      const percent =
-        task.taskTime === 0
-          ? 100
-          : Math.round((task.taskSpent / task.taskTime) * 100);
+      let newValue =
+        Number(
+          e.target.value
+        );
 
-      span.innerText = `${percent}%`;
 
-      const hours = span.parentElement.querySelector(".progress-hours");
-      hours.innerText =
-        `${formatHours(task.taskSpent)} / ${formatHours(task.taskTime)}`;
+      const max =
+        type === "prereq"
+          ? task.prereqTime
+          : task.taskTime;
+
+
+      if (
+        max - newValue <
+        slider.step
+      ) {
+
+        newValue =
+          max;
+
+      }
+
+
+      newValue =
+        Number(
+          newValue.toFixed(3)
+        );
+
+
+      slider.value =
+        newValue;
+
+
+      if (
+        type === "prereq"
+      ) {
+
+        task.prereqSpent =
+          newValue;
+
+
+        const percent =
+          task.prereqTime === 0
+            ? 100
+            : Math.round(
+                (
+                  task.prereqSpent /
+                  task.prereqTime
+                ) * 100
+              );
+
+
+        span.innerText =
+          `${percent}%`;
+
+
+        const hours =
+          span.parentElement
+            .querySelector(
+              ".progress-hours"
+            );
+
+
+        hours.innerText =
+          `${formatHours(
+            task.prereqSpent
+          )} / ${formatHours(
+            task.prereqTime
+          )}`;
+
+      }
+
+
+      if (
+        type === "task"
+      ) {
+
+        task.taskSpent =
+          newValue;
+
+
+        const percent =
+          task.taskTime === 0
+            ? 100
+            : Math.round(
+                (
+                  task.taskSpent /
+                  task.taskTime
+                ) * 100
+              );
+
+
+        span.innerText =
+          `${percent}%`;
+
+
+        const hours =
+          span.parentElement
+            .querySelector(
+              ".progress-hours"
+            );
+
+
+        hours.innerText =
+          `${formatHours(
+            task.taskSpent
+          )} / ${formatHours(
+            task.taskTime
+          )}`;
+
+      }
 
     }
+  );
 
-  });
 
-  slider.addEventListener("change", () => {
+  slider.addEventListener(
+    "change",
+    () => {
 
-    persistTracks();
+      persistTracks();
 
-    const EPSILON = 0.05;
 
-    let completed = false;
+      const EPSILON =
+        0.05;
 
-    if (type === "prereq") {
-      completed = task.prereqSpent >= task.prereqTime - EPSILON;
-    }
 
-    if (type === "task") {
-      completed = task.taskSpent >= task.taskTime - EPSILON;
-    }
+      let completed =
+        false;
 
-    if (completed && !task._completionChecked) {
 
-      task._completionChecked = true;
+      if (
+        type === "prereq"
+      ) {
 
-      showTaskDecisionUI(
-        track,
-        task,
-        () => {
-          // FINISH
-          task.finished = true;
-          persistTracks();
-          renderTasks(track);
-          showTaskCelebration(task.name);
-        },
-        () => {
-          // CANCEL → revert slider
-          slider.value = previousValue;
+        completed =
+          task.prereqSpent >=
+          task.prereqTime -
+          EPSILON;
 
-          if (type === "prereq") {
-            task.prereqSpent = Number(previousValue);
+      }
+
+
+      if (
+        type === "task"
+      ) {
+
+        completed =
+          task.taskSpent >=
+          task.taskTime -
+          EPSILON;
+
+      }
+
+
+      if (
+        completed &&
+        !task._completionChecked
+      ) {
+
+        task._completionChecked =
+          true;
+
+
+        showTaskDecisionUI(
+
+          project,
+
+          task,
+
+          () => {
+
+            task.finished =
+              true;
+
+            persistTracks();
+
+            renderTasks(
+              project
+            );
+
+            showTaskCelebration(
+              task.name
+            );
+
+          },
+
+          () => {
+
+            slider.value =
+              previousValue;
+
+
+            if (
+              type === "prereq"
+            ) {
+
+              task.prereqSpent =
+                Number(
+                  previousValue
+                );
+
+            }
+
+
+            if (
+              type === "task"
+            ) {
+
+              task.taskSpent =
+                Number(
+                  previousValue
+                );
+
+            }
+
+
+            const total =
+              type === "prereq"
+                ? task.prereqTime
+                : task.taskTime;
+
+
+            span.innerText =
+              `${Math.round(
+                (
+                  previousValue /
+                  total
+                ) * 100
+              )}%`;
+
+
+            task._completionChecked =
+              false;
+
+
+            persistTracks();
+
+          },
+
+          () => {
+
+            openEditTaskForm(
+              project,
+              task
+            );
+
           }
 
-          if (type === "task") {
-            task.taskSpent = Number(previousValue);
-          }
+        );
 
-          const total = type === "prereq" ? task.prereqTime : task.taskTime;
-          span.innerText = `${Math.round((previousValue / total) * 100)}%`;
+      }
 
-          task._completionChecked = false;
+    }
+  );
 
-          persistTracks();
-        },
-        () => {
-          // EXTEND
-          openEditTaskForm(track, task);
-        }
+}
+
+function renderTasks(project) {
+
+  const container =
+    document.getElementById(
+      "taskList"
+    );
+
+  if (!container || !project) return;
+
+  if (!Array.isArray(project.tasks)) {
+
+    project.tasks = [];
+
+  }
+
+  container.innerHTML = "";
+
+
+  const activeTasks =
+    project.tasks.filter(
+      task => !task.finished
+    );
+
+  const finishedTasks =
+    project.tasks.filter(
+      task => task.finished
+    );
+
+
+  const allTasks = [
+    ...activeTasks,
+    ...finishedTasks
+  ];
+
+
+  allTasks.forEach(task => {
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+    div.classList.add(
+      "deadline-item"
+    );
+
+
+    if (task.finished) {
+
+      div.classList.add(
+        "task-complete"
       );
 
     }
 
-  });
-
-}
-
-function renderTasks(track) {
-
-  const container = document.getElementById("taskList");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const activeTasks = track.tasks.filter(t => !t.finished);
-  const finishedTasks = track.tasks.filter(t => t.finished);
-
-  const allTasks = [...activeTasks, ...finishedTasks];
-
-  allTasks.forEach(task => {
-
-    const div = document.createElement("div");
-    div.classList.add("deadline-item");
-
-    if (task.finished) {
-      div.classList.add("task-complete");
-    }
 
     div.innerHTML = `
+
       <div class="task-main">
 
-        <strong>${task.finished ? "✔ " : ""}${task.name}</strong>
+        <strong>
+          ${
+            task.finished
+              ? "✔ "
+              : ""
+          }${task.name}
+        </strong>
+
 
         <div class="task-desc hidden-desc">
           ${task.description || ""}
         </div>
 
-        <div>Prerequisite: ${task.prereq}</div>
+
+        <div>
+          Prerequisite:
+          ${task.prereq}
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- PREREQUISITE PROGRESS -->
+        <!-- ================================= -->
 
         <div class="task-progress-block">
-          <label>Prereq Progress</label>
 
-          <input 
+          <label>
+            Prereq Progress
+          </label>
+
+
+          <input
             type="range"
             min="0"
             max="${task.prereqTime}"
             value="${task.prereqSpent ?? 0}"
             step="0.01"
             class="prereq-progress"
-            ${task.finished ? "disabled" : ""}
+            ${
+              task.finished
+                ? "disabled"
+                : ""
+            }
           >
 
+
           <span class="progress-percent">
-            ${task.prereqTime === 0 ? "100%" :
-            Math.round(((task.prereqSpent || 0) / task.prereqTime) * 100)}%
+
+            ${
+              task.prereqTime === 0
+                ? "100%"
+                :
+                Math.round(
+                  (
+                    (task.prereqSpent || 0) /
+                    task.prereqTime
+                  ) * 100
+                ) + "%"
+            }
+
           </span>
 
+
           <div class="progress-hours">
-            ${formatHours(task.prereqSpent || 0)} /
-            ${formatHours(task.prereqTime)}
+
+            ${
+              formatHours(
+                task.prereqSpent || 0
+              )
+            }
+
+            /
+
+            ${
+              formatHours(
+                task.prereqTime
+              )
+            }
+
           </div>
 
         </div>
 
-        <div class="task-progress-block">
-          <label>Task Progress</label>
 
-          <input 
+        <!-- ================================= -->
+        <!-- TASK PROGRESS -->
+        <!-- ================================= -->
+
+        <div class="task-progress-block">
+
+          <label>
+            Task Progress
+          </label>
+
+
+          <input
             type="range"
             min="0"
             max="${task.taskTime}"
             value="${task.taskSpent ?? 0}"
             step="0.01"
             class="task-progress"
-            ${task.finished ? "disabled" : ""}
+            ${
+              task.finished
+                ? "disabled"
+                : ""
+            }
           >
 
+
           <span class="progress-percent">
-            ${task.taskTime === 0 ? "100%" :
-            Math.round(((task.taskSpent || 0) / task.taskTime) * 100)}%
+
+            ${
+              task.taskTime === 0
+                ? "100%"
+                :
+                Math.round(
+                  (
+                    (task.taskSpent || 0) /
+                    task.taskTime
+                  ) * 100
+                ) + "%"
+            }
+
           </span>
 
+
           <div class="progress-hours">
-            ${formatHours(task.taskSpent || 0)} /
-            ${formatHours(task.taskTime)}
+
+            ${
+              formatHours(
+                task.taskSpent || 0
+              )
+            }
+
+            /
+
+            ${
+              formatHours(
+                task.taskTime
+              )
+            }
+
           </div>
 
         </div>
 
       </div>
+
     `;
 
-    const prereqSlider = div.querySelector(".prereq-progress");
-    const taskSlider = div.querySelector(".task-progress");
 
-    const prereqSpan = prereqSlider.nextElementSibling;
-    const taskSpan = taskSlider.nextElementSibling;
+    const prereqSlider =
+      div.querySelector(
+        ".prereq-progress"
+      );
+
+    const taskSlider =
+      div.querySelector(
+        ".task-progress"
+      );
+
+
+    const prereqSpan =
+      prereqSlider
+        .nextElementSibling;
+
+    const taskSpan =
+      taskSlider
+        .nextElementSibling;
+
 
     if (!task.finished) {
 
@@ -1408,28 +3112,51 @@ function renderTasks(track) {
         prereqSpan,
         task,
         "prereq",
-        track
+        project
       );
+
 
       attachProgressSlider(
         taskSlider,
         taskSpan,
         task,
         "task",
-        track
+        project
       );
 
     }
 
-    div.addEventListener("dblclick", () => {
-      if (task.finished) {
-        showToast("Completed tasks cannot be edited");
-        return;
-      }
-      openEditTaskForm(track, task);
-    });
 
-    container.appendChild(div);
+    // =====================================================
+    // DOUBLE CLICK EDIT
+    // =====================================================
+
+    div.addEventListener(
+      "dblclick",
+      () => {
+
+        if (task.finished) {
+
+          showToast(
+            "Completed tasks cannot be edited"
+          );
+
+          return;
+
+        }
+
+        openEditTaskForm(
+          project,
+          task
+        );
+
+      }
+    );
+
+
+    container.appendChild(
+      div
+    );
 
   });
 
@@ -1439,193 +3166,577 @@ function renderTasks(track) {
 // TASK FORM
 // =====================================================
 
-function openTaskForm(track) {
-  const container = document.getElementById("taskList");
-  if (container.querySelector(".deadline-form")) return;
+function openTaskForm(project) {
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
+  const container =
+    document.getElementById(
+      "taskList"
+    );
 
-  form.innerHTML = `
-    <input type="text" id="taskName" placeholder="Task name">
+  if (!container || !project) return;
 
-    <textarea id="taskDescription" placeholder="Task description"></textarea>
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
+  }
 
-    <input type="text" id="taskPrereq" placeholder="Prerequisite needed">
 
-    <input type="number" step="0.25" min="0" id="taskPrereqTime" placeholder="Prerequisite time (in hours)">
-    <input type="number" step="0.25" min="0" id="taskTime" placeholder="Task time (in hours)">
-    <div class="deadline-form-actions">
-      <button class="neutral-btn" id="cancelTaskBtn">Cancel</button>
-      <button class="primary-btn" id="saveTaskBtn">Save</button>
-    </div>
-  `;
+  const form =
+    document.createElement(
+      "div"
+    );
 
-  container.prepend(form);
+  form.classList.add(
+    "deadline-form"
+  );
 
-  const nameInput = form.querySelector("#taskName");
-  const descriptionInput = form.querySelector("#taskDescription");
-  const prereqInput = form.querySelector("#taskPrereq");
-  const prereqTimeInput = form.querySelector("#taskPrereqTime");
-  const taskTimeInput = form.querySelector("#taskTime");
-
-  form.querySelector("#saveTaskBtn").onclick = () => {
-
-    const name = nameInput.value.trim();
-    const description = descriptionInput.value.trim();
-    const prereq = prereqInput.value.trim();
-    const prereqTime = Number(prereqTimeInput.value.trim());
-    const taskTime = Number(taskTimeInput.value.trim());
-
-    if (!name || isNaN(prereqTime) || isNaN(taskTime)) {
-      alert("Invalid time values.");
-      return;
-    }
-
-    track.tasks.unshift({
-      id: Date.now(),
-      name,
-      description,
-      prereq,
-      prereqTime,
-      taskTime,
-      prereqSpent: 0,
-      taskSpent: 0
-    });
-
-    persistTracks();
-
-    form.remove();
-
-    renderTasks(track);
-  };
-
-  form.querySelector("#cancelTaskBtn").onclick = () => {
-    form.remove();
-  };
-}
-
-// =====================================================
-// EDIT TASK FORM
-// =====================================================
-
-function openEditTaskForm(track, task) {
-
-  const container = document.getElementById("taskList");
-
-  // Prevent multiple edit forms
-  if (container.querySelector(".deadline-form")) return;
-
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
 
   form.innerHTML = `
 
-    <input type="text" id="editTaskName" value="${task.name}" />
+    <input
+      type="text"
+      id="taskName"
+      placeholder="Task name"
+    >
 
-    <textarea id="editTaskDescription">${task.description || ""}</textarea>
+    <textarea
+      id="taskDescription"
+      placeholder="Task description"
+    ></textarea>
 
-    <input type="text" id="editTaskPrereq" value="${task.prereq}" />
+    <input
+      type="text"
+      id="taskPrereq"
+      placeholder="Prerequisite needed"
+    >
 
-    <input type="number" id="editTaskPrereqTime" value="${task.prereqTime}" />
+    <input
+      type="number"
+      step="0.25"
+      min="0"
+      id="taskPrereqTime"
+      placeholder="Prerequisite time (in hours)"
+    >
 
-    <input type="number" id="editTaskTime" value="${task.taskTime}" />
+    <input
+      type="number"
+      step="0.25"
+      min="0"
+      id="taskTime"
+      placeholder="Task time (in hours)"
+    >
 
-    <div class="deadline-form-actions">
+    <div
+      class="deadline-form-actions"
+    >
 
-      <button type="button" class="neutral-btn" id="cancelTaskEditBtn">
+      <button
+        class="neutral-btn"
+        id="cancelTaskBtn"
+      >
         Cancel
       </button>
 
-      <button type="button" class="primary-btn" id="updateTaskBtn">
-        Update
-      </button>
-
-      <button type="button" class="danger-btn" id="deleteTaskBtn">
-        Delete
+      <button
+        class="primary-btn"
+        id="saveTaskBtn"
+      >
+        Save
       </button>
 
     </div>
+
   `;
 
-  container.prepend(form);
 
-  const nameInput = form.querySelector("#editTaskName");
-  const descInput = form.querySelector("#editTaskDescription");
-  const prereqInput = form.querySelector("#editTaskPrereq");
-  const prereqTimeInput = form.querySelector("#editTaskPrereqTime");
-  const taskTimeInput = form.querySelector("#editTaskTime");
-
-  const updateBtn = form.querySelector("#updateTaskBtn");
-  updateBtn.disabled = true;
-  const cancelBtn = form.querySelector("#cancelTaskEditBtn");
-  const deleteBtn = form.querySelector("#deleteTaskBtn");
+  container.prepend(
+    form
+  );
 
 
-  // =====================================================
-  // UPDATE TASK
-  // =====================================================
-
-  updateBtn.addEventListener("click", () => {
-
-    const newName = nameInput.value.trim();
-    const newDesc = descInput.value.trim();
-    const newPrereq = prereqInput.value.trim();
-    const newPrereqTime = Number(prereqTimeInput.value);
-    const newTaskTime = Number(taskTimeInput.value);
-
-    if (!newName || !newPrereq || !newPrereqTime || !newTaskTime) {
-      alert("All fields required.");
-      return;
-    }
-
-    task.name = newName;
-    task.description = newDesc;
-    task.prereq = newPrereq;
-    task.prereqTime = newPrereqTime;
-    task.taskTime = newTaskTime;
-
-    task._completionChecked = false;
-
-    persistTracks();
-    showToast("Task updated");
-
-    form.remove();
-    renderTasks(track);
-  });
-
-
-  // =====================================================
-  // DELETE TASK
-  // =====================================================
-
-  deleteBtn.addEventListener("click", () => {
-
-    const confirmed = confirm(
-      `Are you sure you want to delete "${task.name}"?`
+  const nameInput =
+    form.querySelector(
+      "#taskName"
     );
 
-    if (!confirmed) return;
-
-    track.tasks = track.tasks.filter(
-      t => t.id !== task.id
+  const descriptionInput =
+    form.querySelector(
+      "#taskDescription"
     );
 
-    persistTracks();
-    showToast(`Task "${task.name}" deleted`);
+  const prereqInput =
+    form.querySelector(
+      "#taskPrereq"
+    );
 
-    form.remove();
-    renderTasks(track);
-  });
+  const prereqTimeInput =
+    form.querySelector(
+      "#taskPrereqTime"
+    );
+
+  const taskTimeInput =
+    form.querySelector(
+      "#taskTime"
+    );
+
+
+  // =====================================================
+  // SAVE
+  // =====================================================
+
+  form
+    .querySelector(
+      "#saveTaskBtn"
+    )
+    .onclick = () => {
+
+      const name =
+        nameInput.value.trim();
+
+      const description =
+        descriptionInput.value.trim();
+
+      const prereq =
+        prereqInput.value.trim();
+
+      const prereqTime =
+        Number(
+          prereqTimeInput.value.trim()
+        );
+
+      const taskTime =
+        Number(
+          taskTimeInput.value.trim()
+        );
+
+
+      if (
+        !name ||
+        isNaN(prereqTime) ||
+        isNaN(taskTime)
+      ) {
+
+        alert(
+          "Invalid time values."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !Array.isArray(
+          project.tasks
+        )
+      ) {
+
+        project.tasks = [];
+
+      }
+
+
+      project.tasks.unshift({
+
+        id:
+          Date.now(),
+
+        name,
+
+        description,
+
+        prereq,
+
+        prereqTime,
+
+        taskTime,
+
+        prereqSpent:
+          0,
+
+        taskSpent:
+          0
+
+      });
+
+
+      persistTracks();
+
+      form.remove();
+
+      renderTasks(
+        project
+      );
+
+    };
 
 
   // =====================================================
   // CANCEL
   // =====================================================
 
-  cancelBtn.addEventListener("click", () => {
-    form.remove();
-  });
+  form
+    .querySelector(
+      "#cancelTaskBtn"
+    )
+    .onclick = () => {
+
+      form.remove();
+
+    };
+
+}
+
+// =====================================================
+// EDIT TASK FORM
+// =====================================================
+
+function openEditTaskForm(project, task) {
+
+  const container =
+    document.getElementById(
+      "taskList"
+    );
+
+  if (!container || !project) return;
+
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
+  }
+
+
+  const form =
+    document.createElement(
+      "div"
+    );
+
+  form.classList.add(
+    "deadline-form"
+  );
+
+
+  form.innerHTML = `
+
+    <input
+      type="text"
+      id="editTaskName"
+      value="${task.name}"
+    />
+
+    <textarea
+      id="editTaskDescription"
+    >${task.description || ""}</textarea>
+
+    <input
+      type="text"
+      id="editTaskPrereq"
+      value="${task.prereq}"
+    />
+
+    <input
+      type="number"
+      id="editTaskPrereqTime"
+      value="${task.prereqTime}"
+    />
+
+    <input
+      type="number"
+      id="editTaskTime"
+      value="${task.taskTime}"
+    />
+
+    <div
+      class="deadline-form-actions"
+    >
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="cancelTaskEditBtn"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-btn"
+        id="updateTaskBtn"
+      >
+        Update
+      </button>
+
+      <button
+        type="button"
+        class="danger-btn"
+        id="deleteTaskBtn"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  `;
+
+
+  container.prepend(
+    form
+  );
+
+
+  const nameInput =
+    form.querySelector(
+      "#editTaskName"
+    );
+
+  const descInput =
+    form.querySelector(
+      "#editTaskDescription"
+    );
+
+  const prereqInput =
+    form.querySelector(
+      "#editTaskPrereq"
+    );
+
+  const prereqTimeInput =
+    form.querySelector(
+      "#editTaskPrereqTime"
+    );
+
+  const taskTimeInput =
+    form.querySelector(
+      "#editTaskTime"
+    );
+
+
+  const updateBtn =
+    form.querySelector(
+      "#updateTaskBtn"
+    );
+
+  const cancelBtn =
+    form.querySelector(
+      "#cancelTaskEditBtn"
+    );
+
+  const deleteBtn =
+    form.querySelector(
+      "#deleteTaskBtn"
+    );
+
+
+  updateBtn.disabled =
+    true;
+
+
+  const originalName =
+    task.name;
+
+  const originalDescription =
+    task.description || "";
+
+  const originalPrereq =
+    task.prereq;
+
+  const originalPrereqTime =
+    task.prereqTime;
+
+  const originalTaskTime =
+    task.taskTime;
+
+
+  function checkForChanges() {
+
+    const changed =
+      nameInput.value.trim() !==
+        originalName ||
+
+      descInput.value.trim() !==
+        originalDescription ||
+
+      prereqInput.value.trim() !==
+        originalPrereq ||
+
+      Number(
+        prereqTimeInput.value
+      ) !==
+        originalPrereqTime ||
+
+      Number(
+        taskTimeInput.value
+      ) !==
+        originalTaskTime;
+
+
+    updateBtn.disabled =
+      !changed;
+
+  }
+
+
+  nameInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  descInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  prereqInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  prereqTimeInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+  taskTimeInput.addEventListener(
+    "input",
+    checkForChanges
+  );
+
+
+  // =====================================================
+  // UPDATE
+  // =====================================================
+
+  updateBtn.addEventListener(
+    "click",
+    () => {
+
+      const newName =
+        nameInput.value.trim();
+
+      const newDesc =
+        descInput.value.trim();
+
+      const newPrereq =
+        prereqInput.value.trim();
+
+      const newPrereqTime =
+        Number(
+          prereqTimeInput.value
+        );
+
+      const newTaskTime =
+        Number(
+          taskTimeInput.value
+        );
+
+
+      if (
+        !newName ||
+        !newPrereq ||
+        !newPrereqTime ||
+        !newTaskTime
+      ) {
+
+        alert(
+          "All fields required."
+        );
+
+        return;
+
+      }
+
+
+      task.name =
+        newName;
+
+      task.description =
+        newDesc;
+
+      task.prereq =
+        newPrereq;
+
+      task.prereqTime =
+        newPrereqTime;
+
+      task.taskTime =
+        newTaskTime;
+
+      task._completionChecked =
+        false;
+
+
+      persistTracks();
+
+      showToast(
+        "Task updated"
+      );
+
+      form.remove();
+
+      renderTasks(
+        project
+      );
+
+    }
+  );
+
+
+  // =====================================================
+  // DELETE
+  // =====================================================
+
+  deleteBtn.addEventListener(
+    "click",
+    () => {
+
+      const confirmed =
+        confirm(
+          `Are you sure you want to delete "${task.name}"?`
+        );
+
+      if (!confirmed) return;
+
+
+      project.tasks =
+        project.tasks.filter(
+          t =>
+            t.id !== task.id
+        );
+
+
+      persistTracks();
+
+      showToast(
+        `Task "${task.name}" deleted`
+      );
+
+      form.remove();
+
+      renderTasks(
+        project
+      );
+
+    }
+  );
+
+
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
+    }
+  );
 
 }
 
@@ -1689,94 +3800,233 @@ function checkTaskCompletion(track, task, slider, previousValue, type, span) {
 
 }
 
-function showTaskDecisionUI(track, task, finishFn, cancelFn, extendFn) {
+function showTaskDecisionUI(
+  project,
+  task,
+  finishFn,
+  cancelFn,
+  extendFn
+) {
 
-  const container = document.getElementById("taskList");
+  const container =
+    document.getElementById(
+      "taskList"
+    );
 
-  const box = document.createElement("div");
-  box.className = "deadline-form task-decision-ui";
+  if (!container) return;
+
+
+  const box =
+    document.createElement(
+      "div"
+    );
+
+  box.className =
+    "deadline-form task-decision-ui";
+
 
   box.innerHTML = `
+
     <div style="font-weight:600">
       Time reached for "${task.name}"
     </div>
 
     <div class="deadline-form-actions">
 
-      <button class="primary-btn">Mark Finished</button>
+      <button class="primary-btn">
+        Mark Finished
+      </button>
 
-      <button class="neutral-btn">Add More Time</button>
+      <button class="neutral-btn">
+        Add More Time
+      </button>
 
-      <button class="neutral-btn">Cancel</button>
+      <button class="neutral-btn">
+        Cancel
+      </button>
 
     </div>
+
   `;
 
-  container.prepend(box);
 
-  const [finishBtn, extendBtn, cancelBtn] =
-    box.querySelectorAll("button");
+  container.prepend(
+    box
+  );
 
-  finishBtn.onclick = () => {
-    box.remove();
-    finishFn();
-  };
 
-  extendBtn.onclick = () => {
-    box.remove();
-    extendFn();
-  };
+  const [
+    finishBtn,
+    extendBtn,
+    cancelBtn
+  ] =
+    box.querySelectorAll(
+      "button"
+    );
 
-  cancelBtn.onclick = () => {
-    box.remove();
-    cancelFn();
-  };
+
+  finishBtn.onclick =
+    () => {
+
+      box.remove();
+
+      finishFn();
+
+    };
+
+
+  extendBtn.onclick =
+    () => {
+
+      box.remove();
+
+      extendFn();
+
+    };
+
+
+  cancelBtn.onclick =
+    () => {
+
+      box.remove();
+
+      cancelFn();
+
+    };
 
 }
 
 
 // =====================================================
-// NOTES RENDERING
+// NOTES
 // =====================================================
 
-function renderNotes(track) {
-  const textarea = document.getElementById("notesInput");
-  if (!textarea) return;
+function renderNotes(project) {
 
-  textarea.value = track.notes || "";
+  const notesEl =
+    document.getElementById(
+      "notesDisplay"
+    );
 
-  textarea.addEventListener("input", () => {
-    track.notes = textarea.value;
-    persistTracks();
-  });
+  if (!notesEl || !project) return;
+
+  notesEl.textContent =
+    project.notes ||
+    "Double-click to add notes...";
+
 }
 
-// =====================================================
-// EDIT NOTES
-// =====================================================
 
-function enableNotesEdit(element, track) {
-  element.setAttribute("contenteditable", "true");
+function enableNotesEdit(
+  element,
+  project
+) {
+
+  if (!element || !project) return;
+
+  element.setAttribute(
+    "contenteditable",
+    "true"
+  );
+
   element.focus();
 
-  element.classList.add("editing");
+  element.classList.add(
+    "editing"
+  );
+
+
+  // =====================================================
+  // MOVE CURSOR TO END
+  // =====================================================
+
+  const range =
+    document.createRange();
+
+  const selection =
+    window.getSelection();
+
+  range.selectNodeContents(
+    element
+  );
+
+  range.collapse(
+    false
+  );
+
+  selection.removeAllRanges();
+
+  selection.addRange(
+    range
+  );
+
+
+  // =====================================================
+  // SAVE
+  // =====================================================
 
   function save() {
-    track.notes = element.textContent.trim();
+
+    project.notes =
+      element.textContent.trim();
+
+
     persistTracks();
-    element.removeAttribute("contenteditable");
-    element.classList.remove("editing");
+
+
+    element.removeAttribute(
+      "contenteditable"
+    );
+
+    element.classList.remove(
+      "editing"
+    );
+
+
+    if (!project.notes) {
+
+      element.textContent =
+        "Double-click to add notes...";
+
+    }
+
   }
 
-  element.addEventListener("blur", save, { once: true });
 
-  element.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      element.blur();
+  element.addEventListener(
+    "blur",
+    save,
+    {
+      once: true
     }
-  });
-}
+  );
 
+
+  // =====================================================
+  // ESCAPE
+  // =====================================================
+
+  element.addEventListener(
+    "keydown",
+    (e) => {
+
+      if (
+        e.key === "Escape"
+      ) {
+
+        e.preventDefault();
+
+        element.textContent =
+          project.notes || "";
+
+        element.blur();
+
+      }
+
+    }
+  );
+
+}
 
 
 // =====================================================
