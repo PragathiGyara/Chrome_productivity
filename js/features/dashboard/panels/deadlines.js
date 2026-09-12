@@ -4,237 +4,806 @@ let globalDeadlineFilter = "unfinished";
 // Render Deadlines
 // --------------------------
 
+function formatGlobalDeadlineDate(datetime) {
+
+  const date =
+    new Date(datetime);
+
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2, "0");
+
+
+  const month =
+    date.toLocaleString(
+      "en-US",
+      {
+        month: "long"
+      }
+    );
+
+
+  const shortMonth =
+    month;
+
+
+  const year =
+    String(
+      date.getFullYear()
+    ).slice(-2);
+
+
+  const time =
+    date.toLocaleTimeString(
+      "en-US",
+      {
+        hour: "numeric",
+        minute: "2-digit"
+      }
+    );
+
+
+  return (
+    `${day} ${shortMonth} '${year}, ${time}`
+  );
+
+}
+
 function renderGlobalDeadlines() {
 
   const container =
-    document.getElementById("globalDeadlineList");
+    document.getElementById(
+      "globalDeadlineList"
+    );
 
   if (!container) return;
 
   container.innerHTML = "";
 
-  let allDeadlines = tracks.flatMap(track =>
 
-    (track.deadlines || []).map(dl => ({
+  // =====================================================
+  // COLLECT ALL PROJECT DEADLINES
+  // =====================================================
 
-      deadline: dl,
+  let allDeadlines = [];
 
-      track,
 
-      status: getDeadlineStatus(dl)
+  tracks.forEach(track => {
 
-    }))
+    (track.projects || []).forEach(project => {
 
-  );
+      (project.deadlines || []).forEach(deadline => {
 
-  // --------------------------
-  // Filter
-  // --------------------------
+        allDeadlines.push({
 
-  if (globalDeadlineFilter === "unfinished") {
+          deadline,
 
-    allDeadlines = allDeadlines.filter(item =>
+          track,
 
-      item.status === "upcoming" ||
-      item.status === "due-today" ||
-      item.status === "missed"
+          project,
 
-    );
+          status:
+            getDeadlineStatus(deadline)
+
+        });
+
+      });
+
+    });
+
+  });
+
+
+  // =====================================================
+  // FILTER
+  // =====================================================
+
+  if (
+    globalDeadlineFilter ===
+    "unfinished"
+  ) {
+
+    allDeadlines =
+      allDeadlines.filter(item =>
+
+        item.status === "upcoming" ||
+        item.status === "due-today" ||
+        item.status === "missed"
+
+      );
 
   } else {
 
-    allDeadlines = allDeadlines.filter(item => {
+    allDeadlines =
+      allDeadlines.filter(item => {
 
-      switch (globalDeadlineFilter) {
+        switch (
+          globalDeadlineFilter
+        ) {
 
-        case "upcoming":
-          return (
-            item.status === "upcoming" ||
-            item.status === "due-today"
-          );
+          case "upcoming":
 
-        case "missed":
-          return item.status === "missed";
+            return (
+              item.status === "upcoming" ||
+              item.status === "due-today"
+            );
 
-        case "finished":
-          return item.status === "finished";
 
-        case "cancelled":
-          return item.status === "cancelled";
+          case "missed":
 
-        default:
-          return true;
+            return (
+              item.status === "missed"
+            );
 
-      }
 
-    });
+          case "finished":
+
+            return (
+              item.status === "finished"
+            );
+
+
+          case "cancelled":
+
+            return (
+              item.status === "cancelled"
+            );
+
+
+          default:
+
+            return true;
+
+        }
+
+      });
 
   }
 
-  // --------------------------
-  // Sort
-  // --------------------------
+
+  // =====================================================
+  // SORT
+  // =====================================================
 
   allDeadlines.sort(
     (a, b) =>
-      new Date(a.deadline.datetime) -
-      new Date(b.deadline.datetime)
+      new Date(
+        a.deadline.datetime
+      ) -
+      new Date(
+        b.deadline.datetime
+      )
   );
 
-  // --------------------------
-  // Render
-  // --------------------------
 
-  allDeadlines.forEach(({ deadline, track, status }) => {
+  // =====================================================
+  // RENDER
+  // =====================================================
 
-    const div = document.createElement("div");
+  allDeadlines.forEach(
+    ({
+      deadline,
+      track,
+      project,
+      status
+    }) => {
 
-    div.classList.add("deadline-item");
+      const div =
+        document.createElement(
+          "div"
+        );
 
-    div.innerHTML = `
-
-      <div class="global-deadline-content">
-
-        <div>
-
-          <strong>${deadline.title}</strong>
-
-          <div>
-            ${new Date(deadline.datetime).toLocaleString()}
-          </div>
-
-          <small>${track.name}</small>
-
-        </div>
-
-        <div class="deadline-status ${status}">
-          ${status.replace("-", " ").toUpperCase()}
-        </div>
-
-      </div>
-
-    `;
-
-    div.addEventListener("click", () => {
-
-      openEditDeadlineForm(
-        track,
-        deadline,
-        "global"
+      div.classList.add(
+        "deadline-item"
       );
 
-    });
 
-    container.appendChild(div);
+      div.innerHTML = `
 
-  });
+        <div
+          class="global-deadline-content"
+        >
+
+          <div>
+
+            <strong>
+              ${deadline.title}
+            </strong>
+
+
+            <div class="global-deadline-datetime">
+              ${
+                formatGlobalDeadlineDate(
+                  deadline.datetime
+                )
+              }
+            </div>
+
+
+            <div class="global-deadline-location">
+
+              <span class="global-deadline-track">
+                ${track.name}
+              </span>
+
+              <span class="global-deadline-separator">
+                ·
+              </span>
+
+              <span class="global-deadline-project">
+                ${project.name}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="deadline-status ${status}"
+          >
+
+            ${
+              status
+                .replace(
+                  "-",
+                  " "
+                )
+                .toUpperCase()
+            }
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      // ===================================================
+      // OPEN EDIT FORM
+      // ===================================================
+
+      div.addEventListener(
+        "click",
+        () => {
+
+          openEditDeadlineForm(
+            project,
+            deadline,
+            "global"
+          );
+
+        }
+      );
+
+
+      container.appendChild(
+        div
+      );
+
+    }
+  );
 
 }
 
 function openSidebarDeadlineForm() {
-  const container = document.getElementById("globalDeadlineList");
+
+  const container =
+    document.getElementById(
+      "globalDeadlineList"
+    );
+
   if (!container) return;
 
-  if (container.querySelector(".deadline-form")) return;
 
-  const form = document.createElement("div");
-  form.classList.add("deadline-form");
+  // =====================================================
+  // PREVENT MULTIPLE FORMS
+  // =====================================================
 
-  const trackOptions = tracks.map(track =>
-    `<option value="${track.id}">${track.name}</option>`
-  ).join("");
+  if (
+    container.querySelector(
+      ".deadline-form"
+    )
+  ) {
+    return;
+  }
+
+
+  // =====================================================
+  // CREATE FORM
+  // =====================================================
+
+  const form =
+    document.createElement(
+      "div"
+    );
+
+  form.classList.add(
+    "deadline-form"
+  );
+
+
+  const trackOptions =
+    tracks.map(track =>
+
+      `<option value="${track.id}">
+        ${track.name}
+      </option>`
+
+    ).join("");
+
 
   form.innerHTML = `
-    <input type="text" id="sidebarTitle" placeholder="Deadline name" />
 
-    <select id="sidebarTrackSelect">
+    <input
+      type="text"
+      id="sidebarTitle"
+      placeholder="Deadline name"
+    />
+
+
+    <select
+      id="sidebarTrackSelect"
+    >
+
       ${trackOptions}
+
     </select>
 
-    <div class="deadline-datetime-column">
-      <input type="date" id="sidebarDate" />
-      <input type="time" id="sidebarTime" />
+
+    <select
+      id="sidebarProjectSelect"
+    >
+
+      <option value="">
+        Select Project
+      </option>
+
+    </select>
+
+
+    <div
+      class="deadline-datetime-column"
+    >
+
+      <input
+        type="date"
+        id="sidebarDate"
+      />
+
+      <input
+        type="time"
+        id="sidebarTime"
+      />
+
     </div>
 
-    <div class="deadline-form-actions">
-      <button type="button" class="neutral-btn" id="sidebarTodayBtn">
+
+    <div
+      class="deadline-form-actions"
+    >
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="sidebarTodayBtn"
+      >
         Today EOD
       </button>
 
-      <button type="button" class="primary-btn" id="sidebarSaveBtn">
+
+      <button
+        type="button"
+        class="primary-btn"
+        id="sidebarSaveBtn"
+      >
         Save
       </button>
 
-      <button type="button" class="neutral-btn" id="sidebarCancelBtn">
+
+      <button
+        type="button"
+        class="neutral-btn"
+        id="sidebarCancelBtn"
+      >
         Cancel
       </button>
+
     </div>
+
   `;
 
-  container.prepend(form);
 
-  // ✅ GET ALL INPUT REFERENCES 
-  const titleInput = form.querySelector("#sidebarTitle");
-  const trackSelect = form.querySelector("#sidebarTrackSelect");
-  const dateInput = form.querySelector("#sidebarDate");
-  const timeInput = form.querySelector("#sidebarTime");
+  container.prepend(
+    form
+  );
 
-  const todayBtn = form.querySelector("#sidebarTodayBtn");
-  const saveBtn = form.querySelector("#sidebarSaveBtn");
-  const cancelBtn = form.querySelector("#sidebarCancelBtn");
 
-  // ✅ TODAY BUTTON
-  todayBtn.addEventListener("click", () => {
-    const now = new Date();
+  // =====================================================
+  // REFERENCES
+  // =====================================================
 
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
+  const titleInput =
+    form.querySelector(
+      "#sidebarTitle"
+    );
 
-    dateInput.value = `${yyyy}-${mm}-${dd}`;
-    timeInput.value = "23:59";
-  });
+  const trackSelect =
+    form.querySelector(
+      "#sidebarTrackSelect"
+    );
 
-  // ✅ SAVE BUTTON
-  saveBtn.addEventListener("click", () => {
-    const title = titleInput.value.trim();
-    const date = dateInput.value;
-    const time = timeInput.value;
-    const trackId = Number(trackSelect.value);
+  const projectSelect =
+    form.querySelector(
+      "#sidebarProjectSelect"
+    );
 
-    if (!title || !date || !time) {
-      alert("All fields required.");
-      return;
-    }
+  const dateInput =
+    form.querySelector(
+      "#sidebarDate"
+    );
 
-    const datetime = new Date(`${date}T${time}`);
+  const timeInput =
+    form.querySelector(
+      "#sidebarTime"
+    );
 
-    if (isNaN(datetime.getTime())) {
-      alert("Invalid date/time.");
-      return;
-    }
+  const todayBtn =
+    form.querySelector(
+      "#sidebarTodayBtn"
+    );
 
-    const selectedTrack = tracks.find(t => t.id === trackId);
+  const saveBtn =
+    form.querySelector(
+      "#sidebarSaveBtn"
+    );
+
+  const cancelBtn =
+    form.querySelector(
+      "#sidebarCancelBtn"
+    );
+
+
+  // =====================================================
+  // UPDATE PROJECT DROPDOWN
+  // =====================================================
+
+  function updateProjectDropdown() {
+
+    const trackId =
+      Number(
+        trackSelect.value
+      );
+
+    const selectedTrack =
+      tracks.find(
+        track =>
+          track.id === trackId
+      );
+
+
+    projectSelect.innerHTML = `
+      <option value="">
+        Select Project
+      </option>
+    `;
+
+
     if (!selectedTrack) return;
 
-    selectedTrack.deadlines.push({
-      id: Date.now(),
-      title,
-      datetime: datetime.toISOString(),
-      status: "upcoming"
-    });
 
-    persistTracks();
+    (selectedTrack.projects || [])
+      .forEach(project => {
 
-    // refresh currently open track view if needed
-    if (currentOpenTrackId === trackId) {
-      renderDeadlines(selectedTrack);
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          project.id;
+
+        option.textContent =
+          project.name;
+
+        projectSelect.appendChild(
+          option
+        );
+
+      });
+
+
+    // Automatically select General
+    const generalProject =
+      (selectedTrack.projects || [])
+        .find(
+          project =>
+            String(project.id) ===
+            "general"
+        );
+
+    if (generalProject) {
+
+      projectSelect.value =
+        generalProject.id;
+
     }
 
-    form.remove();
-  });
+  }
 
-  cancelBtn.addEventListener("click", () => {
-    form.remove();
-  });
+
+  // =====================================================
+  // INITIAL PROJECT LIST
+  // =====================================================
+
+  updateProjectDropdown();
+
+
+  // =====================================================
+  // TRACK CHANGE
+  // =====================================================
+
+  trackSelect.addEventListener(
+    "change",
+    () => {
+
+      updateProjectDropdown();
+
+    }
+  );
+
+
+  // =====================================================
+  // TODAY EOD
+  // =====================================================
+
+  todayBtn.addEventListener(
+    "click",
+    () => {
+
+      const now =
+        new Date();
+
+
+      const yyyy =
+        now.getFullYear();
+
+      const mm =
+        String(
+          now.getMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        );
+
+      const dd =
+        String(
+          now.getDate()
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      dateInput.value =
+        `${yyyy}-${mm}-${dd}`;
+
+      timeInput.value =
+        "23:59";
+
+    }
+  );
+
+
+  // =====================================================
+  // SAVE
+  // =====================================================
+
+  saveBtn.addEventListener(
+    "click",
+    () => {
+
+      const title =
+        titleInput.value.trim();
+
+      const date =
+        dateInput.value;
+
+      const time =
+        timeInput.value;
+
+      const trackId =
+        Number(
+          trackSelect.value
+        );
+
+      const projectId =
+        projectSelect.value;
+
+
+      if (
+        !title ||
+        !date ||
+        !time ||
+        !projectId
+      ) {
+
+        alert(
+          "All fields required."
+        );
+
+        return;
+
+      }
+
+
+      const datetime =
+        new Date(
+          `${date}T${time}`
+        );
+
+
+      if (
+        isNaN(
+          datetime.getTime()
+        )
+      ) {
+
+        alert(
+          "Invalid date/time."
+        );
+
+        return;
+
+      }
+
+
+      const selectedTrack =
+        tracks.find(
+          track =>
+            track.id === trackId
+        );
+
+
+      if (!selectedTrack) return;
+
+
+      const selectedProject =
+        (selectedTrack.projects || [])
+          .find(
+            project =>
+              String(project.id) ===
+              String(projectId)
+          );
+
+
+      if (!selectedProject) return;
+
+
+      if (
+        !Array.isArray(
+          selectedProject.deadlines
+        )
+      ) {
+
+        selectedProject.deadlines =
+          [];
+
+      }
+
+
+      // =================================================
+      // DUPLICATE CHECK
+      // =================================================
+
+      const alreadyExists =
+        selectedProject.deadlines.some(
+          deadline =>
+            deadline.title === title &&
+            deadline.datetime ===
+              datetime.toISOString()
+        );
+
+
+      if (alreadyExists) {
+
+        alert(
+          "This deadline already exists."
+        );
+
+        return;
+
+      }
+
+
+      // =================================================
+      // CREATE DEADLINE
+      // =================================================
+
+      selectedProject.deadlines.push({
+
+        id:
+          Date.now(),
+
+        title,
+
+        datetime:
+          datetime.toISOString(),
+
+        status:
+          "upcoming"
+
+      });
+
+
+      persistTracks();
+
+
+      // =================================================
+      // REFRESH GLOBAL LIST
+      // =================================================
+
+      renderGlobalDeadlines();
+
+
+      // =================================================
+      // REFRESH CURRENT WORKSPACE
+      // =================================================
+
+      if (
+        currentView === "track" &&
+        activeTrackId === trackId
+      ) {
+
+        const currentProject =
+          (
+            selectedTrack.projects ||
+            []
+          ).find(
+            project =>
+              String(project.id) ===
+              String(projectId)
+          );
+
+        if (currentProject) {
+
+          renderDeadlines(
+            currentProject
+          );
+
+        }
+
+      }
+
+
+      showToast(
+        `Deadline "${title}" saved`
+      );
+
+
+      form.remove();
+
+    }
+  );
+
+
+  // =====================================================
+  // CANCEL
+  // =====================================================
+
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
+    }
+  );
+
 }
