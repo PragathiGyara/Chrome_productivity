@@ -2,55 +2,151 @@
 // Track Overview
 // --------------------------
 
+// --------------------------
+// Track Overview
+// --------------------------
+
+// --------------------------
+// Track Overview
+// --------------------------
+
 function computeTrackOverview(track) {
 
   const now = new Date();
 
-  const tasks = track.tasks || [];
-  const reading = track.reading || [];
-  const deadlines = track.deadlines || [];
+  const projects =
+    Array.isArray(track.projects)
+      ? track.projects
+      : [];
 
-  const completedTasks = tasks.filter(t => t.finished).length;
-  const remainingTasks = tasks.length - completedTasks;
+  const projectCount =
+    projects.length;
 
-  const missedDeadlines = deadlines.filter(d =>
-    new Date(d.datetime) < now &&
-    d.status !== "finished"
-  ).length;
 
-  const upcomingDeadlines = deadlines.filter(d =>
-    new Date(d.datetime) >= now &&
-    d.status !== "finished"
-  );
+  // =====================================================
+  // COLLECT ITEMS FROM ALL PROJECTS
+  // =====================================================
 
-  const sortedUpcoming = [...upcomingDeadlines].sort(
-    (a, b) => new Date(a.datetime) - new Date(b.datetime)
-  );
+  const tasks =
+    projects.flatMap(project =>
+      Array.isArray(project.tasks)
+        ? project.tasks
+        : []
+    );
+
+  const reading =
+    projects.flatMap(project =>
+      Array.isArray(project.reading)
+        ? project.reading
+        : []
+    );
+
+  const deadlines =
+    projects.flatMap(project =>
+      Array.isArray(project.deadlines)
+        ? project.deadlines
+        : []
+    );
+
+
+  // =====================================================
+  // TASK COUNTS
+  // =====================================================
+
+  const completedTasks =
+    tasks.filter(
+      task => task.finished
+    ).length;
+
+  const remainingTasks =
+    tasks.length -
+    completedTasks;
+
+
+  // =====================================================
+  // DEADLINE COUNTS
+  // =====================================================
+
+  const missedDeadlines =
+    deadlines.filter(deadline =>
+      new Date(deadline.datetime) < now &&
+      deadline.status !== "finished"
+    ).length;
+
+
+  const upcomingDeadlines =
+    deadlines.filter(deadline =>
+      new Date(deadline.datetime) >= now &&
+      deadline.status !== "finished"
+    );
+
+
+  // =====================================================
+  // NEXT DEADLINE
+  // =====================================================
+
+  const sortedUpcoming =
+    [...upcomingDeadlines].sort(
+      (a, b) =>
+        new Date(a.datetime) -
+        new Date(b.datetime)
+    );
+
 
   let nextDeadline = null;
   let nextDeadlineCount = 0;
 
-  if (sortedUpcoming.length > 0) {
-    nextDeadline = new Date(sortedUpcoming[0].datetime);
 
-    nextDeadlineCount = sortedUpcoming.filter(d =>
-      new Date(d.datetime).getTime() === nextDeadline.getTime()
-    ).length;
+  if (sortedUpcoming.length > 0) {
+
+    nextDeadline =
+      new Date(
+        sortedUpcoming[0].datetime
+      );
+
+
+    nextDeadlineCount =
+      sortedUpcoming.filter(deadline =>
+        new Date(
+          deadline.datetime
+        ).getTime() ===
+        nextDeadline.getTime()
+      ).length;
+
   }
 
+
+  // =====================================================
+  // RETURN TRACK STATISTICS
+  // =====================================================
+
   return {
+
+    projectCount,
+
     completedTasks,
+
     remainingTasks,
-    readingCount: reading.length,
-    upcomingDeadlines: upcomingDeadlines.length,
+
+    readingCount:
+      reading.length,
+
+    upcomingDeadlines:
+      upcomingDeadlines.length,
+
     missedDeadlines,
+
     total:
       tasks.length +
       reading.length +
       deadlines.length,
+
     nextDeadline,
+
     nextDeadlineCount
+
   };
+
 }
 
 function formatDateTime(date) {

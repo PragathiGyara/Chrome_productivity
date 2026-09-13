@@ -373,6 +373,10 @@ function attachTrackEvents() {
 // Render Center Grid
 // --------------------------
 
+// --------------------------
+// Render Center Grid
+// --------------------------
+
 function renderTracks() {
 
   const grid = document.getElementById("trackGrid");
@@ -388,7 +392,9 @@ function renderTracks() {
 
     if (stats.nextDeadline) {
       const diff = stats.nextDeadline - now;
-      isUrgent = diff > 0 && diff <= 24 * 60 * 60 * 1000;
+      isUrgent =
+        diff > 0 &&
+        diff <= 24 * 60 * 60 * 1000;
     }
 
     const div = document.createElement("div");
@@ -401,194 +407,363 @@ function renderTracks() {
     const total = stats.total || 0;
 
     const radius = 40;
-    const circumference = 2 * Math.PI * radius;
+    const circumference =
+      2 * Math.PI * radius;
 
-    // Proper segment totals
-    const completedValue = stats.completedTasks;
+
+    // =====================================================
+    // PROPER SEGMENT TOTALS
+    // =====================================================
+
+    const completedValue =
+      stats.completedTasks;
+
     const remainingValue =
       stats.remainingTasks +
       stats.readingCount +
       stats.upcomingDeadlines;
 
-    const missedValue = stats.missedDeadlines;
+    const missedValue =
+      stats.missedDeadlines;
+
 
     const completedLength =
-      total > 0 ? (completedValue / total) * circumference : 0;
+      total > 0
+        ? (completedValue / total) *
+          circumference
+        : 0;
 
     const remainingLength =
-      total > 0 ? (remainingValue / total) * circumference : 0;
+      total > 0
+        ? (remainingValue / total) *
+          circumference
+        : 0;
 
     const missedLength =
-      total > 0 ? (missedValue / total) * circumference : 0;
+      total > 0
+        ? (missedValue / total) *
+          circumference
+        : 0;
+
 
     div.innerHTML = `
       <div class="card-header">
-        <span class="track-title">${track.icon} ${track.name}</span>
+        <span class="track-title">
+          ${track.icon} ${track.name}
+        </span>
       </div>
 
       <div class="progress-ring-wrapper">
 
-        <svg viewBox="0 0 100 100" class="progress-ring">
+        <svg
+          viewBox="0 0 100 100"
+          class="progress-ring"
+        >
 
-          <circle class="ring-bg" cx="50" cy="50" r="${radius}" />
+          <circle
+            class="ring-bg"
+            cx="50"
+            cy="50"
+            r="${radius}"
+          />
 
           <circle
             class="ring-completed segment"
             data-type="completed"
-            cx="50" cy="50" r="${radius}"
-            stroke-dasharray="${completedLength} ${circumference}"
+            cx="50"
+            cy="50"
+            r="${radius}"
+            stroke-dasharray="
+              ${completedLength}
+              ${circumference}
+            "
           />
 
           <circle
             class="ring-remaining segment"
             data-type="remaining"
-            cx="50" cy="50" r="${radius}"
-            stroke-dasharray="${remainingLength} ${circumference}"
-            stroke-dashoffset="-${completedLength}"
+            cx="50"
+            cy="50"
+            r="${radius}"
+            stroke-dasharray="
+              ${remainingLength}
+              ${circumference}
+            "
+            stroke-dashoffset="
+              -${completedLength}
+            "
           />
 
           <circle
             class="ring-missed segment"
             data-type="missed"
-            cx="50" cy="50" r="${radius}"
-            stroke-dasharray="${missedLength} ${circumference}"
-            stroke-dashoffset="-${completedLength + remainingLength}"
+            cx="50"
+            cy="50"
+            r="${radius}"
+            stroke-dasharray="
+              ${missedLength}
+              ${circumference}
+            "
+            stroke-dashoffset="
+              -${completedLength + remainingLength}
+            "
           />
 
         </svg>
 
+
         <div class="ring-center">
-          <div class="ring-total">${total}</div>
-          <div class="ring-label">items</div>
+
+          <div class="ring-total">
+            ${stats.projectCount}
+          </div>
+
+          <div class="ring-label">
+            ${
+              stats.projectCount === 1
+                ? "project"
+                : "projects"
+            }
+          </div>
+
         </div>
+
 
         <div class="ring-tooltip-dynamic"></div>
 
       </div>
 
+
       <div class="card-footer">
+
         ${
           stats.nextDeadline
-            ? `Next deadline: ${formatDateTime(stats.nextDeadline)} (${stats.nextDeadlineCount})`
+            ? `Next deadline:
+               ${formatDateTime(stats.nextDeadline)}
+               (${stats.nextDeadlineCount})`
             : "No upcoming deadlines"
         }
+
       </div>
     `;
 
-    div.dataset.id = track.id;
-    div.dataset.index = index;
 
-    // Click
-    div.addEventListener("click", () => {
-      if (isDragging) return;
-      openTrackView(track.id);
-    });
+    div.dataset.id =
+      track.id;
 
-    // Drag
-    div.setAttribute("draggable", true);
-    div.addEventListener("dragstart", handleDragStart);
-    div.addEventListener("dragover", handleDragOver);
-    div.addEventListener("drop", handleDrop);
-    div.addEventListener("dragend", handleDragEnd);
+    div.dataset.index =
+      index;
+
+
+    // =====================================================
+    // CLICK
+    // =====================================================
+
+    div.addEventListener(
+      "click",
+      () => {
+
+        if (isDragging) return;
+
+        openTrackView(track.id);
+
+      }
+    );
+
+
+    // =====================================================
+    // DRAG
+    // =====================================================
+
+    div.setAttribute(
+      "draggable",
+      true
+    );
+
+    div.addEventListener(
+      "dragstart",
+      handleDragStart
+    );
+
+    div.addEventListener(
+      "dragover",
+      handleDragOver
+    );
+
+    div.addEventListener(
+      "drop",
+      handleDrop
+    );
+
+    div.addEventListener(
+      "dragend",
+      handleDragEnd
+    );
+
 
     grid.appendChild(div);
 
-    // ================================
+
+    // =====================================================
     // SEGMENT HOVER TOOLTIP LOGIC
-    // ================================
+    // =====================================================
 
-    const tooltip = div.querySelector(".ring-tooltip-dynamic");
-    const segments = div.querySelectorAll(".segment");
+    const tooltip =
+      div.querySelector(
+        ".ring-tooltip-dynamic"
+      );
 
-    segments.forEach(segment => {
+    const segments =
+      div.querySelectorAll(
+        ".segment"
+      );
 
-      segment.addEventListener("mouseenter", () => {
 
-        const type = segment.dataset.type;
+    segments.forEach(
+      segment => {
 
-        if (type === "remaining") {
-          tooltip.innerHTML = `
-            <div class="tooltip-heading remaining">
-              <span class="status-dot"></span>
-              Remaining
-            </div>
-            <ul class="tooltip-list">
-              <li>
-                <span class="item-label">
-                  <span class="item-icon">⏳</span>
-                  Deadlines
-                </span>
-                <span class="item-value">${stats.upcomingDeadlines}</span>
-              </li>
-              <li>
-                <span class="item-label">
-                  <span class="item-icon">✔</span>
-                  Tasks
-                </span>
-                <span class="item-value">${stats.remainingTasks}</span>
-              </li>
-              <li>
-                <span class="item-label">
-                  <span class="item-icon">📖</span>
-                  Reading
-                </span>
-                <span class="item-value">${stats.readingCount}</span>
-              </li>
-            </ul>
-          `;
-        }
+        segment.addEventListener(
+          "mouseenter",
+          () => {
 
-        if (type === "completed") {
-          tooltip.innerHTML = `
-            <div class="tooltip-heading completed">
-              <span class="status-dot"></span>
-              Completed
-            </div>
-            <ul class="tooltip-list">
-              <li>
-                <span class="item-label">
-                  <span class="item-icon">✔</span>
-                  Tasks
-                </span>
-                <span class="item-value">${stats.completedTasks}</span>
-              </li>
-            </ul>
-          `;
-        }
+            const type =
+              segment.dataset.type;
 
-        if (type === "missed") {
-          tooltip.innerHTML = `
-            <div class="tooltip-heading missed">
-              <span class="status-dot"></span>
-              Missed
-            </div>
-            <ul class="tooltip-list">
-              <li>
-                <span class="item-label">
-                  <span class="item-icon">⏳</span>
-                  Deadlines
-                </span>
-                <span class="item-value">${stats.missedDeadlines}</span>
-              </li>
-            </ul>
-          `;
-        }
 
-        tooltip.classList.add("visible");
-      });
+            if (type === "remaining") {
 
-      segment.addEventListener("mouseleave", () => {
-        tooltip.classList.remove("visible");
-      });
+              tooltip.innerHTML = `
+                <div class="tooltip-heading remaining">
+                  <span class="status-dot"></span>
+                  Remaining
+                </div>
 
-    });
+                <ul class="tooltip-list">
+
+                  <li>
+                    <span class="item-label">
+                      <span class="item-icon">⏳</span>
+                      Deadlines
+                    </span>
+
+                    <span class="item-value">
+                      ${stats.upcomingDeadlines}
+                    </span>
+                  </li>
+
+                  <li>
+                    <span class="item-label">
+                      <span class="item-icon">✔</span>
+                      Tasks
+                    </span>
+
+                    <span class="item-value">
+                      ${stats.remainingTasks}
+                    </span>
+                  </li>
+
+                  <li>
+                    <span class="item-label">
+                      <span class="item-icon">📖</span>
+                      Reading
+                    </span>
+
+                    <span class="item-value">
+                      ${stats.readingCount}
+                    </span>
+                  </li>
+
+                </ul>
+              `;
+
+            }
+
+
+            if (type === "completed") {
+
+              tooltip.innerHTML = `
+                <div class="tooltip-heading completed">
+                  <span class="status-dot"></span>
+                  Completed
+                </div>
+
+                <ul class="tooltip-list">
+
+                  <li>
+                    <span class="item-label">
+                      <span class="item-icon">✔</span>
+                      Tasks
+                    </span>
+
+                    <span class="item-value">
+                      ${stats.completedTasks}
+                    </span>
+                  </li>
+
+                </ul>
+              `;
+
+            }
+
+
+            if (type === "missed") {
+
+              tooltip.innerHTML = `
+                <div class="tooltip-heading missed">
+                  <span class="status-dot"></span>
+                  Missed
+                </div>
+
+                <ul class="tooltip-list">
+
+                  <li>
+                    <span class="item-label">
+                      <span class="item-icon">⏳</span>
+                      Deadlines
+                    </span>
+
+                    <span class="item-value">
+                      ${stats.missedDeadlines}
+                    </span>
+                  </li>
+
+                </ul>
+              `;
+
+            }
+
+
+            tooltip.classList.add(
+              "visible"
+            );
+
+          }
+        );
+
+
+        segment.addEventListener(
+          "mouseleave",
+          () => {
+
+            tooltip.classList.remove(
+              "visible"
+            );
+
+          }
+        );
+
+      }
+    );
 
   });
-  // =====================================
-  // Add Track Card
-  // =====================================
 
-  const addCard = document.createElement("div");
+
+  // =====================================================
+  // ADD TRACK CARD
+  // =====================================================
+
+  const addCard =
+    document.createElement("div");
 
   addCard.classList.add(
     "card",
@@ -609,11 +784,17 @@ function renderTracks() {
     </div>
   `;
 
-  addCard.addEventListener("click", () => {
-    openAddTrackModal();
-  });
+
+  addCard.addEventListener(
+    "click",
+    () => {
+      openAddTrackModal();
+    }
+  );
+
 
   grid.appendChild(addCard);
+
 }
 
 function openAddTrackModal() {
@@ -666,9 +847,4 @@ function openAddTrackModal() {
 
   nameInput.focus();
 }
-
-
-
-
-
 
