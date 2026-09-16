@@ -137,7 +137,8 @@ function openTimeLogModal(
 
 
     populateTimeLogTracks(
-      entry.trackId
+      entry.trackId,
+      entry.projectId
     );
 
 
@@ -328,7 +329,8 @@ function setTimeLogDate(
 // =====================================================
 
 function populateTimeLogTracks(
-  selectedTrackId = null
+  selectedTrackId = null,
+  selectedProjectId = null
 ) {
 
   const select =
@@ -411,6 +413,194 @@ function populateTimeLogTracks(
 
     }
   );
+
+
+  // ===================================================
+  // INITIAL PROJECT DROPDOWN
+  // ===================================================
+
+  populateTimeLogProjects(
+    selectedTrackId,
+    selectedProjectId
+  );
+
+
+  // ===================================================
+  // TRACK CHANGE
+  // ===================================================
+
+  select.onchange = () => {
+
+    const trackValue =
+      select.value;
+
+
+    const trackId =
+      trackValue === ""
+        ? null
+        : Number(
+            trackValue
+          );
+
+
+    populateTimeLogProjects(
+      trackId
+    );
+
+  };
+
+}
+
+// =====================================================
+// POPULATE PROJECT DROPDOWN
+// =====================================================
+
+function populateTimeLogProjects(
+  selectedTrackId = null,
+  selectedProjectId = null
+) {
+
+  const select =
+    document.getElementById(
+      "timeLogProjectSelect"
+    );
+
+  if (!select) return;
+
+
+  select.innerHTML = "";
+
+
+  // ===================================================
+  // NO TRACK / OTHERS
+  // ===================================================
+
+  if (
+    selectedTrackId == null
+  ) {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      "";
+
+    option.textContent =
+      "Select a track first";
+
+    option.selected =
+      true;
+
+    select.appendChild(
+      option
+    );
+
+    select.disabled =
+      true;
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // FIND TRACK
+  // ===================================================
+
+  const track =
+    tracks.find(
+      item =>
+        Number(item.id) ===
+        Number(selectedTrackId)
+    );
+
+
+  if (!track) {
+
+    select.disabled =
+      true;
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // PROJECTS
+  // ===================================================
+
+  const projects =
+    track.projects || [];
+
+
+  projects.forEach(
+    project => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        project.id;
+
+
+      option.textContent =
+        project.name;
+
+
+      if (
+        String(project.id) ===
+        String(selectedProjectId)
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  select.disabled =
+    false;
+
+
+  // ===================================================
+  // DEFAULT TO GENERAL PROJECT
+  // ===================================================
+
+  if (
+    selectedProjectId == null
+  ) {
+
+    const generalOption =
+      Array.from(
+        select.options
+      ).find(
+        option =>
+          String(option.value) ===
+          "general"
+      );
+
+
+    if (generalOption) {
+
+      generalOption.selected =
+        true;
+
+    }
+
+  }
 
 }
 
@@ -912,6 +1102,24 @@ function saveTimeLogActivity() {
 
 
   // ===================================================
+  // PROJECT
+  // ===================================================
+
+  const projectValue =
+    document.getElementById(
+      "timeLogProjectSelect"
+    )?.value;
+
+
+  const projectId =
+    trackId === null ||
+    projectValue === "" ||
+    projectValue == null
+      ? null
+      : projectValue;
+
+
+  // ===================================================
   // TIME
   // ===================================================
 
@@ -1046,6 +1254,9 @@ function saveTimeLogActivity() {
       entry.trackId =
         trackId;
 
+      entry.projectId =
+        projectId;
+
       entry.start =
         start;
 
@@ -1076,6 +1287,9 @@ function saveTimeLogActivity() {
 
       trackId:
         trackId,
+
+      projectId:
+        projectId,
 
       start:
         start,

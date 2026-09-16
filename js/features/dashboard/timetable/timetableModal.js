@@ -86,31 +86,40 @@ function openTimetableModal(
       "timetableModalTitle"
     );
 
+
   if (entry) {
 
     editingTimetableEntryId =
       entry.id;
 
+
     taskInput.value =
       entry.title;
+
 
     modalTitle.textContent =
       "Edit Timetable Entry";
 
+
     saveBtn.textContent =
       "Save Changes";
+
 
     deleteBtn.style.display =
       "inline-flex";
 
+
     populateTimetableTracks(
-      entry.categoryId
+      entry.trackId,
+      entry.projectId
     );
+
 
     populateTimetableTimes(
       entry.start,
       entry.end
     );
+
 
     renderTimetableDaySelector(
       entry.days
@@ -118,34 +127,44 @@ function openTimetableModal(
 
   }
 
+
   else {
 
     editingTimetableEntryId =
       null;
 
-    taskInput.value = "";
+
+    taskInput.value =
+      "";
+
 
     modalTitle.textContent =
       "Add Timetable Entry";
 
+
     saveBtn.textContent =
       "Save";
+
 
     deleteBtn.style.display =
       "none";
 
+
     populateTimetableTracks();
+
 
     populateTimetableTimes(
       start,
       end
     );
 
+
     renderTimetableDaySelector(
       [day]
     );
 
   }
+
 
   openModal(
     "timetableModal"
@@ -244,8 +263,10 @@ function saveTimetableEntry() {
       "timetableTaskInput"
     );
 
+
   const task =
     taskInput.value.trim();
+
 
   if (!task) {
 
@@ -255,10 +276,16 @@ function saveTimetableEntry() {
 
   }
 
+
+  // ===================================================
+  // TRACK
+  // ===================================================
+
   const trackValue =
     document.getElementById(
       "timetableTrackSelect"
     ).value;
+
 
   const trackId =
     trackValue === ""
@@ -267,15 +294,40 @@ function saveTimetableEntry() {
           trackValue
         );
 
+
+  // ===================================================
+  // PROJECT
+  // ===================================================
+
+  const projectValue =
+    document.getElementById(
+      "timetableProjectSelect"
+    )?.value;
+
+
+  const projectId =
+    trackId === null ||
+    projectValue === "" ||
+    projectValue == null
+      ? null
+      : projectValue;
+
+
+  // ===================================================
+  // TIME
+  // ===================================================
+
   const start =
     document.getElementById(
       "timetableStartTime"
     ).value;
 
+
   const end =
     document.getElementById(
       "timetableEndTime"
     ).value;
+
 
   if (start >= end) {
 
@@ -286,6 +338,11 @@ function saveTimetableEntry() {
     return;
 
   }
+
+
+  // ===================================================
+  // DAYS
+  // ===================================================
 
   const days =
     Array.from(
@@ -299,6 +356,7 @@ function saveTimetableEntry() {
         chip.dataset.day
     );
 
+
   if (
     days.length === 0
   ) {
@@ -311,6 +369,11 @@ function saveTimetableEntry() {
 
   }
 
+
+  // ===================================================
+  // CHECK OVERLAP
+  // ===================================================
+
   const conflictingEntry =
     hasTimetableOverlap(
       days,
@@ -318,6 +381,7 @@ function saveTimetableEntry() {
       end,
       editingTimetableEntryId
     );
+
 
   if (conflictingEntry) {
 
@@ -333,6 +397,11 @@ function saveTimetableEntry() {
 
   }
 
+
+  // ===================================================
+  // EDIT EXISTING ENTRY
+  // ===================================================
+
   if (
     editingTimetableEntryId !==
     null
@@ -347,19 +416,28 @@ function saveTimetableEntry() {
 
       );
 
+
     if (entry) {
 
       entry.title =
         task;
 
+
       entry.trackId =
         trackId;
+
+
+      entry.projectId =
+        projectId;
+
 
       entry.start =
         start;
 
+
       entry.end =
         end;
+
 
       entry.days =
         days;
@@ -367,6 +445,11 @@ function saveTimetableEntry() {
     }
 
   }
+
+
+  // ===================================================
+  // ADD NEW ENTRY
+  // ===================================================
 
   else {
 
@@ -381,6 +464,9 @@ function saveTimetableEntry() {
       trackId:
         trackId,
 
+      projectId:
+        projectId,
+
       start:
         start,
 
@@ -394,9 +480,16 @@ function saveTimetableEntry() {
 
   }
 
+
+  // ===================================================
+  // SAVE
+  // ===================================================
+
   persistTimetableEntries();
 
+
   closeTimetableModal();
+
 
   renderTimetableEntries();
 
@@ -450,7 +543,8 @@ function deleteTimetableEntry() {
 ===================================================== */
 
 function populateTimetableTracks(
-  selectedTrackId = null
+  selectedTrackId = null,
+  selectedProjectId = null
 ) {
 
   const select =
@@ -460,57 +554,268 @@ function populateTimetableTracks(
 
   if (!select) return;
 
+
   select.innerHTML = "";
+
 
   const othersOption =
     document.createElement(
       "option"
     );
 
-  othersOption.value = "";
+
+  othersOption.value =
+    "";
+
 
   othersOption.textContent =
     "📌 Others";
+
 
   if (
     selectedTrackId == null
   ) {
 
-    othersOption.selected = true;
+    othersOption.selected =
+      true;
 
   }
+
 
   select.appendChild(
     othersOption
   );
 
-  tracks.forEach(track => {
+
+  tracks.forEach(
+    track => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        track.id;
+
+
+      option.textContent =
+        `${track.icon || "📌"} ${track.name}`;
+
+
+      if (
+        Number(track.id) ===
+        Number(selectedTrackId)
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  // ===================================================
+  // INITIAL PROJECT DROPDOWN
+  // ===================================================
+
+  populateTimetableProjects(
+    selectedTrackId,
+    selectedProjectId
+  );
+
+
+  // ===================================================
+  // TRACK CHANGE
+  // ===================================================
+
+  select.onchange = () => {
+
+    const trackValue =
+      select.value;
+
+
+    const trackId =
+      trackValue === ""
+        ? null
+        : Number(
+            trackValue
+          );
+
+
+    populateTimetableProjects(
+      trackId
+    );
+
+  };
+
+}
+
+/* =====================================================
+   POPULATE PROJECT DROPDOWN
+===================================================== */
+
+function populateTimetableProjects(
+  selectedTrackId = null,
+  selectedProjectId = null
+) {
+
+  const select =
+    document.getElementById(
+      "timetableProjectSelect"
+    );
+
+  if (!select) return;
+
+
+  select.innerHTML = "";
+
+
+  // ===================================================
+  // NO TRACK / OTHERS
+  // ===================================================
+
+  if (
+    selectedTrackId == null
+  ) {
 
     const option =
       document.createElement(
         "option"
       );
 
+
     option.value =
-      track.id;
+      "";
+
 
     option.textContent =
-      `${track.icon} ${track.name}`;
+      "Select a track first";
 
-    if (
-      track.id ===
-      selectedTrackId
-    ) {
 
-      option.selected = true;
+    option.selected =
+      true;
 
-    }
 
     select.appendChild(
       option
     );
 
-  });
+
+    select.disabled =
+      true;
+
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // FIND TRACK
+  // ===================================================
+
+  const track =
+    tracks.find(
+      item =>
+        Number(item.id) ===
+        Number(selectedTrackId)
+    );
+
+
+  if (!track) {
+
+    select.disabled =
+      true;
+
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // PROJECTS
+  // ===================================================
+
+  const projects =
+    track.projects || [];
+
+
+  projects.forEach(
+    project => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        project.id;
+
+
+      option.textContent =
+        project.name;
+
+
+      if (
+        String(project.id) ===
+        String(selectedProjectId)
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  select.disabled =
+    false;
+
+
+  // ===================================================
+  // DEFAULT TO GENERAL PROJECT
+  // ===================================================
+
+  if (
+    selectedProjectId == null
+  ) {
+
+    const generalOption =
+      Array.from(
+        select.options
+      ).find(
+        option =>
+          String(option.value) ===
+          "general"
+      );
+
+
+    if (generalOption) {
+
+      generalOption.selected =
+        true;
+
+    }
+
+  }
 
 }
 
