@@ -104,6 +104,10 @@ function openTimeLogModal(
       entry.id;
 
 
+    // -----------------------------------------------
+    // ACTIVITY
+    // -----------------------------------------------
+
     if (activityInput) {
 
       activityInput.value =
@@ -111,6 +115,10 @@ function openTimeLogModal(
 
     }
 
+
+    // -----------------------------------------------
+    // MODAL TITLE
+    // -----------------------------------------------
 
     if (modalTitle) {
 
@@ -120,6 +128,10 @@ function openTimeLogModal(
     }
 
 
+    // -----------------------------------------------
+    // SAVE BUTTON
+    // -----------------------------------------------
+
     if (saveBtn) {
 
       saveBtn.textContent =
@@ -127,6 +139,10 @@ function openTimeLogModal(
 
     }
 
+
+    // -----------------------------------------------
+    // DELETE BUTTON
+    // -----------------------------------------------
 
     if (deleteBtn) {
 
@@ -136,11 +152,19 @@ function openTimeLogModal(
     }
 
 
+    // -----------------------------------------------
+    // TRACK + PROJECT
+    // -----------------------------------------------
+
     populateTimeLogTracks(
       entry.trackId,
       entry.projectId
     );
 
+
+    // -----------------------------------------------
+    // TIME
+    // -----------------------------------------------
 
     populateTimeLogTimes(
       entry.start || "09:00",
@@ -148,11 +172,36 @@ function openTimeLogModal(
     );
 
 
-    selectedTimeLogDate =
-      entry.date ||
-      getDateKey(
-        new Date()
-      );
+    // -----------------------------------------------
+    // DATE
+    // -----------------------------------------------
+
+    if (entry.date) {
+
+      selectedTimeLogDate =
+        entry.date;
+
+    }
+
+    else if (selectedDate) {
+
+      selectedTimeLogDate =
+        selectedDate instanceof Date
+          ? getLocalDateKey(
+              selectedDate
+            )
+          : selectedDate;
+
+    }
+
+    else {
+
+      selectedTimeLogDate =
+        getLocalDateKey(
+          new Date()
+        );
+
+    }
 
   }
 
@@ -167,12 +216,20 @@ function openTimeLogModal(
       null;
 
 
+    // -----------------------------------------------
+    // CLEAR ACTIVITY
+    // -----------------------------------------------
+
     if (activityInput) {
 
       activityInput.value = "";
 
     }
 
+
+    // -----------------------------------------------
+    // MODAL TITLE
+    // -----------------------------------------------
 
     if (modalTitle) {
 
@@ -182,6 +239,10 @@ function openTimeLogModal(
     }
 
 
+    // -----------------------------------------------
+    // SAVE BUTTON
+    // -----------------------------------------------
+
     if (saveBtn) {
 
       saveBtn.textContent =
@@ -189,6 +250,10 @@ function openTimeLogModal(
 
     }
 
+
+    // -----------------------------------------------
+    // DELETE BUTTON
+    // -----------------------------------------------
 
     if (deleteBtn) {
 
@@ -198,8 +263,16 @@ function openTimeLogModal(
     }
 
 
+    // -----------------------------------------------
+    // TRACK + PROJECT
+    // -----------------------------------------------
+
     populateTimeLogTracks();
 
+
+    // -----------------------------------------------
+    // TIME
+    // -----------------------------------------------
 
     populateTimeLogTimes(
       startTime,
@@ -207,17 +280,57 @@ function openTimeLogModal(
     );
 
 
-    selectedTimeLogDate =
-      selectedDate
-        ? getDateKey(
-            selectedDate
-          )
-        : getDateKey(
-            new Date()
-          );
+    // -----------------------------------------------
+    // DATE
+    // -----------------------------------------------
+
+    if (selectedDate) {
+
+      selectedTimeLogDate =
+        selectedDate instanceof Date
+          ? getLocalDateKey(
+              selectedDate
+            )
+          : selectedDate;
+
+    }
+
+    else {
+
+      selectedTimeLogDate =
+        getLocalDateKey(
+          new Date()
+        );
+
+    }
 
   }
 
+
+  // ===================================================
+  // UPDATE DATE INPUT IF IT EXISTS
+  // ===================================================
+
+  const dateInput =
+    document.getElementById(
+      "timeLogDateInput"
+    );
+
+
+  if (
+    dateInput &&
+    selectedTimeLogDate
+  ) {
+
+    dateInput.value =
+      selectedTimeLogDate;
+
+  }
+
+
+  // ===================================================
+  // OPEN MODAL
+  // ===================================================
 
   openModal(
     "timeLogModal"

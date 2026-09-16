@@ -56,7 +56,7 @@ function renderTimeLogView(
 
 
   const weekStart =
-    getDateFromTimetableWeekKey(
+    getTimetableWeekStartFromKey(
       currentTimeLogWeekKey
     );
 
@@ -94,12 +94,14 @@ function renderTimeLogView(
 
 
     const endTime =
-      `${String(hour + 1).padStart(2, "0")}:00`;
+      `${String((hour + 1) % 24).padStart(2, "0")}:00`;
 
 
     hourRows += `
 
-      <div class="timetable-hour">
+      <div
+        class="timetable-hour"
+      >
         ${startTime}
       </div>
 
@@ -127,16 +129,24 @@ function renderTimeLogView(
 
   container.innerHTML = `
 
-    <div class="timetable-section">
+    <div
+      class="timetable-section"
+    >
 
-      <div class="timetable-header">
+      <div
+        class="timetable-header"
+      >
 
-        <div class="projects-section-title">
+        <div
+          class="projects-section-title"
+        >
           Time Log
         </div>
 
 
-        <div class="timetable-navigation">
+        <div
+          class="timetable-navigation"
+        >
 
           <button
             type="button"
@@ -187,13 +197,21 @@ function renderTimeLogView(
       </div>
 
 
-      <div class="timetable-wrapper">
+      <div
+        class="timetable-wrapper"
+      >
 
-        <div class="timetable-grid-container">
+        <div
+          class="timetable-grid-container"
+        >
 
-          <div class="timetable-grid">
+          <div
+            class="timetable-grid"
+          >
 
-            <div class="timetable-corner"></div>
+            <div
+              class="timetable-corner"
+            ></div>
 
 
             ${timeLogDays
@@ -220,13 +238,19 @@ function renderTimeLogView(
 
                 return `
 
-                  <div class="timetable-day">
+                  <div
+                    class="timetable-day"
+                  >
 
-                    <div class="timetable-day-name">
+                    <div
+                      class="timetable-day-name"
+                    >
                       ${day}
                     </div>
 
-                    <div class="timetable-day-date">
+                    <div
+                      class="timetable-day-date"
+                    >
                       ${dateLabel}
                     </div>
 
@@ -241,6 +265,12 @@ function renderTimeLogView(
             ${hourRows}
 
           </div>
+
+
+          <div
+            id="timeLogEntryLayer"
+            class="timetable-entry-layer"
+          ></div>
 
         </div>
 
@@ -449,46 +479,55 @@ function attachTimeLogCellEvents() {
     .querySelectorAll(
       ".timetable-cell"
     )
-    .forEach(
-      cell => {
+    .forEach(cell => {
 
-        cell.addEventListener(
-          "click",
-          () => {
+      cell.addEventListener(
+        "click",
+        () => {
 
-            const weekStart =
-              getDateFromTimetableWeekKey(
-                currentTimeLogWeekKey
-              );
-
-
-            const dayIndex =
-              timeLogDays.indexOf(
-                cell.dataset.day
-              );
-
-
-            const selectedDate =
-              new Date(weekStart);
-
-
-            selectedDate.setDate(
-              selectedDate.getDate() +
-              dayIndex
+          const weekStart =
+            getTimetableWeekStartFromKey(
+              currentTimeLogWeekKey
             );
 
 
-            openTimeLogModal(
-              selectedDate,
-              cell.dataset.start,
-              cell.dataset.end
+          const dayIndex =
+            timeLogDays.indexOf(
+              cell.dataset.day
             );
+
+
+          if (
+            dayIndex === -1
+          ) {
+
+            return;
 
           }
-        );
 
-      }
-    );
+
+          const selectedDate =
+            new Date(
+              weekStart
+            );
+
+
+          selectedDate.setDate(
+            selectedDate.getDate() +
+            dayIndex
+          );
+
+
+          openTimeLogModal(
+            selectedDate,
+            cell.dataset.start,
+            cell.dataset.end
+          );
+
+        }
+      );
+
+    });
 
 }
 
@@ -499,10 +538,19 @@ function attachTimeLogCellEvents() {
 
 function renderTimeLogEntries() {
 
-  const weekStart =
-    getDateFromTimetableWeekKey(
-      currentTimeLogWeekKey
+  const layer =
+    document.getElementById(
+      "timeLogEntryLayer"
     );
+
+  if (!layer) return;
+
+
+  // ===================================================
+  // CLEAR EXISTING ENTRIES
+  // ===================================================
+
+  layer.innerHTML = "";
 
 
   // ===================================================
@@ -521,15 +569,40 @@ function renderTimeLogEntries() {
 
 
   // ===================================================
-  // REMOVE OLD ENTRY LAYERS
+  // GET GRID CELL DIMENSIONS
   // ===================================================
 
-  document
-    .querySelectorAll(
-      ".time-log-entry-layer"
-    )
-    .forEach(
-      layer => layer.remove()
+  const firstCell =
+    document.querySelector(
+      ".timetable-cell"
+    );
+
+  if (!firstCell) return;
+
+
+  const cellWidth =
+    firstCell.offsetWidth;
+
+
+  const cellHeight =
+    firstCell.offsetHeight;
+
+
+  // ===================================================
+  // CALCULATE PIXELS PER MINUTE
+  // ===================================================
+
+  const minutesToPixels =
+    cellHeight / 60;
+
+
+  // ===================================================
+  // GET CURRENT WEEK START
+  // ===================================================
+
+  const weekStart =
+    getTimetableWeekStartFromKey(
+      currentTimeLogWeekKey
     );
 
 
@@ -543,6 +616,10 @@ function renderTimeLogEntries() {
       if (!entry.date) return;
 
 
+      // ===============================================
+      // ENTRY DATE
+      // ===============================================
+
       const entryDate =
         new Date(
           `${entry.date}T00:00:00`
@@ -554,7 +631,7 @@ function renderTimeLogEntries() {
       // ===============================================
 
       const dayIndex =
-        Math.floor(
+        Math.round(
           (
             entryDate -
             weekStart
@@ -568,7 +645,10 @@ function renderTimeLogEntries() {
         );
 
 
-      // Entry is outside current week
+      // ===============================================
+      // IGNORE ENTRIES OUTSIDE CURRENT WEEK
+      // ===============================================
+
       if (
         dayIndex < 0 ||
         dayIndex > 6
@@ -577,23 +657,6 @@ function renderTimeLogEntries() {
         return;
 
       }
-
-
-      // ===============================================
-      // FIND GRID COLUMN
-      // ===============================================
-
-      const day =
-        timeLogDays[dayIndex];
-
-
-      const cells =
-        document.querySelectorAll(
-          `.timetable-cell[data-day="${day}"]`
-        );
-
-
-      if (!cells.length) return;
 
 
       // ===============================================
@@ -623,141 +686,7 @@ function renderTimeLogEntries() {
 
 
       // ===============================================
-      // FIND FIRST CELL FOR DAY
-      // ===============================================
-
-      const firstCell =
-        cells[0];
-
-
-      const gridColumn =
-        firstCell
-          .getBoundingClientRect();
-
-
-      // ===============================================
-      // CREATE ENTRY LAYER
-      // ===============================================
-
-      const layer =
-        document.createElement(
-          "div"
-        );
-
-
-      layer.className =
-        "time-log-entry-layer";
-
-
-      layer.style.position =
-        "absolute";
-
-
-      layer.style.left =
-        `${gridColumn.left}px`;
-
-
-      layer.style.top =
-        "0px";
-
-
-      layer.style.width =
-        `${gridColumn.width}px`;
-
-
-      layer.style.height =
-        "100%";
-
-
-      layer.style.pointerEvents =
-        "none";
-
-
-      // ===============================================
-      // CREATE ENTRY
-      // ===============================================
-
-      const entryElement =
-        document.createElement(
-          "div"
-        );
-
-
-      entryElement.className =
-        "timetable-entry";
-
-
-      entryElement.dataset.entryId =
-        entry.id;
-
-
-      entryElement.style.position =
-        "absolute";
-
-
-      entryElement.style.left =
-        "4px";
-
-
-      entryElement.style.right =
-        "4px";
-
-
-      // Each timetable hour row has a height.
-      // Calculate vertical position from the
-      // actual grid cells rather than assuming
-      // a fixed pixel height.
-      // ===============================================
-
-      const hourIndex =
-        Math.floor(
-          startMinutes / 60
-        );
-
-
-      const minuteOffset =
-        startMinutes % 60;
-
-
-      const durationMinutes =
-        endMinutes -
-        startMinutes;
-
-
-      const hourCell =
-        cells[hourIndex];
-
-
-      if (!hourCell) return;
-
-
-      const hourHeight =
-        hourCell.getBoundingClientRect().height;
-
-
-      entryElement.style.top =
-        `${
-          (hourIndex * hourHeight) +
-          (
-            minuteOffset /
-            60
-          ) *
-          hourHeight
-        }px`;
-
-
-      entryElement.style.height =
-        `${
-          (
-            durationMinutes /
-            60
-          ) *
-          hourHeight
-        }px`;
-
-
-      // ===============================================
-      // ENTRY CONTENT
+      // FIND TRACK
       // ===============================================
 
       const track =
@@ -774,17 +703,41 @@ function renderTimeLogEntries() {
           : "📌 Others";
 
 
-      entryElement.innerHTML = `
+      // ===============================================
+      // CREATE ENTRY
+      // ===============================================
 
-        <div class="timetable-entry-title">
+      const block =
+        document.createElement(
+          "div"
+        );
+
+
+      block.className =
+        "timetable-entry";
+
+
+      block.dataset.entryId =
+        entry.id;
+
+
+      block.innerHTML = `
+
+        <div
+          class="timetable-entry-title"
+        >
           ${entry.title || "Untitled"}
         </div>
 
-        <div class="timetable-entry-time">
+        <div
+          class="timetable-entry-time"
+        >
           ${entry.start} - ${entry.end}
         </div>
 
-        <div class="timetable-entry-track">
+        <div
+          class="timetable-entry-track"
+        >
           ${trackLabel}
         </div>
 
@@ -792,10 +745,48 @@ function renderTimeLogEntries() {
 
 
       // ===============================================
+      // POSITION HORIZONTALLY
+      // ===============================================
+
+      block.style.left =
+        `${dayIndex * cellWidth}px`;
+
+
+      // ===============================================
+      // POSITION VERTICALLY
+      // ===============================================
+
+      block.style.top =
+        `${startMinutes * minutesToPixels}px`;
+
+
+      // ===============================================
+      // SET WIDTH
+      // ===============================================
+
+      block.style.width =
+        `${cellWidth}px`;
+
+
+      // ===============================================
+      // SET HEIGHT
+      // ===============================================
+
+      block.style.height =
+        `${
+          (
+            endMinutes -
+            startMinutes
+          ) *
+          minutesToPixels
+        }px`;
+
+
+      // ===============================================
       // CLICK → EDIT
       // ===============================================
 
-      entryElement.addEventListener(
+      block.addEventListener(
         "click",
         event => {
 
@@ -813,41 +804,12 @@ function renderTimeLogEntries() {
       );
 
 
+      // ===============================================
+      // ADD TO ENTRY LAYER
+      // ===============================================
+
       layer.appendChild(
-        entryElement
-      );
-
-
-      // ===============================================
-      // ATTACH LAYER TO GRID
-      // ===============================================
-
-      const grid =
-        document.querySelector(
-          ".timetable-grid"
-        );
-
-
-      if (!grid) return;
-
-
-      const gridRect =
-        grid.getBoundingClientRect();
-
-
-      layer.style.left =
-        `${
-          gridColumn.left -
-          gridRect.left
-        }px`;
-
-
-      layer.style.top =
-        "0px";
-
-
-      grid.appendChild(
-        layer
+        block
       );
 
     }
