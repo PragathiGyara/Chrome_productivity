@@ -4111,304 +4111,504 @@ function enableNotesEdit(
 
 function renderWorkspaceTodos(project) {
 
-  const container =
-    document.getElementById(
-      "todoList"
-    );
+    const container =
+        document.getElementById("todoList");
 
-  if (
-    !container ||
-    !project
-  ) {
-    return;
-  }
+    if (!container || !project) return;
 
+    if (!Array.isArray(project.todos)) {
+        project.todos = [];
+    }
 
-  // =====================================
-  // ENSURE TODO ARRAY
-  // =====================================
-
-  if (
-    !Array.isArray(
-      project.todos
-    )
-  ) {
-
-    project.todos = [];
-
-  }
+    container.innerHTML = "";
 
 
-  // =====================================
-  // CLEAR LIST
-  // =====================================
+    // =====================================
+    // SORT TODOS
+    // =====================================
 
-  container.innerHTML = "";
-
-
-  // =====================================
-  // SORT TODOS
-  // =====================================
-
-  const todos =
-    [...project.todos]
-      .sort(
-        (a, b) =>
-          (a.order ?? 0) -
-          (b.order ?? 0)
-      );
-
-
-  // =====================================
-  // RENDER TODOS
-  // =====================================
-
-  todos.forEach(
-    todo => {
-
-      const div =
-        document.createElement(
-          "div"
+    const todos =
+        [...project.todos].sort(
+            (a, b) =>
+                (a.order ?? 0) -
+                (b.order ?? 0)
         );
 
-      div.classList.add(
-        "deadline-item"
-      );
 
+    // =====================================
+    // RENDER TODOS
+    // =====================================
 
-      if (todo.completed) {
+    todos.forEach(todo => {
+
+        const div =
+            document.createElement("div");
 
         div.classList.add(
-          "task-complete"
+            "deadline-item"
         );
 
-      }
+        if (todo.completed) {
+            div.classList.add(
+                "task-complete"
+            );
+        }
 
 
-      div.innerHTML = `
+        div.innerHTML = `
 
-        <div class="task-main">
+            <div class="task-main">
 
-          <strong>
-            ${
-              todo.completed
-                ? "✔ "
-                : ""
-            }
+                <strong>
+                    ${
+                        todo.completed
+                            ? "✔ "
+                            : ""
+                    }
+                    ${todo.text}
+                </strong>
 
-            ${todo.text}
+            </div>
 
-          </strong>
-
-        </div>
-
-      `;
+        `;
 
 
-      container.appendChild(
-        div
-      );
+        // =====================================
+        // EDIT TODO
+        // =====================================
 
-    }
-  );
+        if (!todo.completed) {
+
+            div.style.cursor =
+                "pointer";
+
+            div.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    openWorkspaceTodoEditForm(
+                        project,
+                        todo
+                    );
+
+                }
+            );
+
+        }
+
+
+        container.appendChild(
+            div
+        );
+
+    });
 
 }
 
 function openWorkspaceTodoForm(project) {
 
-  const container =
-    document.getElementById(
-      "todoList"
-    );
+    const container =
+        document.getElementById("todoList");
 
-  if (
-    !container ||
-    !project
-  ) {
-    return;
-  }
+    if (!container || !project) return;
 
-
-  // =====================================
-  // PREVENT DUPLICATE FORM
-  // =====================================
-
-  if (
-    container.querySelector(
-      ".todo-form"
-    )
-  ) {
-    return;
-  }
-
-
-  // =====================================
-  // ENSURE TODO ARRAY
-  // =====================================
-
-  if (
-    !Array.isArray(
-      project.todos
-    )
-  ) {
-
-    project.todos = [];
-
-  }
-
-
-  // =====================================
-  // CREATE FORM
-  // =====================================
-
-  const form =
-    document.createElement(
-      "div"
-    );
-
-  form.classList.add(
-    "todo-form"
-  );
-
-
-  form.innerHTML = `
-
-    <input
-      type="text"
-      id="workspaceTodoInput"
-      placeholder="What needs to be done?"
-    />
-
-    <div class="deadline-form-actions">
-
-      <button
-        type="button"
-        id="saveWorkspaceTodoBtn"
-        class="primary-btn"
-      >
-        Add
-      </button>
-
-      <button
-        type="button"
-        id="cancelWorkspaceTodoBtn"
-        class="neutral-btn"
-      >
-        Cancel
-      </button>
-
-    </div>
-
-  `;
-
-
-  container.prepend(
-    form
-  );
-
-
-  // =====================================
-  // ELEMENTS
-  // =====================================
-
-  const input =
-    form.querySelector(
-      "#workspaceTodoInput"
-    );
-
-  const saveBtn =
-    form.querySelector(
-      "#saveWorkspaceTodoBtn"
-    );
-
-  const cancelBtn =
-    form.querySelector(
-      "#cancelWorkspaceTodoBtn"
-    );
-
-
-  // =====================================
-  // REVEAL FORM
-  // =====================================
-
-  revealTodoForm(
-    form
-  );
-
-
-  // =====================================
-  // SAVE TODO
-  // =====================================
-
-  saveBtn.addEventListener(
-    "click",
-    () => {
-
-      const text =
-        input.value.trim();
-
-
-      if (!text) {
+    if (
+        container.querySelector(".todo-form")
+    ) {
         return;
-      }
-
-
-      project.todos.push({
-
-        id:
-          Date.now(),
-
-        text,
-
-        completed:
-          false,
-
-        archived:
-          false,
-
-        order:
-          project.todos.length,
-
-        createdAt:
-          new Date().toISOString(),
-
-        completedAt:
-          null
-
-      });
-
-
-      persistTracks();
-
-
-      form.remove();
-
-
-      renderWorkspaceTodos(
-        project
-      );
-
-
-      showToast(
-        "Todo added"
-      );
-
     }
-  );
 
-
-  // =====================================
-  // CANCEL
-  // =====================================
-
-  cancelBtn.addEventListener(
-    "click",
-    () => {
-
-      form.remove();
-
+    if (!Array.isArray(project.todos)) {
+        project.todos = [];
     }
-  );
+
+    const form =
+        document.createElement("div");
+
+    form.classList.add(
+        "todo-form"
+    );
+
+    form.innerHTML = `
+
+        <input
+            type="text"
+            id="workspaceTodoInput"
+            placeholder="What needs to be done?"
+        />
+
+        <div class="deadline-form-actions">
+
+            <button
+                type="button"
+                id="saveWorkspaceTodoBtn"
+                class="primary-btn"
+            >
+                Add
+            </button>
+
+            <button
+                type="button"
+                id="cancelWorkspaceTodoBtn"
+                class="neutral-btn"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    `;
+
+    container.prepend(form);
+
+
+    const input =
+        form.querySelector(
+            "#workspaceTodoInput"
+        );
+
+    const saveBtn =
+        form.querySelector(
+            "#saveWorkspaceTodoBtn"
+        );
+
+    const cancelBtn =
+        form.querySelector(
+            "#cancelWorkspaceTodoBtn"
+        );
+
+
+    revealTodoForm(form);
+
+
+    // =====================================
+    // SAVE TODO
+    // =====================================
+
+    saveBtn.addEventListener(
+        "click",
+        () => {
+
+            const text =
+                input.value.trim();
+
+            if (!text) {
+                return;
+            }
+
+
+            project.todos.push({
+
+                id:
+                    Date.now(),
+
+                text,
+
+                completed:
+                    false,
+
+                archived:
+                    false,
+
+                order:
+                    project.todos.length,
+
+                createdAt:
+                    new Date().toISOString(),
+
+                completedAt:
+                    null
+
+            });
+
+
+            // =====================================
+            // SAVE TO STORAGE
+            // =====================================
+
+            persistTracks();
+
+
+            // =====================================
+            // UPDATE WORKSPACE
+            // =====================================
+
+            form.remove();
+
+            renderWorkspaceTodos(
+                project
+            );
+
+
+            // =====================================
+            // UPDATE SIDEBAR
+            // =====================================
+
+            renderTodoSection();
+
+
+            showToast(
+                "Todo added"
+            );
+
+        }
+    );
+
+
+    // =====================================
+    // CANCEL
+    // =====================================
+
+    cancelBtn.addEventListener(
+        "click",
+        () => {
+
+            form.remove();
+
+        }
+    );
+
+}
+
+function openWorkspaceTodoEditForm(
+    project,
+    todo
+) {
+
+    const container =
+        document.getElementById(
+            "todoList"
+        );
+
+    if (!container || !project || !todo) {
+        return;
+    }
+
+    if (
+        container.querySelector(
+            ".todo-edit-form"
+        )
+    ) {
+        return;
+    }
+
+
+    // =====================================
+    // FORM
+    // =====================================
+
+    const form =
+        document.createElement("div");
+
+    form.classList.add(
+        "deadline-form",
+        "todo-edit-form"
+    );
+
+    form.innerHTML = `
+
+        <input
+            type="text"
+            id="workspaceEditTodoText"
+            value="${todo.text}"
+        />
+
+        <div class="deadline-form-actions">
+
+            <button
+                type="button"
+                class="neutral-btn"
+                id="cancelWorkspaceTodoEditBtn"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="updateWorkspaceTodoBtn"
+            >
+                Update
+            </button>
+
+            <button
+                type="button"
+                class="danger-btn"
+                id="deleteWorkspaceTodoBtn"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    `;
+
+    container.prepend(form);
+
+
+    // =====================================
+    // ELEMENTS
+    // =====================================
+
+    const input =
+        form.querySelector(
+            "#workspaceEditTodoText"
+        );
+
+    const updateBtn =
+        form.querySelector(
+            "#updateWorkspaceTodoBtn"
+        );
+
+    const cancelBtn =
+        form.querySelector(
+            "#cancelWorkspaceTodoEditBtn"
+        );
+
+    const deleteBtn =
+        form.querySelector(
+            "#deleteWorkspaceTodoBtn"
+        );
+
+
+    const originalText =
+        todo.text;
+
+
+    // =====================================
+    // REVEAL FORM
+    // =====================================
+
+    revealTodoForm(form);
+
+
+    // =====================================
+    // UPDATE BUTTON STATE
+    // =====================================
+
+    updateBtn.disabled = true;
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            updateBtn.disabled =
+                input.value.trim() ===
+                originalText;
+
+        }
+    );
+
+
+    // =====================================
+    // UPDATE
+    // =====================================
+
+    updateBtn.addEventListener(
+        "click",
+        () => {
+
+            const newText =
+                input.value.trim();
+
+            if (!newText) {
+
+                alert(
+                    "Todo cannot be empty."
+                );
+
+                return;
+            }
+
+
+            todo.text =
+                newText;
+
+
+            persistTracks();
+
+
+            form.remove();
+
+
+            renderWorkspaceTodos(
+                project
+            );
+
+
+            renderTodoSection();
+
+
+            showToast(
+                "Todo updated"
+            );
+
+        }
+    );
+
+
+    // =====================================
+    // DELETE
+    // =====================================
+
+    deleteBtn.addEventListener(
+        "click",
+        () => {
+
+            const confirmed =
+                confirm(
+                    `Delete "${todo.text}"?`
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            project.todos =
+                project.todos.filter(
+                    item =>
+                        String(item.id) !==
+                        String(todo.id)
+                );
+
+
+            persistTracks();
+
+
+            form.remove();
+
+
+            renderWorkspaceTodos(
+                project
+            );
+
+
+            renderTodoSection();
+
+
+            showToast(
+                "Todo deleted"
+            );
+
+        }
+    );
+
+
+    // =====================================
+    // CANCEL
+    // =====================================
+
+    cancelBtn.addEventListener(
+        "click",
+        () => {
+
+            form.remove();
+
+        }
+    );
 
 }
 

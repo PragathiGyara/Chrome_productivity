@@ -162,24 +162,23 @@ function initializeTodoTrackFilter() {
 
     if (!filter) return;
 
-    // Clear everything except the default options
     filter.innerHTML = `
-
         <option value="all">
             All
         </option>
-
-        <option value="general">
-            Others
-        </option>
-
     `;
 
-    // Add all available tracks
+
+    // =====================================
+    // TRACK OPTIONS
+    // =====================================
+
     tracks.forEach(track => {
 
         const option =
-            document.createElement("option");
+            document.createElement(
+                "option"
+            );
 
         option.value =
             track.id;
@@ -193,16 +192,45 @@ function initializeTodoTrackFilter() {
 
     });
 
-    // Default selection
-    filter.value =
-        currentTodoTrack;
+
+    // =====================================
+    // RESTORE CURRENT FILTER
+    // =====================================
+
+    const trackExists =
+        currentTodoTrack === "all" ||
+        tracks.some(
+            track =>
+                String(track.id) ===
+                String(currentTodoTrack)
+        );
+
+    if (trackExists) {
+
+        filter.value =
+            currentTodoTrack;
+
+    } else {
+
+        currentTodoTrack =
+            "all";
+
+        filter.value =
+            "all";
+
+    }
+
+
+    // =====================================
+    // FILTER CHANGE
+    // =====================================
 
     filter.addEventListener(
         "change",
-        e => {
+        event => {
 
             currentTodoTrack =
-                e.target.value;
+                event.target.value;
 
             renderTodoSection();
 
@@ -320,7 +348,6 @@ function deleteTodoById(todoId) {
 
 }
 
-
 function renderTodoList(tasks, source) {
 
     const container =
@@ -333,16 +360,17 @@ function renderTodoList(tasks, source) {
     container.innerHTML = "";
 
 
-    // ==========================
+    // =====================================
     // VISIBLE TASKS
-    // ==========================
+    // =====================================
 
     const visibleTasks =
         (
             todoDisplaySettings.showCompleted
                 ? [...tasks]
                 : tasks.filter(
-                    task => !task.completed
+                    task =>
+                        !task.completed
                 )
         ).sort(
             (a, b) =>
@@ -351,12 +379,14 @@ function renderTodoList(tasks, source) {
         );
 
 
-    // ==========================
+    // =====================================
     // SUMMARY
-    // ==========================
+    // =====================================
 
     const summary =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     summary.classList.add(
         "todo-summary"
@@ -364,7 +394,8 @@ function renderTodoList(tasks, source) {
 
     const completed =
         tasks.filter(
-            task => task.completed
+            task =>
+                task.completed
         ).length;
 
     const total =
@@ -381,299 +412,304 @@ function renderTodoList(tasks, source) {
     );
 
 
-    // ==========================
-    // TASKS
-    // ==========================
+    // =====================================
+    // RENDER TASKS
+    // =====================================
 
-    visibleTasks.forEach(item => {
+    visibleTasks.forEach(
+        item => {
 
-        const div =
-            document.createElement("div");
+            const div =
+                document.createElement(
+                    "div"
+                );
 
-        div.classList.add(
-            "todo-item"
-        );
-
-
-        // ==========================
-        // ACTION BUTTON
-        // ==========================
-
-        let action = null;
-
-        if (item.completed) {
-
-            action = {
-
-                icon: "✕",
-
-                title: "Delete Task",
-
-                type: "delete"
-
-            };
-
-        }
-
-        else if (source === "current") {
-
-            action = {
-
-                icon: "→",
-
-                title: "Move to Archived",
-
-                type: "archive"
-
-            };
-
-        }
-
-        else {
-
-            action = {
-
-                icon: "←",
-
-                title: "Move to Current",
-
-                type: "restore"
-
-            };
-
-        }
-
-
-        // ==========================
-        // TRACK DISPLAY
-        // ==========================
-
-        const trackDisplay =
-            item.trackId === "general" ||
-            item.trackId == null
-                ? "General"
-                : item.trackIcon
-                    ? `${item.trackIcon} ${item.trackName}`
-                    : item.trackName || "Unknown Track";
-
-
-        // ==========================
-        // PROJECT DISPLAY
-        // ==========================
-
-        const projectDisplay =
-            item.projectName ||
-            "General";
-
-
-        // ==========================
-        // RENDER
-        // ==========================
-
-        div.innerHTML = `
-
-            <div class="todo-card ${item.completed ? "done" : ""}">
-
-                <input
-                    type="checkbox"
-                    ${item.completed ? "checked" : ""}
-                />
-
-                <div class="todo-content">
-
-                    <span class="todo-text">
-                        ${item.text}
-                    </span>
-
-                    <div class="todo-track">
-                        ${trackDisplay}
-                    </div>
-
-                    <div class="todo-project">
-                        ${projectDisplay}
-                    </div>
-
-                    ${
-                        todoDisplaySettings.showDates &&
-                        item.createdAt
-                            ? `
-                            <div class="todo-date">
-                                Added ${formatTodoDate(item.createdAt)}
-                            </div>
-                            `
-                            : ""
-                    }
-
-                </div>
-
-                <button
-                    class="todo-action-btn"
-                    data-action="${action.type}"
-                    title="${action.title}"
-                >
-                    ${action.icon}
-                </button>
-
-            </div>
-
-        `;
-
-
-        // ==========================
-        // COMPLETE / UNCOMPLETE
-        // ==========================
-
-        div
-            .querySelector("input")
-            .addEventListener(
-                "change",
-                e => {
-
-                    const todo =
-                        findTodoById(
-                            item.id
-                        );
-
-                    if (!todo) return;
-
-                    todo.completed =
-                        e.target.checked;
-
-                    todo.completedAt =
-                        todo.completed
-                            ? new Date().toISOString()
-                            : null;
-
-                    persistTracks();
-
-                    renderTodoSection();
-
-                }
+            div.classList.add(
+                "todo-item"
             );
 
 
-        // ==========================
-        // EDIT
-        // ==========================
+            // =====================================
+            // ACTION
+            // =====================================
 
-        if (!item.completed) {
+            let action = null;
+
+            if (item.completed) {
+
+                action = {
+                    icon: "✕",
+                    title: "Delete Task",
+                    type: "delete"
+                };
+
+            } else if (
+                source === "current" ||
+                !item.archived
+            ) {
+
+                action = {
+                    icon: "→",
+                    title: "Move to Archived",
+                    type: "archive"
+                };
+
+            } else {
+
+                action = {
+                    icon: "←",
+                    title: "Move to Current",
+                    type: "restore"
+                };
+
+            }
+
+
+            // =====================================
+            // TRACK DISPLAY
+            // =====================================
+
+            const trackDisplay =
+                item.trackIcon
+                    ? `${item.trackIcon} ${item.trackName}`
+                    : item.trackName ||
+                      "Unknown Track";
+
+
+            // =====================================
+            // PROJECT DISPLAY
+            // =====================================
+
+            const projectDisplay =
+                item.projectName ||
+                "General";
+
+
+            // =====================================
+            // HTML
+            // =====================================
+
+            div.innerHTML = `
+
+                <div
+                    class="todo-card ${
+                        item.completed
+                            ? "done"
+                            : ""
+                    }"
+                >
+
+                    <input
+                        type="checkbox"
+                        ${
+                            item.completed
+                                ? "checked"
+                                : ""
+                        }
+                    />
+
+                    <div class="todo-content">
+
+                        <span class="todo-text">
+                            ${item.text}
+                        </span>
+
+                        <div class="todo-track">
+                            ${trackDisplay}
+                        </div>
+
+                        <div class="todo-project">
+                            ${projectDisplay}
+                        </div>
+
+                        ${
+                            todoDisplaySettings.showDates &&
+                            item.createdAt
+                                ? `
+                                    <div class="todo-date">
+                                        Added
+                                        ${formatTodoDate(
+                                            item.createdAt
+                                        )}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                    <button
+                        class="todo-action-btn"
+                        data-action="${action.type}"
+                        title="${action.title}"
+                    >
+                        ${action.icon}
+                    </button>
+
+                </div>
+
+            `;
+
+
+            // =====================================
+            // COMPLETE / UNCOMPLETE
+            // =====================================
 
             div
-                .querySelector(".todo-text")
+                .querySelector("input")
                 .addEventListener(
-                    "click",
-                    e => {
+                    "change",
+                    event => {
 
-                        e.stopPropagation();
+                        const todo =
+                            findTodoById(
+                                item.id
+                            );
 
-                        openEditTodoForm(
-                            item,
-                            source
-                        );
+                        if (!todo) return;
+
+                        todo.completed =
+                            event.target.checked;
+
+                        todo.completedAt =
+                            todo.completed
+                                ? new Date().toISOString()
+                                : null;
+
+                        persistTracks();
+
+                        renderTodoSection();
 
                     }
                 );
 
-        }
 
+            // =====================================
+            // EDIT
+            // =====================================
 
-        // ==========================
-        // ACTION BUTTON
-        // ==========================
+            if (!item.completed) {
 
-        div
-            .querySelector(".todo-action-btn")
-            .addEventListener(
-                "click",
-                e => {
+                div
+                    .querySelector(
+                        ".todo-text"
+                    )
+                    .addEventListener(
+                        "click",
+                        event => {
 
-                    e.stopPropagation();
+                            event.stopPropagation();
 
-                    const todo =
-                        findTodoById(
-                            item.id
-                        );
-
-                    if (!todo) return;
-
-
-                    switch (
-                        e.target.dataset.action
-                    ) {
-
-                        case "archive":
-
-                            todo.archived =
-                                true;
-
-                            showToast(
-                                "Task archived"
+                            openEditTodoForm(
+                                item,
+                                source
                             );
 
-                            break;
+                        }
+                    );
+
+            }
 
 
-                        case "restore":
+            // =====================================
+            // ARCHIVE / RESTORE / DELETE
+            // =====================================
 
-                            todo.archived =
-                                false;
+            div
+                .querySelector(
+                    ".todo-action-btn"
+                )
+                .addEventListener(
+                    "click",
+                    event => {
 
-                            showToast(
-                                "Task moved to Current"
+                        event.stopPropagation();
+
+                        const todo =
+                            findTodoById(
+                                item.id
                             );
 
-                            break;
+                        if (!todo) return;
 
 
-                        case "delete":
+                        switch (
+                            event.target.dataset.action
+                        ) {
 
-                            if (
-                                !confirm(
-                                    `Delete "${todo.text}"?`
-                                )
-                            ) {
-                                return;
-                            }
+                            case "archive":
 
-                            deleteTodoById(
-                                todo.id
-                            );
+                                todo.archived =
+                                    true;
 
-                            showToast(
-                                "Task deleted"
-                            );
+                                showToast(
+                                    "Task archived"
+                                );
 
-                            break;
+                                break;
+
+
+                            case "restore":
+
+                                todo.archived =
+                                    false;
+
+                                showToast(
+                                    "Task moved to Current"
+                                );
+
+                                break;
+
+
+                            case "delete":
+
+                                if (
+                                    !confirm(
+                                        `Delete "${todo.text}"?`
+                                    )
+                                ) {
+                                    return;
+                                }
+
+                                deleteTodoById(
+                                    todo.id
+                                );
+
+                                showToast(
+                                    "Task deleted"
+                                );
+
+                                break;
+
+                        }
+
+
+                        persistTracks();
+
+                        renderTodoSection();
 
                     }
+                );
 
 
-                    persistTracks();
+            // =====================================
+            // DRAG / DROP
+            // =====================================
 
-                    renderTodoSection();
-
-                }
+            attachTodoDragEvents(
+                div,
+                item,
+                source
             );
 
+            container.appendChild(
+                div
+            );
 
-        // ==========================
-        // DRAG & DROP
-        // ==========================
-
-        attachTodoDragEvents(
-            div,
-            item,
-            source
-        );
-
-        container.appendChild(
-            div
-        );
-
-    });
+        }
+    );
 
 }
-
 
 function renderTodayTodos() {
 
@@ -754,12 +790,7 @@ function renderTodayTodos() {
 
 function renderGlobalTodos() {
 
-    const allTime = [];
-
-
-    // =====================================
-    // COLLECT ALL TODOS
-    // =====================================
+    const archivedTodos = [];
 
     tracks.forEach(track => {
 
@@ -767,8 +798,11 @@ function renderGlobalTodos() {
 
             (project.todos || []).forEach(todo => {
 
-                allTime.push({
+                if (!todo.archived) {
+                    return;
+                }
 
+                archivedTodos.push({
                     ...todo,
 
                     trackId:
@@ -785,7 +819,6 @@ function renderGlobalTodos() {
 
                     projectName:
                         project.name
-
                 });
 
             });
@@ -796,13 +829,13 @@ function renderGlobalTodos() {
 
 
     // =====================================
-    // FILTER BY TRACK
+    // TRACK FILTER
     // =====================================
 
     const filteredTodos =
         currentTodoTrack === "all"
-            ? allTime
-            : allTime.filter(
+            ? archivedTodos
+            : archivedTodos.filter(
                 task =>
                     String(task.trackId) ===
                     String(currentTodoTrack)
@@ -1337,12 +1370,17 @@ function openEditTodoForm(item, source) {
         "todo-edit-form"
     );
 
+
     // =====================================
-    // CURRENT TRACK
+    // CURRENT TRACK / PROJECT
     // =====================================
 
     const currentTrackId =
-        item.trackId ?? "general";
+        item.trackId;
+
+    const currentProjectId =
+        item.projectId;
+
 
     // =====================================
     // FORM
@@ -1358,12 +1396,19 @@ function openEditTodoForm(item, source) {
 
         <select id="editTodoTrackSelect">
 
+            <option
+                value=""
+                disabled
+            >
+                Select track
+            </option>
+
             ${tracks.map(track => `
                 <option
                     value="${track.id}"
                     ${
-                        Number(currentTrackId) ===
-                        Number(track.id)
+                        String(currentTrackId) ===
+                        String(track.id)
                             ? "selected"
                             : ""
                     }
@@ -1372,15 +1417,15 @@ function openEditTodoForm(item, source) {
                 </option>
             `).join("")}
 
+        </select>
+
+        <select id="editTodoProjectSelect">
+
             <option
-                value="general"
-                ${
-                    currentTrackId === "general"
-                        ? "selected"
-                        : ""
-                }
+                value=""
+                disabled
             >
-                Others
+                Select project
             </option>
 
         </select>
@@ -1417,11 +1462,13 @@ function openEditTodoForm(item, source) {
 
     container.prepend(form);
 
+
     // =====================================
     // REVEAL / SCROLL TO EDIT FORM
     // =====================================
 
     revealTodoForm(form);
+
 
     const input =
         form.querySelector(
@@ -1431,6 +1478,11 @@ function openEditTodoForm(item, source) {
     const trackSelect =
         form.querySelector(
             "#editTodoTrackSelect"
+        );
+
+    const projectSelect =
+        form.querySelector(
+            "#editTodoProjectSelect"
         );
 
     const updateBtn =
@@ -1448,13 +1500,95 @@ function openEditTodoForm(item, source) {
             "#deleteTodoBtn"
         );
 
+
     const originalText =
         item.text;
 
     const originalTrackId =
-        currentTrackId;
+        String(currentTrackId);
+
+    const originalProjectId =
+        String(currentProjectId);
+
+
+    // =====================================
+    // POPULATE PROJECTS
+    // =====================================
+
+    function populateProjects(
+        trackId,
+        selectedProjectId = null
+    ) {
+
+        const selectedTrack =
+            tracks.find(
+                track =>
+                    String(track.id) ===
+                    String(trackId)
+            );
+
+        projectSelect.innerHTML = `
+            <option
+                value=""
+                disabled
+            >
+                Select project
+            </option>
+        `;
+
+        if (!selectedTrack) {
+
+            projectSelect.disabled = true;
+
+            return;
+        }
+
+        const projects =
+            selectedTrack.projects || [];
+
+        projects.forEach(project => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                project.id;
+
+            option.textContent =
+                project.name;
+
+            if (
+                selectedProjectId !== null &&
+                String(project.id) ===
+                String(selectedProjectId)
+            ) {
+                option.selected = true;
+            }
+
+            projectSelect.appendChild(
+                option
+            );
+
+        });
+
+        projectSelect.disabled = false;
+    }
+
+
+    populateProjects(
+        currentTrackId,
+        currentProjectId
+    );
+
+
+    // =====================================
+    // INITIAL BUTTON STATE
+    // =====================================
 
     updateBtn.disabled = true;
+
 
     // =====================================
     // CHECK FOR CHANGES
@@ -1468,23 +1602,45 @@ function openEditTodoForm(item, source) {
 
         const trackChanged =
             trackSelect.value !==
-            String(originalTrackId);
+            originalTrackId;
+
+        const projectChanged =
+            projectSelect.value !==
+            originalProjectId;
 
         updateBtn.disabled =
             !textChanged &&
-            !trackChanged;
+            !trackChanged &&
+            !projectChanged;
 
     }
+
 
     input.addEventListener(
         "input",
         updateButtonState
     );
 
+
     trackSelect.addEventListener(
+        "change",
+        () => {
+
+            populateProjects(
+                trackSelect.value
+            );
+
+            updateButtonState();
+
+        }
+    );
+
+
+    projectSelect.addEventListener(
         "change",
         updateButtonState
     );
+
 
     // =====================================
     // UPDATE
@@ -1504,32 +1660,149 @@ function openEditTodoForm(item, source) {
                 );
 
                 return;
+            }
+
+
+            const selectedTrack =
+                tracks.find(
+                    track =>
+                        String(track.id) ===
+                        String(trackSelect.value)
+                );
+
+            if (!selectedTrack) {
+
+                alert(
+                    "Please select a track."
+                );
+
+                return;
+            }
+
+
+            const newProject =
+                (selectedTrack.projects || [])
+                    .find(
+                        project =>
+                            String(project.id) ===
+                            String(projectSelect.value)
+                    );
+
+            if (!newProject) {
+
+                alert(
+                    "Please select a project."
+                );
+
+                return;
+            }
+
+
+            // =====================================
+            // FIND ORIGINAL TODO
+            // =====================================
+
+            let originalProject =
+                null;
+
+            let todo =
+                null;
+
+            for (const track of tracks) {
+
+                for (
+                    const project of
+                    (track.projects || [])
+                ) {
+
+                    const found =
+                        (project.todos || [])
+                            .find(
+                                todoItem =>
+                                    String(todoItem.id) ===
+                                    String(item.id)
+                            );
+
+                    if (found) {
+
+                        originalProject =
+                            project;
+
+                        todo =
+                            found;
+
+                        break;
+                    }
+                }
+
+                if (todo) break;
+            }
+
+
+            if (!todo) {
+                return;
+            }
+
+
+            // =====================================
+            // UPDATE TEXT
+            // =====================================
+
+            todo.text =
+                newText;
+
+
+            // =====================================
+            // MOVE TODO IF PROJECT CHANGED
+            // =====================================
+
+            if (
+                originalProject !==
+                newProject
+            ) {
+
+                if (
+                    Array.isArray(
+                        originalProject.todos
+                    )
+                ) {
+
+                    originalProject.todos =
+                        originalProject.todos.filter(
+                            todoItem =>
+                                String(todoItem.id) !==
+                                String(todo.id)
+                        );
+
+                }
+
+
+                if (
+                    !Array.isArray(
+                        newProject.todos
+                    )
+                ) {
+
+                    newProject.todos = [];
+
+                }
+
+
+                todo.order =
+                    newProject.todos.length;
+
+                newProject.todos.push(
+                    todo
+                );
 
             }
 
-            const todoData =
-                loadTodos();
 
-            const task =
-                todoData.tasks.find(
-                    t => t.id === item.id
-                );
+            // =====================================
+            // SAVE
+            // =====================================
 
-            if (!task) return;
-
-            task.text =
-                newText;
-
-            task.trackId =
-                trackSelect.value === "general"
-                    ? "general"
-                    : Number(
-                        trackSelect.value
-                    );
-
-            persistTodos(
-                todoData
-            );
+            persistTracks();
 
             form.remove();
 
@@ -1541,6 +1814,7 @@ function openEditTodoForm(item, source) {
 
         }
     );
+
 
     // =====================================
     // DELETE
@@ -1555,21 +1829,15 @@ function openEditTodoForm(item, source) {
                     `Delete "${item.text}"?`
                 );
 
-            if (!confirmed)
+            if (!confirmed) {
                 return;
+            }
 
-            const todoData =
-                loadTodos();
-
-            todoData.tasks =
-                todoData.tasks.filter(
-                    task =>
-                        task.id !== item.id
-                );
-
-            persistTodos(
-                todoData
+            deleteTodoById(
+                item.id
             );
+
+            persistTracks();
 
             form.remove();
 
@@ -1581,6 +1849,7 @@ function openEditTodoForm(item, source) {
 
         }
     );
+
 
     // =====================================
     // CANCEL
