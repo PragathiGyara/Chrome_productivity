@@ -245,6 +245,82 @@ function renderTodoSection() {
 
 }
 
+// =====================================================
+// FIND TODO
+// =====================================================
+
+function findTodoById(todoId) {
+
+    for (const track of tracks) {
+
+        for (const project of (track.projects || [])) {
+
+            const todo =
+                (project.todos || []).find(
+                    todo =>
+                        String(todo.id) ===
+                        String(todoId)
+                );
+
+            if (todo) {
+
+                return todo;
+
+            }
+
+        }
+
+    }
+
+    return null;
+
+}
+
+// =====================================================
+// DELETE TODO
+// =====================================================
+
+function deleteTodoById(todoId) {
+
+    for (const track of tracks) {
+
+        for (const project of (track.projects || [])) {
+
+            if (!Array.isArray(project.todos)) {
+                continue;
+            }
+
+
+            const originalLength =
+                project.todos.length;
+
+
+            project.todos =
+                project.todos.filter(
+                    todo =>
+                        String(todo.id) !==
+                        String(todoId)
+                );
+
+
+            if (
+                project.todos.length !==
+                originalLength
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+    }
+
+    return false;
+
+}
+
+
 function renderTodoList(tasks, source) {
 
     const container =
@@ -256,6 +332,11 @@ function renderTodoList(tasks, source) {
 
     container.innerHTML = "";
 
+
+    // ==========================
+    // VISIBLE TASKS
+    // ==========================
+
     const visibleTasks =
         (
             todoDisplaySettings.showCompleted
@@ -265,8 +346,10 @@ function renderTodoList(tasks, source) {
                 )
         ).sort(
             (a, b) =>
-                a.order - b.order
+                (a.order ?? 0) -
+                (b.order ?? 0)
         );
+
 
     // ==========================
     // SUMMARY
@@ -297,6 +380,7 @@ function renderTodoList(tasks, source) {
         summary
     );
 
+
     // ==========================
     // TASKS
     // ==========================
@@ -309,6 +393,7 @@ function renderTodoList(tasks, source) {
         div.classList.add(
             "todo-item"
         );
+
 
         // ==========================
         // ACTION BUTTON
@@ -358,20 +443,32 @@ function renderTodoList(tasks, source) {
 
         }
 
-        const track =
-            item.trackId === "general" ||
-            item.trackId == null
-                ? null
-                : tracks.find(
-                    track =>
-                        Number(track.id) ===
-                        Number(item.trackId)
-                );
+
+        // ==========================
+        // TRACK DISPLAY
+        // ==========================
 
         const trackDisplay =
-            track
-                ? `${track.icon} ${track.name}`
-                : "Others";
+            item.trackId === "general" ||
+            item.trackId == null
+                ? "General"
+                : item.trackIcon
+                    ? `${item.trackIcon} ${item.trackName}`
+                    : item.trackName || "Unknown Track";
+
+
+        // ==========================
+        // PROJECT DISPLAY
+        // ==========================
+
+        const projectDisplay =
+            item.projectName ||
+            "General";
+
+
+        // ==========================
+        // RENDER
+        // ==========================
 
         div.innerHTML = `
 
@@ -390,6 +487,10 @@ function renderTodoList(tasks, source) {
 
                     <div class="todo-track">
                         ${trackDisplay}
+                    </div>
+
+                    <div class="todo-project">
+                        ${projectDisplay}
                     </div>
 
                     ${
@@ -417,6 +518,7 @@ function renderTodoList(tasks, source) {
 
         `;
 
+
         // ==========================
         // COMPLETE / UNCOMPLETE
         // ==========================
@@ -427,32 +529,28 @@ function renderTodoList(tasks, source) {
                 "change",
                 e => {
 
-                    const todoData =
-                        loadTodos();
-
-                    const task =
-                        todoData.tasks.find(
-                            t => t.id === item.id
+                    const todo =
+                        findTodoById(
+                            item.id
                         );
 
-                    if (!task) return;
+                    if (!todo) return;
 
-                    task.completed =
+                    todo.completed =
                         e.target.checked;
 
-                    task.completedAt =
-                        task.completed
+                    todo.completedAt =
+                        todo.completed
                             ? new Date().toISOString()
                             : null;
 
-                    persistTodos(
-                        todoData
-                    );
+                    persistTracks();
 
                     renderTodoSection();
 
                 }
             );
+
 
         // ==========================
         // EDIT
@@ -478,6 +576,7 @@ function renderTodoList(tasks, source) {
 
         }
 
+
         // ==========================
         // ACTION BUTTON
         // ==========================
@@ -490,15 +589,13 @@ function renderTodoList(tasks, source) {
 
                     e.stopPropagation();
 
-                    const todoData =
-                        loadTodos();
-
-                    const task =
-                        todoData.tasks.find(
-                            t => t.id === item.id
+                    const todo =
+                        findTodoById(
+                            item.id
                         );
 
-                    if (!task) return;
+                    if (!todo) return;
+
 
                     switch (
                         e.target.dataset.action
@@ -506,7 +603,8 @@ function renderTodoList(tasks, source) {
 
                         case "archive":
 
-                            task.archived = true;
+                            todo.archived =
+                                true;
 
                             showToast(
                                 "Task archived"
@@ -514,9 +612,11 @@ function renderTodoList(tasks, source) {
 
                             break;
 
+
                         case "restore":
 
-                            task.archived = false;
+                            todo.archived =
+                                false;
 
                             showToast(
                                 "Task moved to Current"
@@ -524,21 +624,20 @@ function renderTodoList(tasks, source) {
 
                             break;
 
+
                         case "delete":
 
                             if (
                                 !confirm(
-                                    `Delete "${task.text}"?`
+                                    `Delete "${todo.text}"?`
                                 )
                             ) {
                                 return;
                             }
 
-                            todoData.tasks =
-                                todoData.tasks.filter(
-                                    t =>
-                                        t.id !== task.id
-                                );
+                            deleteTodoById(
+                                todo.id
+                            );
 
                             showToast(
                                 "Task deleted"
@@ -548,14 +647,14 @@ function renderTodoList(tasks, source) {
 
                     }
 
-                    persistTodos(
-                        todoData
-                    );
+
+                    persistTracks();
 
                     renderTodoSection();
 
                 }
             );
+
 
         // ==========================
         // DRAG & DROP
@@ -574,11 +673,63 @@ function renderTodoList(tasks, source) {
     });
 
 }
+
+
 function renderTodayTodos() {
 
-    const {
-        current
-    } = getCurrentTodos();
+    const current = [];
+
+
+    // =====================================
+    // COLLECT CURRENT TODOS
+    // =====================================
+
+    tracks.forEach(track => {
+
+        (track.projects || []).forEach(project => {
+
+            (project.todos || []).forEach(todo => {
+
+                // ---------------------------------
+                // Current = not archived
+                // ---------------------------------
+
+                if (todo.archived) {
+                    return;
+                }
+
+
+                current.push({
+
+                    ...todo,
+
+                    trackId:
+                        track.id,
+
+                    trackName:
+                        track.name,
+
+                    trackIcon:
+                        track.icon,
+
+                    projectId:
+                        project.id,
+
+                    projectName:
+                        project.name
+
+                });
+
+            });
+
+        });
+
+    });
+
+
+    // =====================================
+    // FILTER BY TRACK
+    // =====================================
 
     const filteredTodos =
         currentTodoTrack === "all"
@@ -589,6 +740,11 @@ function renderTodayTodos() {
                     String(currentTodoTrack)
             );
 
+
+    // =====================================
+    // RENDER
+    // =====================================
+
     renderTodoList(
         filteredTodos,
         "current"
@@ -598,9 +754,50 @@ function renderTodayTodos() {
 
 function renderGlobalTodos() {
 
-    const {
-        allTime
-    } = getAllTimeTodos();
+    const allTime = [];
+
+
+    // =====================================
+    // COLLECT ALL TODOS
+    // =====================================
+
+    tracks.forEach(track => {
+
+        (track.projects || []).forEach(project => {
+
+            (project.todos || []).forEach(todo => {
+
+                allTime.push({
+
+                    ...todo,
+
+                    trackId:
+                        track.id,
+
+                    trackName:
+                        track.name,
+
+                    trackIcon:
+                        track.icon,
+
+                    projectId:
+                        project.id,
+
+                    projectName:
+                        project.name
+
+                });
+
+            });
+
+        });
+
+    });
+
+
+    // =====================================
+    // FILTER BY TRACK
+    // =====================================
 
     const filteredTodos =
         currentTodoTrack === "all"
@@ -610,6 +807,11 @@ function renderGlobalTodos() {
                     String(task.trackId) ===
                     String(currentTodoTrack)
             );
+
+
+    // =====================================
+    // RENDER
+    // =====================================
 
     renderTodoList(
         filteredTodos,
@@ -637,9 +839,12 @@ function attachTodoDragEvents(
         return;
     }
 
+
     div.draggable = true;
 
-    div.dataset.id = item.id;
+    div.dataset.id =
+        item.id;
+
 
     // ==========================
     // DRAG START
@@ -659,6 +864,7 @@ function attachTodoDragEvents(
         }
     );
 
+
     // ==========================
     // DRAG END
     // ==========================
@@ -677,6 +883,7 @@ function attachTodoDragEvents(
         }
     );
 
+
     // ==========================
     // DRAG OVER
     // ==========================
@@ -690,6 +897,7 @@ function attachTodoDragEvents(
         }
     );
 
+
     // ==========================
     // DROP
     // ==========================
@@ -699,32 +907,86 @@ function attachTodoDragEvents(
         () => {
 
             if (
-                draggedTodoId === item.id
+                draggedTodoId ===
+                item.id
             ) {
                 return;
             }
 
-            const todoData =
-                loadTodos();
 
-            const currentTasks =
-                todoData.tasks.filter(
-                    task => !task.archived
-                );
+            // =====================================
+            // FIND CURRENT TODOS
+            // =====================================
+
+            const currentTodos = [];
+
+
+            tracks.forEach(
+                track => {
+
+                    (track.projects || [])
+                        .forEach(
+                            project => {
+
+                                (project.todos || [])
+                                    .forEach(
+                                        todo => {
+
+                                            if (
+                                                !todo.archived
+                                            ) {
+
+                                                currentTodos.push({
+
+                                                    todo,
+
+                                                    project
+
+                                                });
+
+                                            }
+
+                                        }
+                                    );
+
+                            }
+                        );
+
+                }
+            );
+
+
+            // =====================================
+            // FIND DRAGGED TODO
+            // =====================================
 
             const fromIndex =
-                currentTasks.findIndex(
-                    task =>
-                        task.id ===
-                        draggedTodoId
+                currentTodos.findIndex(
+                    entry =>
+                        String(
+                            entry.todo.id
+                        ) ===
+                        String(
+                            draggedTodoId
+                        )
                 );
 
+
+            // =====================================
+            // FIND TARGET TODO
+            // =====================================
+
             const toIndex =
-                currentTasks.findIndex(
-                    task =>
-                        task.id ===
-                        item.id
+                currentTodos.findIndex(
+                    entry =>
+                        String(
+                            entry.todo.id
+                        ) ===
+                        String(
+                            item.id
+                        )
                 );
+
 
             if (
                 fromIndex === -1 ||
@@ -733,48 +995,54 @@ function attachTodoDragEvents(
                 return;
             }
 
-            const [movedTask] =
-                currentTasks.splice(
+
+            // =====================================
+            // REORDER AGGREGATED LIST
+            // =====================================
+
+            const [
+                movedEntry
+            ] =
+                currentTodos.splice(
                     fromIndex,
                     1
                 );
 
-            currentTasks.splice(
+
+            currentTodos.splice(
                 toIndex,
                 0,
-                movedTask
+                movedEntry
             );
 
-            // Update order
 
-            currentTasks.forEach(
+            // =====================================
+            // UPDATE GLOBAL ORDER
+            // =====================================
+
+            currentTodos.forEach(
                 (
-                    task,
+                    entry,
                     index
                 ) => {
 
-                    task.order =
+                    entry.todo.order =
                         index;
 
                 }
             );
 
-            // Merge back with archived tasks
 
-            todoData.tasks = [
+            // =====================================
+            // PERSIST
+            // =====================================
 
-                ...currentTasks,
+            persistTracks();
 
-                ...todoData.tasks.filter(
-                    task =>
-                        task.archived
-                )
 
-            ];
-
-            persistTodos(
-                todoData
-            );
+            // =====================================
+            // REFRESH
+            // =====================================
 
             renderTodoSection();
 
@@ -827,8 +1095,15 @@ function openSidebarTodoForm() {
                 </option>
             `).join("")}
 
-            <option value="general">
-                Others
+        </select>
+
+        <select
+            id="todoProjectSelect"
+            disabled
+        >
+
+            <option value="" disabled selected>
+                Select project
             </option>
 
         </select>
@@ -865,85 +1140,175 @@ function openSidebarTodoForm() {
             "#todoTrackSelect"
         );
 
-    revealTodoForm(form);
+    const projectSelect =
+        form.querySelector(
+            "#todoProjectSelect"
+        );
 
-    form
-        .querySelector("#saveTodoBtn")
-        .addEventListener(
-            "click",
-            () => {
+    const saveBtn =
+        form.querySelector(
+            "#saveTodoBtn"
+        );
 
-                const text =
-                    input.value.trim();
+    const cancelBtn =
+        form.querySelector(
+            "#cancelTodoBtn"
+        );
 
-                if (!text) {
-                    return;
-                }
 
-                const selectedTrack =
-                    trackSelect.value;
+    // =====================================================
+    // TRACK → PROJECT
+    // =====================================================
 
-                if (!selectedTrack) {
+    trackSelect.addEventListener(
+        "change",
+        () => {
 
-                    alert(
-                        "Please select a track."
+            const selectedTrack =
+                tracks.find(
+                    track =>
+                        String(track.id) ===
+                        String(trackSelect.value)
+                );
+
+            projectSelect.innerHTML = `
+                <option value="" disabled selected>
+                    Select project
+                </option>
+            `;
+
+            if (!selectedTrack) {
+
+                projectSelect.disabled = true;
+
+                return;
+            }
+
+            (selectedTrack.projects || [])
+                .forEach(project => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        project.id;
+
+                    option.textContent =
+                        project.name;
+
+                    projectSelect.appendChild(
+                        option
                     );
-
-                    return;
-
-                }
-
-                const todoData =
-                    loadTodos();
-
-                const trackId =
-                    selectedTrack === "general"
-                        ? "general"
-                        : Number(selectedTrack);
-
-                todoData.tasks.push({
-
-                    id: Date.now(),
-
-                    text,
-
-                    trackId,
-
-                    completed: false,
-
-                    archived: false,
-
-                    order:
-                        todoData.tasks.filter(
-                            task => !task.archived
-                        ).length,
-
-                    createdAt:
-                        new Date().toISOString(),
-
-                    completedAt: null
-
                 });
 
-                persistTodos(todoData);
+            projectSelect.disabled = false;
+        }
+    );
 
-                renderTodoSection();
 
-                form.remove();
+    revealTodoForm(form);
 
+
+    // =====================================================
+    // SAVE
+    // =====================================================
+
+    saveBtn.addEventListener(
+        "click",
+        () => {
+
+            const text =
+                input.value.trim();
+
+            if (!text) {
+                return;
             }
-        );
 
-    form
-        .querySelector("#cancelTodoBtn")
-        .addEventListener(
-            "click",
-            () => {
+            const selectedTrack =
+                tracks.find(
+                    track =>
+                        String(track.id) ===
+                        String(trackSelect.value)
+                );
 
-                form.remove();
+            if (!selectedTrack) {
 
+                alert(
+                    "Please select a track."
+                );
+
+                return;
             }
-        );
+
+            const selectedProject =
+                (selectedTrack.projects || [])
+                    .find(
+                        project =>
+                            String(project.id) ===
+                            String(projectSelect.value)
+                    );
+
+            if (!selectedProject) {
+
+                alert(
+                    "Please select a project."
+                );
+
+                return;
+            }
+
+            if (
+                !Array.isArray(
+                    selectedProject.todos
+                )
+            ) {
+                selectedProject.todos = [];
+            }
+
+            selectedProject.todos.push({
+
+                id: Date.now(),
+
+                text,
+
+                completed: false,
+
+                archived: false,
+
+                order:
+                    selectedProject.todos.length,
+
+                createdAt:
+                    new Date().toISOString(),
+
+                completedAt: null
+
+            });
+
+            persistTracks();
+
+            renderTodoSection();
+
+            form.remove();
+
+        }
+    );
+
+
+    // =====================================================
+    // CANCEL
+    // =====================================================
+
+    cancelBtn.addEventListener(
+        "click",
+        () => {
+
+            form.remove();
+
+        }
+    );
 
 }
 

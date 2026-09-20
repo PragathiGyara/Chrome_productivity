@@ -10,9 +10,6 @@
 const TRACK_STORAGE_KEY =
   "dashboardTracks";
 
-const TODO_STORAGE_KEY =
-  "dailyTodos";
-
 const TODO_DISPLAY_SETTINGS_KEY =
   "todoDisplaySettings";
 
@@ -126,9 +123,9 @@ function loadTracks() {
 
   tracks.forEach(track => {
 
-    // =====================================
+    // ===================================
     // TRACK PROJECTS
-    // =====================================
+    // ===================================
 
     if (!Array.isArray(track.projects)) {
 
@@ -139,9 +136,9 @@ function loadTracks() {
     }
 
 
-    // =====================================
+    // ===================================
     // ENSURE GENERAL PROJECT
-    // =====================================
+    // ===================================
 
     let generalProject =
       track.projects.find(
@@ -165,15 +162,15 @@ function loadTracks() {
     }
 
 
-    // =====================================
+    // ===================================
     // NORMALIZE PROJECTS
-    // =====================================
+    // ===================================
 
     track.projects.forEach(project => {
 
-      // ===================================
+      // =================================
       // PROJECT ID
-      // ===================================
+      // =================================
 
       if (!project.id) {
 
@@ -187,9 +184,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT NAME
-      // ===================================
+      // =================================
 
       if (!project.name) {
 
@@ -201,9 +198,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT READING
-      // ===================================
+      // =================================
 
       if (
         !Array.isArray(
@@ -236,9 +233,9 @@ function loadTracks() {
       });
 
 
-      // ===================================
+      // =================================
       // PROJECT TASKS
-      // ===================================
+      // =================================
 
       if (
         !Array.isArray(
@@ -253,9 +250,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT DEADLINES
-      // ===================================
+      // =================================
 
       if (
         !Array.isArray(
@@ -270,9 +267,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT TODOS
-      // ===================================
+      // =================================
 
       if (
         !Array.isArray(
@@ -287,9 +284,106 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
+      // NORMALIZE PROJECT TODOS
+      // =================================
+
+      project.todos.forEach(
+        (todo, index) => {
+
+          if (!todo.id) {
+
+            todo.id =
+              Date.now() +
+              index;
+
+            dataChanged = true;
+
+          }
+
+
+          if (
+            typeof todo.text !==
+            "string"
+          ) {
+
+            todo.text = "";
+
+            dataChanged = true;
+
+          }
+
+
+          if (
+            typeof todo.completed !==
+            "boolean"
+          ) {
+
+            todo.completed =
+              todo.done ??
+              false;
+
+            dataChanged = true;
+
+          }
+
+
+          if (
+            typeof todo.archived !==
+            "boolean"
+          ) {
+
+            todo.archived =
+              false;
+
+            dataChanged = true;
+
+          }
+
+
+          if (
+            todo.order == null
+          ) {
+
+            todo.order =
+              index;
+
+            dataChanged = true;
+
+          }
+
+
+          if (!todo.createdAt) {
+
+            todo.createdAt =
+              new Date().toISOString();
+
+            dataChanged = true;
+
+          }
+
+
+          if (
+            todo.completedAt ===
+            undefined
+          ) {
+
+            todo.completedAt =
+              todo.completed
+                ? todo.createdAt
+                : null;
+
+            dataChanged = true;
+
+          }
+
+        }
+      );
+
+
+      // =================================
       // PROJECT NOTES
-      // ===================================
+      // =================================
 
       if (
         typeof project.notes !==
@@ -303,9 +397,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT LOGS
-      // ===================================
+      // =================================
 
       if (!project.logs) {
 
@@ -316,9 +410,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT CREATED DATE
-      // ===================================
+      // =================================
 
       if (!project.createdAt) {
 
@@ -330,9 +424,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT STATUS
-      // ===================================
+      // =================================
 
       if (!project.status) {
 
@@ -344,9 +438,9 @@ function loadTracks() {
       }
 
 
-      // ===================================
+      // =================================
       // PROJECT STATUS HISTORY
-      // =====================================
+      // =================================
 
       if (
         !Array.isArray(
@@ -364,6 +458,7 @@ function loadTracks() {
         project.statusHistory = [
 
           {
+
             status:
               project.status,
 
@@ -376,6 +471,7 @@ function loadTracks() {
               getLocalTime(
                 createdAt
               )
+
           }
 
         ];
@@ -473,278 +569,6 @@ function getDefaultTracks() {
 
 
 
-// =====================================================
-// TODO STORAGE
-// =====================================================
-
-function loadTodos() {
-
-  const stored =
-    localStorage.getItem(
-      TODO_STORAGE_KEY
-    );
-
-  if (!stored) {
-
-    return {
-      tasks: []
-    };
-
-  }
-
-  const parsed =
-    JSON.parse(stored);
-
-
-  // =====================================
-  // OLD ARRAY FORMAT
-  // =====================================
-
-  if (Array.isArray(parsed)) {
-
-    let order = 0;
-
-    return {
-
-      tasks:
-
-        parsed.flatMap(day =>
-
-          day.items.map(item => ({
-
-            id: item.id,
-
-            text: item.text,
-
-            trackId:
-              item.trackId ??
-              "general",
-
-            projectId:
-              item.projectId ??
-              "general",
-
-            completed:
-              item.completed ??
-              item.done ??
-              false,
-
-            archived: false,
-
-            order:
-              order++,
-
-            createdAt:
-              item.createdAt ??
-              `${day.date}T00:00:00`,
-
-            completedAt:
-              item.completed
-                ? `${day.date}T00:00:00`
-                : null
-
-          }))
-
-        )
-
-    };
-
-  }
-
-
-  // =====================================
-  // PREVIOUS CURRENT / ALLTIME FORMAT
-  // =====================================
-
-  if (
-    parsed.current ||
-    parsed.allTime
-  ) {
-
-    let currentOrder = 0;
-
-    let archivedOrder = 0;
-
-
-    const current =
-
-      (parsed.current || [])
-        .map(task => ({
-
-          id: task.id,
-
-          text: task.text,
-
-          trackId:
-            task.trackId ??
-            "general",
-
-          projectId:
-            task.projectId ??
-            "general",
-
-          completed:
-            task.completed ??
-            task.done ??
-            false,
-
-          archived: false,
-
-          order:
-            currentOrder++,
-
-          createdAt:
-            task.createdAt ??
-            new Date().toISOString(),
-
-          completedAt:
-            task.completed
-              ? (
-                  task.completedAt ??
-                  new Date().toISOString()
-                )
-              : null
-
-        }));
-
-
-    const archived =
-
-      (parsed.allTime || [])
-        .map(task => ({
-
-          id: task.id,
-
-          text: task.text,
-
-          trackId:
-            task.trackId ??
-            "general",
-
-          projectId:
-            task.projectId ??
-            "general",
-
-          completed:
-            task.completed ??
-            task.done ??
-            false,
-
-          archived: true,
-
-          order:
-            archivedOrder++,
-
-          createdAt:
-            task.createdAt ??
-            new Date().toISOString(),
-
-          completedAt:
-            task.completed
-              ? (
-                  task.completedAt ??
-                  new Date().toISOString()
-                )
-              : null
-
-        }));
-
-
-    return {
-
-      tasks: [
-
-        ...current,
-
-        ...archived
-
-      ]
-
-    };
-
-  }
-
-
-  // =====================================
-  // CURRENT FORMAT
-  // =====================================
-
-  if (!parsed.tasks) {
-
-    parsed.tasks = [];
-
-  }
-
-
-  // =====================================
-  // NORMALIZE TODO LOCATION
-  // =====================================
-
-  parsed.tasks.forEach(task => {
-
-    if (
-      task.trackId == null
-    ) {
-
-      task.trackId =
-        "general";
-
-    }
-
-
-    if (
-      task.projectId == null
-    ) {
-
-      task.projectId =
-        "general";
-
-    }
-
-  });
-
-
-  // =====================================
-  // ENSURE EVERY TASK HAS AN ORDER
-  // =====================================
-
-  let currentOrder = 0;
-
-  let archivedOrder = 0;
-
-
-  parsed.tasks.forEach(task => {
-
-    if (task.order == null) {
-
-      task.order =
-        task.archived
-          ? archivedOrder++
-          : currentOrder++;
-
-    }
-
-  });
-
-
-  return parsed;
-
-}
-
-
-function persistTodos(
-  todoData
-) {
-
-  localStorage.setItem(
-    TODO_STORAGE_KEY,
-    JSON.stringify(todoData)
-  );
-
-}
-
-
-
 
 // =====================================================
 // TODO DISPLAY SETTINGS
@@ -801,45 +625,6 @@ function getTodayKey() {
 }
 
 
-function getCurrentTodos() {
-
-  const todoData =
-    loadTodos();
-
-  return {
-
-    todoData,
-
-    current:
-      todoData.tasks.filter(
-        task => !task.archived
-      )
-
-  };
-
-}
-
-
-function getAllTimeTodos() {
-
-  const todoData =
-    loadTodos();
-
-  return {
-
-    todoData,
-
-    allTime:
-      todoData.tasks.filter(
-        task => task.archived
-      )
-
-  };
-
-}
-
-
-
 
 // =====================================================
 // WEEK HELPERS
@@ -872,7 +657,6 @@ function getTimetableWeekKey(
   );
 
 }
-
 
 function getDateFromTimetableWeekKey(
   weekKey

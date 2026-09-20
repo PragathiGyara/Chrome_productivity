@@ -26,9 +26,13 @@ let currentOpenTrackId = null;
 // =====================================================
 
 function openTrackView(trackId) {
+
   activeTrackId = trackId;
+
   currentView = "track";
+
   renderTrackWorkspace();
+
 }
 
 function backToDashboard() {
@@ -48,16 +52,34 @@ function renderTrackWorkspace() {
     document.querySelector(".center");
 
   const track =
-    tracks.find(t => t.id === activeTrackId);
+    tracks.find(
+      t =>
+        String(t.id) ===
+        String(activeTrackId)
+    );
 
   if (!track) return;
 
+
+  // =====================================
+  // DETERMINE DEFAULT PROJECT
+  // =====================================
+
   const project =
     track.projects?.find(
-      p => String(p.id) === "general"
-    ) || track.projects?.[0];
+      p =>
+        String(p.id) ===
+        "general"
+    ) ||
+    track.projects?.[0];
+
 
   if (!project) return;
+
+
+  // =====================================
+  // RENDER WORKSPACE
+  // =====================================
 
   center.innerHTML = `
 
@@ -116,13 +138,15 @@ function renderTrackWorkspace() {
 
       </div>
 
+
       <div class="workspace-divider">
 
         ${tracks.map(t => `
 
           <span
             class="track-chip ${
-              t.id === activeTrackId
+              String(t.id) ===
+              String(activeTrackId)
                 ? "active-chip"
                 : ""
             }"
@@ -134,6 +158,7 @@ function renderTrackWorkspace() {
         `).join("")}
 
       </div>
+
 
       <!-- PROJECT DROPDOWN -->
 
@@ -156,7 +181,9 @@ function renderTrackWorkspace() {
 
       </select>
 
+
       <div class="workspace-layout">
+
 
         <!-- ========================================= -->
         <!-- READING -->
@@ -302,18 +329,42 @@ function renderTrackWorkspace() {
 
   `;
 
+
+  // =====================================
+  // WORKSPACE EVENTS
+  // =====================================
+
   attachWorkspaceEvents();
 
-  renderDeadlines(project);
 
-  renderReading(project);
+  // =====================================
+  // INITIAL RENDER
+  // =====================================
 
-  renderTasks(project);
+  renderDeadlines(
+    project
+  );
 
-  renderWorkspaceTodos(track);
+  renderReading(
+    project
+  );
 
-  renderNotes(project);
+  renderTasks(
+    project
+  );
 
+  renderWorkspaceTodos(
+    project
+  );
+
+  renderNotes(
+    project
+  );
+
+
+  // =====================================
+  // SMART SCROLLBAR
+  // =====================================
 
   const divider =
     document.querySelector(
@@ -322,7 +373,9 @@ function renderTrackWorkspace() {
 
   if (divider) {
 
-    enableSmartScrollbar(divider);
+    enableSmartScrollbar(
+      divider
+    );
 
   }
 
@@ -399,6 +452,15 @@ function renderTrackWorkspace() {
         // =====================================
 
         renderTasks(
+          selectedProject
+        );
+
+
+        // =====================================
+        // TO-DOS
+        // =====================================
+
+        renderWorkspaceTodos(
           selectedProject
         );
 
@@ -480,6 +542,8 @@ function attachWorkspaceEvents() {
         renderTasks(project);
 
         renderDeadlines(project);
+
+        renderWorkspaceTodos(project);
 
         renderNotes(project);
 
@@ -735,8 +799,21 @@ function attachWorkspaceEvents() {
       "click",
       () => {
 
+        const project =
+          getSelectedProject();
+
+        if (!project) {
+
+          showToast(
+            "Please select a project first"
+          );
+
+          return;
+
+        }
+
         openWorkspaceTodoForm(
-          track
+          project
         );
 
       }
@@ -817,7 +894,6 @@ function attachWorkspaceEvents() {
     });
 
 }
-
 // =====================================================
 // DEADLINE RENDERING
 // =====================================================
@@ -4033,80 +4109,167 @@ function enableNotesEdit(
 // TO DO
 // =====================================================
 
-function renderWorkspaceTodos(track) {
+function renderWorkspaceTodos(project) {
 
   const container =
-    document.getElementById("todoList");
-
-  if (!container) return;
-
-  const todoData =
-    loadTodos();
-
-  const trackTodos =
-    todoData.tasks
-      .filter(todo =>
-        todo.trackId === track.id
-      )
-      .sort((a, b) =>
-        a.order - b.order
-      );
-
-  container.innerHTML = "";
-
-  trackTodos.forEach(todo => {
-
-    const div =
-      document.createElement("div");
-
-    div.classList.add(
-      "deadline-item"
+    document.getElementById(
+      "todoList"
     );
 
-    if (todo.completed) {
-      div.classList.add(
-        "task-complete"
-      );
-    }
-
-    div.innerHTML = `
-
-      <div class="task-main">
-
-        <strong>
-          ${todo.completed ? "✔ " : ""}
-          ${todo.text}
-        </strong>
-
-      </div>
-
-    `;
-
-    container.appendChild(div);
-
-  });
-
-}
-
-function openWorkspaceTodoForm(track) {
-
-  const container =
-    document.getElementById("todoList");
-
-  if (!container) return;
-
   if (
-    container.querySelector(".todo-form")
+    !container ||
+    !project
   ) {
     return;
   }
 
+
+  // =====================================
+  // ENSURE TODO ARRAY
+  // =====================================
+
+  if (
+    !Array.isArray(
+      project.todos
+    )
+  ) {
+
+    project.todos = [];
+
+  }
+
+
+  // =====================================
+  // CLEAR LIST
+  // =====================================
+
+  container.innerHTML = "";
+
+
+  // =====================================
+  // SORT TODOS
+  // =====================================
+
+  const todos =
+    [...project.todos]
+      .sort(
+        (a, b) =>
+          (a.order ?? 0) -
+          (b.order ?? 0)
+      );
+
+
+  // =====================================
+  // RENDER TODOS
+  // =====================================
+
+  todos.forEach(
+    todo => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.classList.add(
+        "deadline-item"
+      );
+
+
+      if (todo.completed) {
+
+        div.classList.add(
+          "task-complete"
+        );
+
+      }
+
+
+      div.innerHTML = `
+
+        <div class="task-main">
+
+          <strong>
+            ${
+              todo.completed
+                ? "✔ "
+                : ""
+            }
+
+            ${todo.text}
+
+          </strong>
+
+        </div>
+
+      `;
+
+
+      container.appendChild(
+        div
+      );
+
+    }
+  );
+
+}
+
+function openWorkspaceTodoForm(project) {
+
+  const container =
+    document.getElementById(
+      "todoList"
+    );
+
+  if (
+    !container ||
+    !project
+  ) {
+    return;
+  }
+
+
+  // =====================================
+  // PREVENT DUPLICATE FORM
+  // =====================================
+
+  if (
+    container.querySelector(
+      ".todo-form"
+    )
+  ) {
+    return;
+  }
+
+
+  // =====================================
+  // ENSURE TODO ARRAY
+  // =====================================
+
+  if (
+    !Array.isArray(
+      project.todos
+    )
+  ) {
+
+    project.todos = [];
+
+  }
+
+
+  // =====================================
+  // CREATE FORM
+  // =====================================
+
   const form =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   form.classList.add(
     "todo-form"
   );
+
 
   form.innerHTML = `
 
@@ -4138,74 +4301,114 @@ function openWorkspaceTodoForm(track) {
 
   `;
 
-  container.prepend(form);
+
+  container.prepend(
+    form
+  );
+
+
+  // =====================================
+  // ELEMENTS
+  // =====================================
 
   const input =
     form.querySelector(
       "#workspaceTodoInput"
     );
 
-  revealTodoForm(form);
-
-  form
-    .querySelector("#saveWorkspaceTodoBtn")
-    .addEventListener(
-      "click",
-      () => {
-
-        const text =
-          input.value.trim();
-
-        if (!text) {
-          return;
-        }
-
-        const todoData =
-          loadTodos();
-
-        todoData.tasks.push({
-
-          id: Date.now(),
-
-          text,
-
-          trackId: track.id,
-
-          completed: false,
-
-          archived: false,
-
-          order:
-            todoData.tasks.filter(
-              task => !task.archived
-            ).length,
-
-          createdAt:
-            new Date().toISOString(),
-
-          completedAt: null
-
-        });
-
-        persistTodos(todoData);
-
-        form.remove();
-
-        renderTrackWorkspace();
-
-      }
+  const saveBtn =
+    form.querySelector(
+      "#saveWorkspaceTodoBtn"
     );
 
-  form
-    .querySelector("#cancelWorkspaceTodoBtn")
-    .addEventListener(
-      "click",
-      () => {
-
-        form.remove();
-
-      }
+  const cancelBtn =
+    form.querySelector(
+      "#cancelWorkspaceTodoBtn"
     );
+
+
+  // =====================================
+  // REVEAL FORM
+  // =====================================
+
+  revealTodoForm(
+    form
+  );
+
+
+  // =====================================
+  // SAVE TODO
+  // =====================================
+
+  saveBtn.addEventListener(
+    "click",
+    () => {
+
+      const text =
+        input.value.trim();
+
+
+      if (!text) {
+        return;
+      }
+
+
+      project.todos.push({
+
+        id:
+          Date.now(),
+
+        text,
+
+        completed:
+          false,
+
+        archived:
+          false,
+
+        order:
+          project.todos.length,
+
+        createdAt:
+          new Date().toISOString(),
+
+        completedAt:
+          null
+
+      });
+
+
+      persistTracks();
+
+
+      form.remove();
+
+
+      renderWorkspaceTodos(
+        project
+      );
+
+
+      showToast(
+        "Todo added"
+      );
+
+    }
+  );
+
+
+  // =====================================
+  // CANCEL
+  // =====================================
+
+  cancelBtn.addEventListener(
+    "click",
+    () => {
+
+      form.remove();
+
+    }
+  );
 
 }
 
