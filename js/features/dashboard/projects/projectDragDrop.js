@@ -1,6 +1,19 @@
 // =====================================================
 // PROJECT DRAG & DROP
 // =====================================================
+//
+// Projects are displayed as one global list across
+// all Tracks.
+//
+// Dragging changes the global sortOrder.
+//
+// Dragging NEVER changes a project's Track.
+// =====================================================
+
+
+// =====================================================
+// STATE
+// =====================================================
 
 let draggedProjectRow = null;
 
@@ -16,29 +29,51 @@ function initializeProjectDragDrop() {
       ".project-row[draggable='true']"
     );
 
-  rows.forEach(row => {
 
-    row.addEventListener(
-      "dragstart",
-      handleProjectDragStart
-    );
+  rows.forEach(
+    row => {
 
-    row.addEventListener(
-      "dragover",
-      handleProjectDragOver
-    );
+      // Prevent duplicate listeners.
 
-    row.addEventListener(
-      "drop",
-      handleProjectDrop
-    );
+      if (
+        row.dataset.dragEventsAttached ===
+        "true"
+      ) {
 
-    row.addEventListener(
-      "dragend",
-      handleProjectDragEnd
-    );
+        return;
 
-  });
+      }
+
+
+      row.dataset.dragEventsAttached =
+        "true";
+
+
+      row.addEventListener(
+        "dragstart",
+        handleProjectDragStart
+      );
+
+
+      row.addEventListener(
+        "dragover",
+        handleProjectDragOver
+      );
+
+
+      row.addEventListener(
+        "drop",
+        handleProjectDrop
+      );
+
+
+      row.addEventListener(
+        "dragend",
+        handleProjectDragEnd
+      );
+
+    }
+  );
 
 }
 
@@ -54,11 +89,19 @@ function handleProjectDragStart(
   draggedProjectRow =
     e.currentTarget;
 
-  e.dataTransfer.effectAllowed =
-    "move";
 
   draggedProjectRow.classList.add(
     "dragging-project"
+  );
+
+
+  e.dataTransfer.effectAllowed =
+    "move";
+
+
+  e.dataTransfer.setData(
+    "text/plain",
+    draggedProjectRow.dataset.projectId
   );
 
 }
@@ -73,6 +116,7 @@ function handleProjectDragOver(
 ) {
 
   e.preventDefault();
+
 
   e.dataTransfer.dropEffect =
     "move";
@@ -90,39 +134,62 @@ function handleProjectDrop(
 
   e.preventDefault();
 
-  const targetRow =
-    e.currentTarget;
 
   if (
-    !draggedProjectRow ||
-    draggedProjectRow === targetRow
+    !draggedProjectRow
   ) {
 
     return;
 
   }
 
-  const draggedId =
-    Number(
-      draggedProjectRow.dataset.projectId
+
+  const targetRow =
+    e.currentTarget;
+
+
+  if (
+    draggedProjectRow ===
+    targetRow
+  ) {
+
+    return;
+
+  }
+
+
+  const list =
+    document.getElementById(
+      "projectsList"
     );
 
-  const targetId =
-    Number(
-      targetRow.dataset.projectId
+
+  if (!list) return;
+
+
+  // =====================================
+  // GET CURRENT TRACKER ORDER
+  // =====================================
+
+  const rows =
+    Array.from(
+      list.querySelectorAll(
+        ".project-row[draggable='true']"
+      )
     );
+
 
   const draggedIndex =
-    projects.findIndex(
-      project =>
-        project.id === draggedId
+    rows.indexOf(
+      draggedProjectRow
     );
 
+
   const targetIndex =
-    projects.findIndex(
-      project =>
-        project.id === targetId
+    rows.indexOf(
+      targetRow
     );
+
 
   if (
     draggedIndex === -1 ||
@@ -133,21 +200,193 @@ function handleProjectDrop(
 
   }
 
-  const [
-    draggedProject
-  ] =
-    projects.splice(
-      draggedIndex,
-      1
+
+  // =====================================
+  // BUILD CURRENT ORDER
+  // =====================================
+
+  const orderedIds =
+    rows.map(
+      row =>
+        String(
+          row.dataset.projectId
+        )
     );
 
-  projects.splice(
-    targetIndex,
-    0,
-    draggedProject
+
+  const draggedId =
+    String(
+      draggedProjectRow.dataset.projectId
+    );
+
+
+  const targetId =
+    String(
+      targetRow.dataset.projectId
+    );
+
+
+  // =====================================
+  // REMOVE DRAGGED PROJECT
+  // =====================================
+
+  const currentIndex =
+    orderedIds.indexOf(
+      draggedId
+    );
+
+
+  if (
+    currentIndex === -1
+  ) {
+
+    return;
+
+  }
+
+
+  orderedIds.splice(
+    currentIndex,
+    1
   );
 
-  refreshProjectsUI();
+
+  // =====================================
+  // FIND TARGET AGAIN
+  // =====================================
+
+  let insertionIndex =
+    orderedIds.indexOf(
+      targetId
+    );
+
+
+  if (
+    insertionIndex === -1
+  ) {
+
+    return;
+
+  }
+
+
+  // =====================================
+  // DROP ABOVE / BELOW TARGET
+  // =====================================
+
+  const targetRect =
+    targetRow.getBoundingClientRect();
+
+
+  const dropBelow =
+    e.clientY >
+    (
+      targetRect.top +
+      targetRect.height / 2
+    );
+
+
+  if (
+    dropBelow
+  ) {
+
+    insertionIndex += 1;
+
+  }
+
+
+  orderedIds.splice(
+    insertionIndex,
+    0,
+    draggedId
+  );
+
+
+  // =====================================
+  // CREATE GLOBAL ORDER MAP
+  // =====================================
+
+  const orderMap =
+    new Map();
+
+
+  orderedIds.forEach(
+    (
+      projectId,
+      index
+    ) => {
+
+      orderMap.set(
+        projectId,
+        index
+      );
+
+    }
+  );
+
+
+  // =====================================
+  // WRITE SORT ORDER TO STORAGE
+  // =====================================
+
+  tracks.forEach(
+    track => {
+
+      (track.projects || [])
+        .forEach(
+          project => {
+
+            const projectId =
+              String(
+                project.id
+              );
+
+
+            if (
+              orderMap.has(
+                projectId
+              )
+            ) {
+
+              project.sortOrder =
+                orderMap.get(
+                  projectId
+                );
+
+            }
+
+          }
+        );
+
+    }
+  );
+
+
+  // =====================================
+  // SAVE
+  // =====================================
+
+  persistTracks();
+
+
+  // =====================================
+  // CLEAN UP
+  // =====================================
+
+  draggedProjectRow.classList.remove(
+    "dragging-project"
+  );
+
+
+  draggedProjectRow =
+    null;
+
+
+  // =====================================
+  // RENDER
+  // =====================================
+
+  renderProjects();
 
 }
 
@@ -158,10 +397,16 @@ function handleProjectDrop(
 
 function handleProjectDragEnd() {
 
-  draggedProjectRow
-    ?.classList.remove(
+  if (
+    draggedProjectRow
+  ) {
+
+    draggedProjectRow.classList.remove(
       "dragging-project"
     );
+
+  }
+
 
   draggedProjectRow =
     null;

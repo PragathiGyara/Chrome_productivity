@@ -100,7 +100,7 @@ function loadTracks() {
 
 
   // =====================================================
-  // CREATE DEFAULT TRACKS IF NOTHING EXISTS
+  // CREATE DEFAULT TRACKS
   // =====================================================
 
   if (!saved) {
@@ -164,7 +164,9 @@ function loadTracks() {
   try {
 
     tracks =
-      JSON.parse(saved);
+      JSON.parse(
+        saved
+      );
 
   } catch (error) {
 
@@ -222,22 +224,30 @@ function loadTracks() {
 
 
   // =====================================================
-  // NORMALIZE TRACKS
+  // NORMALIZE TRACK ARRAY
   // =====================================================
 
-  if (!Array.isArray(tracks)) {
+  if (
+    !Array.isArray(
+      tracks
+    )
+  ) {
 
     tracks = [];
 
   }
 
 
+  // =====================================================
+  // NORMALIZE TRACKS
+  // =====================================================
+
   tracks =
     tracks.map(
       track => {
 
         // -----------------------------------------------
-        // NORMALIZE TRACK
+        // TRACK BASICS
         // -----------------------------------------------
 
         track.id =
@@ -258,7 +268,7 @@ function loadTracks() {
 
 
         // -----------------------------------------------
-        // NORMALIZE PROJECT ARRAY
+        // PROJECT ARRAY
         // -----------------------------------------------
 
         if (
@@ -281,7 +291,7 @@ function loadTracks() {
             project => {
 
               // -------------------------------------------
-              // BASIC PROJECT DATA
+              // BASIC DATA
               // -------------------------------------------
 
               project.id =
@@ -291,16 +301,6 @@ function loadTracks() {
               project.name =
                 project.name ??
                 "Unnamed Project";
-
-
-              // -------------------------------------------
-              // TARGET HOURS
-              // -------------------------------------------
-
-              project.targetHoursPerDay =
-                Number(
-                  project.targetHoursPerDay
-                ) || 0;
 
 
               // -------------------------------------------
@@ -318,11 +318,17 @@ function loadTracks() {
 
 
               // -------------------------------------------
+              // TARGET HOURS
+              // -------------------------------------------
+
+              project.targetHoursPerDay =
+                Number(
+                  project.targetHoursPerDay
+                ) || 0;
+
+
+              // -------------------------------------------
               // TARGET HOURS HISTORY
-              //
-              // Existing projects did not previously have
-              // this field, so create an initial record
-              // using their existing target.
               // -------------------------------------------
 
               if (
@@ -492,6 +498,28 @@ function loadTracks() {
               }
 
 
+              // -------------------------------------------
+              // SORT ORDER
+              //
+              // Existing projects may not have this.
+              // We temporarily leave it undefined.
+              // It is assigned globally below.
+              // -------------------------------------------
+
+              if (
+                !Number.isFinite(
+                  Number(
+                    project.sortOrder
+                  )
+                )
+              ) {
+
+                project.sortOrder =
+                  null;
+
+              }
+
+
               return project;
 
             }
@@ -499,7 +527,7 @@ function loadTracks() {
 
 
         // =================================================
-        // ENSURE GENERAL PROJECT EXISTS
+        // ENSURE GENERAL PROJECT
         // =================================================
 
         const hasGeneralProject =
@@ -528,6 +556,120 @@ function loadTracks() {
 
 
   // =====================================================
+  // NORMALIZE GLOBAL PROJECT ORDER
+  // =====================================================
+  //
+  // The Project Tracker displays projects from ALL
+  // tracks as one combined list.
+  //
+  // Therefore sortOrder must be global, not per-track.
+  //
+  // Existing projects that already have a valid
+  // sortOrder keep it.
+  //
+  // Projects without one are assigned positions
+  // after the existing ordered projects.
+  // =====================================================
+
+  const orderedProjects = [];
+
+
+  tracks.forEach(
+    track => {
+
+      (track.projects || [])
+        .forEach(
+          project => {
+
+            if (
+              String(project.id) ===
+              "general"
+            ) {
+
+              return;
+
+            }
+
+
+            orderedProjects.push(
+              project
+            );
+
+          }
+        );
+
+    }
+  );
+
+
+  // =====================================================
+  // FIND EXISTING ORDERED PROJECTS
+  // =====================================================
+
+  const projectsWithOrder =
+    orderedProjects
+      .filter(
+        project =>
+          Number.isFinite(
+            Number(
+              project.sortOrder
+            )
+          )
+      );
+
+
+  // =====================================================
+  // FIND NEXT AVAILABLE ORDER
+  // =====================================================
+
+  let nextSortOrder = 0;
+
+
+  if (
+    projectsWithOrder.length > 0
+  ) {
+
+    nextSortOrder =
+      Math.max(
+        ...projectsWithOrder.map(
+          project =>
+            Number(
+              project.sortOrder
+            )
+        )
+      ) + 1;
+
+  }
+
+
+  // =====================================================
+  // ASSIGN ORDER TO PROJECTS THAT DO NOT HAVE ONE
+  // =====================================================
+
+  orderedProjects
+    .forEach(
+      project => {
+
+        if (
+          !Number.isFinite(
+            Number(
+              project.sortOrder
+            )
+          )
+        ) {
+
+          project.sortOrder =
+            nextSortOrder;
+
+          nextSortOrder++;
+
+        }
+
+      }
+    );
+
+
+  // =====================================================
   // SAVE NORMALIZED DATA
   // =====================================================
 
@@ -537,7 +679,6 @@ function loadTracks() {
   return tracks;
 
 }
-
 
 
 // =====================================================

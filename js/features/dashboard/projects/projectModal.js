@@ -321,7 +321,40 @@ function attachProjectRowActions(
 ) {
 
   // =====================================
-  // EDIT
+  // EDIT PROJECT
+  //
+  // Clicking anywhere on the project row
+  // opens the edit modal.
+  // =====================================
+
+  row.addEventListener(
+    "click",
+    e => {
+
+      // Do not open Edit when clicking
+      // one of the action buttons.
+
+      if (
+        e.target.closest(
+          "button"
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      openEditProjectModal(
+        project.id
+      );
+
+    }
+  );
+
+
+  // =====================================
+  // EDIT BUTTON
   // =====================================
 
   row
@@ -420,7 +453,6 @@ function attachProjectRowActions(
     );
 
 }
-
 
 // =====================================================
 // TAB COUNTS

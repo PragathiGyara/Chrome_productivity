@@ -53,7 +53,7 @@ function findProjectById(projectId) {
 
 function refreshProjectsUI() {
 
-  persistProjects();
+  persistTracks();
 
   renderProjects();
 
@@ -210,8 +210,12 @@ function saveProject() {
   const duplicate =
     (track.projects || []).some(
       project =>
-        String(project.id) !== "general" &&
-        project.name.trim().toLowerCase() ===
+        String(project.id) !==
+          "general" &&
+
+        project.name
+          .trim()
+          .toLowerCase() ===
           name.toLowerCase()
     );
 
@@ -228,12 +232,55 @@ function saveProject() {
 
 
   // =====================================
+  // FIND NEXT GLOBAL SORT ORDER
+  // =====================================
+
+  const allProjects =
+    tracks.flatMap(
+      track =>
+        (track.projects || [])
+          .filter(
+            project =>
+              String(project.id) !==
+              "general"
+          )
+    );
+
+
+  const existingOrders =
+    allProjects
+      .map(
+        project =>
+          Number(
+            project.sortOrder
+          )
+      )
+      .filter(
+        order =>
+          Number.isFinite(order)
+      );
+
+
+  const nextSortOrder =
+    existingOrders.length > 0
+
+      ? Math.max(
+          ...existingOrders
+        ) + 1
+
+      : 0;
+
+
+  // =====================================
   // CREATE PROJECT
   // =====================================
 
+  const now =
+    new Date();
+
   const today =
     getLocalDateKey(
-      new Date()
+      now
     );
 
 
@@ -260,8 +307,11 @@ function saveProject() {
 
     ],
 
+    sortOrder:
+      nextSortOrder,
+
     createdAt:
-      new Date().toISOString(),
+      now.toISOString(),
 
     status:
       "active",
@@ -277,7 +327,7 @@ function saveProject() {
 
         time:
           getLocalTime(
-            new Date()
+            now
           )
       }
 
@@ -291,6 +341,8 @@ function saveProject() {
 
     tasks: [],
 
+    todos: [],
+
     notes: ""
 
   };
@@ -300,7 +352,11 @@ function saveProject() {
   // ADD TO TRACK
   // =====================================
 
-  if (!track.projects) {
+  if (
+    !Array.isArray(
+      track.projects
+    )
+  ) {
 
     track.projects = [];
 
@@ -329,11 +385,13 @@ function saveProject() {
 
   }
 
+
   if (targetInput) {
 
     targetInput.value = "";
 
   }
+
 
   if (trackSelect) {
 
@@ -343,7 +401,7 @@ function saveProject() {
 
 
   // =====================================
-  // REFRESH UI
+  // REFRESH MANAGE PROJECTS
   // =====================================
 
   renderManageProjectsContent();

@@ -436,46 +436,103 @@ function getProjectsForSelectedDate() {
               String(project.id) !==
               "general"
           )
+          .map(
+            project => ({
+              ...project,
+
+              trackId:
+                track.id,
+
+              trackName:
+                track.name,
+
+              trackIcon:
+                track.icon
+            })
+          )
     );
 
-  return allProjects.filter(project => {
 
-    const createdDateKey =
-      getDateKey(
-        new Date(
-          project.createdAt
+  // =====================================
+  // SORT BY GLOBAL PROJECT ORDER
+  // =====================================
+
+  allProjects.sort(
+    (a, b) => {
+
+      const aOrder =
+        Number.isFinite(
+          Number(a.sortOrder)
         )
+          ? Number(a.sortOrder)
+          : Number.MAX_SAFE_INTEGER;
+
+
+      const bOrder =
+        Number.isFinite(
+          Number(b.sortOrder)
+        )
+          ? Number(b.sortOrder)
+          : Number.MAX_SAFE_INTEGER;
+
+
+      return (
+        aOrder -
+        bOrder
       );
 
-    if (
-      selectedProjectDate <
-      createdDateKey
-    ) {
+    }
+  );
 
-      return false;
+
+  // =====================================
+  // DATE FILTER
+  // =====================================
+
+  return allProjects.filter(
+    project => {
+
+      const createdDateKey =
+        getDateKey(
+          new Date(
+            project.createdAt
+          )
+        );
+
+
+      if (
+        selectedProjectDate <
+        createdDateKey
+      ) {
+
+        return false;
+
+      }
+
+
+      const completedEntry =
+        project.statusHistory?.find(
+          entry =>
+            entry.status ===
+            "completed"
+        );
+
+
+      if (
+        completedEntry &&
+        selectedProjectDate >
+          completedEntry.date
+      ) {
+
+        return false;
+
+      }
+
+
+      return true;
 
     }
-
-    const completedEntry =
-      project.statusHistory?.find(
-        entry =>
-          entry.status ===
-          "completed"
-      );
-
-    if (
-      completedEntry &&
-      selectedProjectDate >
-        completedEntry.date
-    ) {
-
-      return false;
-
-    }
-
-    return true;
-
-  });
+  );
 
 }
 
@@ -491,6 +548,7 @@ function renderProjects() {
     return;
   }
 
+
   const list =
     document.getElementById(
       "projectsList"
@@ -498,19 +556,30 @@ function renderProjects() {
 
   if (!list) return;
 
+
   list.innerHTML = "";
 
-  getProjectsForSelectedDate()
 
+  getProjectsForSelectedDate()
     .forEach(project => {
 
       const todayKey =
         selectedProjectDate;
 
+
+      // =====================================
+      // TODAY'S HOURS
+      // =====================================
+
       const todayHours =
         project.logs?.[
           todayKey
         ] || 0;
+
+
+      // =====================================
+      // PROGRESS
+      // =====================================
 
       const progress =
 
@@ -526,6 +595,11 @@ function renderProjects() {
 
         : 0;
 
+
+      // =====================================
+      // COMPLETED STATUS
+      // =====================================
+
       const completedEntry =
         project.statusHistory?.find(
           entry =>
@@ -533,17 +607,29 @@ function renderProjects() {
             "completed"
         );
 
+
       const isCompleted =
         !!completedEntry;
+
+
+      // =====================================
+      // CREATE ROW
+      // =====================================
 
       const row =
         document.createElement(
           "div"
         );
 
+
       row.classList.add(
         "project-row"
       );
+
+
+      // =====================================
+      // COMPLETED CLASS
+      // =====================================
 
       if (
         isCompleted
@@ -555,19 +641,28 @@ function renderProjects() {
 
       }
 
+
       // =====================================
       // DRAG ENABLED
+      //
+      // Active and paused projects can
+      // be reordered.
+      //
+      // Completed projects remain fixed.
       // =====================================
 
       if (
-        project.status ===
-          "active" &&
         !isCompleted
       ) {
 
         row.draggable = true;
 
       }
+
+
+      // =====================================
+      // PAUSED CLASS
+      // =====================================
 
       if (
         project.status ===
@@ -580,10 +675,24 @@ function renderProjects() {
 
       }
 
+
+      // =====================================
+      // PROJECT ID
+      // =====================================
+
       row.dataset.projectId =
         project.id;
 
+
+      // =====================================
+      // ROW HTML
+      // =====================================
+
       row.innerHTML = `
+
+        <!-- =================================
+             PROJECT INFORMATION
+        ================================== -->
 
         <div
           class="project-info"
@@ -610,6 +719,7 @@ function renderProjects() {
               : ""
             }
 
+
             ${
               isCompleted
 
@@ -626,17 +736,30 @@ function renderProjects() {
 
           </div>
 
+
           <div
             class="project-hours"
           >
 
             ${formatHours(todayHours)}
             /
-            ${formatHours(project.targetHoursPerDay)}
+            ${formatHours(
+              project.targetHoursPerDay
+            )}
 
           </div>
 
         </div>
+
+
+        <!-- =================================
+             VISUAL PROGRESS BAR
+
+             This is ONLY visual.
+
+             There is NO slider behaviour.
+             There is NO event listener.
+        ================================== -->
 
         <div
           class="project-progress"
@@ -645,18 +768,17 @@ function renderProjects() {
           <div
             class="project-progress-fill"
             style="
-              width:
-              ${progress}%
+              width: ${progress}%;
             "
           >
-
-            <div
-              class="project-progress-thumb"
-            ></div>
-
           </div>
 
         </div>
+
+
+        <!-- =================================
+             PROJECT ACTIONS
+        ================================== -->
 
         <div
           class="project-actions"
@@ -667,11 +789,14 @@ function renderProjects() {
 
             ? `
 
+              <!-- ADD TIME -->
+
               <button
                 class="project-add-btn"
               >
                 + Add
               </button>
+
 
               ${
                 project.status !==
@@ -679,11 +804,16 @@ function renderProjects() {
 
                 ? `
 
+                  <!-- PAUSE -->
+
                   <button
                     class="project-pause-btn"
                   >
                     Pause
                   </button>
+
+
+                  <!-- COMPLETE -->
 
                   <button
                     class="project-complete-btn"
@@ -694,6 +824,8 @@ function renderProjects() {
                 `
 
                 : `
+
+                  <!-- RESUME -->
 
                   <button
                     class="project-resume-btn"
@@ -709,6 +841,9 @@ function renderProjects() {
             : ""
           }
 
+
+          <!-- DELETE -->
+
           <button
             class="project-delete-btn"
           >
@@ -716,19 +851,59 @@ function renderProjects() {
           </button>
 
         </div>
+
       `;
 
-      if (
-        !isCompleted
-      ) {
 
-        attachProjectRowEvents(
-          row,
-          project,
-          todayKey
-        );
+      // =====================================
+      // ROW CLICK → EDIT PROJECT
+      // =====================================
+      //
+      // Clicking the project row opens
+      // the Edit Project modal.
+      //
+      // Clicking a button does NOT open
+      // the Edit modal because buttons have
+      // their own actions.
+      // =====================================
 
-      }
+      row.addEventListener(
+        "click",
+        e => {
+
+          if (
+            e.target.closest(
+              "button"
+            )
+          ) {
+
+            return;
+
+          }
+
+
+          openEditProjectModal(
+            project.id
+          );
+
+        }
+      );
+
+
+      // =====================================
+      // PROJECT ACTIONS
+      // =====================================
+
+      attachProjectRowEvents(
+        row,
+        project,
+        todayKey
+      );
+
+
+      // =====================================
+      // ADD TO DOM
+      // =====================================
 
       list.appendChild(
         row
@@ -736,10 +911,14 @@ function renderProjects() {
 
     });
 
+
+  // =====================================
+  // INITIALIZE DRAG & DROP
+  // =====================================
+
   initializeProjectDragDrop();
 
 }
-
 // =====================================================
 // PROJECT ROW EVENTS
 // =====================================================
@@ -749,6 +928,10 @@ function attachProjectRowEvents(
   project,
   todayKey
 ) {
+
+  // =====================================
+  // PAUSED PROJECT
+  // =====================================
 
   if (
     project.status ===
@@ -770,6 +953,7 @@ function attachProjectRowEvents(
       });
 
   }
+
 
   // =====================================
   // ADD TIME
@@ -869,30 +1053,9 @@ function attachProjectRowEvents(
         )
     );
 
-
-  // =====================================
-  // DRAG SLIDER
-  // =====================================
-
-  row
-    .querySelector(
-      ".project-progress"
-    )
-    ?.addEventListener(
-      "mousedown",
-      e => {
-
-        startProjectSliderDrag(
-          e,
-          project,
-          todayKey,
-          row
-        );
-
-      }
-    );
-
 }
+
+
 // =====================================================
 // PROJECT SLIDER
 // =====================================================
