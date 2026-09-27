@@ -421,9 +421,24 @@ function renderProjectsView() {
 // RENDER PROJECT ROWS
 // =====================================================
 
+// =====================================================
+// GET PROJECTS FOR SELECTED DATE
+// =====================================================
+
 function getProjectsForSelectedDate() {
 
-  return projects.filter(project => {
+  const allProjects =
+    tracks.flatMap(
+      track =>
+        (track.projects || [])
+          .filter(
+            project =>
+              String(project.id) !==
+              "general"
+          )
+    );
+
+  return allProjects.filter(project => {
 
     const createdDateKey =
       getDateKey(
@@ -436,7 +451,9 @@ function getProjectsForSelectedDate() {
       selectedProjectDate <
       createdDateKey
     ) {
+
       return false;
+
     }
 
     const completedEntry =
@@ -451,7 +468,9 @@ function getProjectsForSelectedDate() {
       selectedProjectDate >
         completedEntry.date
     ) {
+
       return false;
+
     }
 
     return true;
@@ -459,6 +478,10 @@ function getProjectsForSelectedDate() {
   });
 
 }
+
+// =====================================================
+// RENDER PROJECT ROWS
+// =====================================================
 
 function renderProjects() {
 
@@ -645,31 +668,9 @@ function renderProjects() {
             ? `
 
               <button
-                class="project-log-btn"
-                data-add="0.083"
+                class="project-add-btn"
               >
-                +5m
-              </button>
-
-              <button
-                class="project-log-btn"
-                data-add="0.25"
-              >
-                +15m
-              </button>
-
-              <button
-                class="project-log-btn"
-                data-add="0.5"
-              >
-                +30m
-              </button>
-
-              <button
-                class="project-log-btn"
-                data-add="1"
-              >
-                +1h
+                + Add
               </button>
 
               ${
@@ -756,7 +757,7 @@ function attachProjectRowEvents(
 
     row
       .querySelectorAll(
-        ".project-log-btn"
+        ".project-add-btn"
       )
       .forEach(btn => {
 
@@ -765,57 +766,32 @@ function attachProjectRowEvents(
         btn.classList.add(
           "disabled-project-btn"
         );
+
       });
+
   }
 
   // =====================================
-  // QUICK LOGGING
+  // ADD TIME
   // =====================================
 
   row
-    .querySelectorAll(
-      ".project-log-btn"
+    .querySelector(
+      ".project-add-btn"
     )
-    .forEach(btn => {
+    ?.addEventListener(
+      "click",
+      () => {
 
-      btn.addEventListener(
-        "click",
-        () => {
+        // Time-entry behavior will be
+        // connected to Time Log later.
 
-          if (
-            project.status ===
-            "paused"
-          ) {
+      }
+    );
 
-            return;
-          }
-
-          const addHours =
-            Number(
-              btn.dataset.add
-            );
-
-          if (
-            !project.logs
-          ) {
-
-            project.logs = {};
-          }
-
-          project.logs[
-            todayKey
-          ] = (
-
-            project.logs[
-              todayKey
-            ] || 0
-
-          ) + addHours;
-
-          refreshProjectsUI();
-        }
-      );
-    });
+  // =====================================
+  // DELETE
+  // =====================================
 
   row
     .querySelector(
@@ -829,6 +805,10 @@ function attachProjectRowEvents(
         )
     );
 
+  // =====================================
+  // PAUSE
+  // =====================================
+
   row
     .querySelector(
       ".project-pause-btn"
@@ -840,6 +820,10 @@ function attachProjectRowEvents(
           project.id
         )
     );
+
+  // =====================================
+  // RESUME
+  // =====================================
 
   row
     .querySelector(
@@ -853,6 +837,10 @@ function attachProjectRowEvents(
         )
     );
 
+  // =====================================
+  // COMPLETE
+  // =====================================
+
   row
     .querySelector(
       ".project-complete-btn"
@@ -865,17 +853,17 @@ function attachProjectRowEvents(
         )
     );
 
-    // =====================================
-    // DRAG SLIDER
-    // =====================================
+  // =====================================
+  // DRAG SLIDER
+  // =====================================
 
-    row
-      .querySelector(
-        ".project-progress"
-      )
-      ?.addEventListener(
-        "mousedown",
-        e => {
+  row
+    .querySelector(
+      ".project-progress"
+    )
+    ?.addEventListener(
+      "mousedown",
+      e => {
 
         startProjectSliderDrag(
           e,
@@ -884,8 +872,9 @@ function attachProjectRowEvents(
           row
         );
 
-        }
-      );
+      }
+    );
+
 }
 
 // =====================================================

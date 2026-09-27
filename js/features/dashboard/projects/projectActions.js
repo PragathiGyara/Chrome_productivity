@@ -17,6 +17,35 @@
 // always call refreshProjectsUI().
 // =====================================================
 
+// =====================================================
+// FIND PROJECT
+// =====================================================
+
+function findProjectById(projectId) {
+
+  for (const track of tracks) {
+
+    const project =
+      (track.projects || []).find(
+        project =>
+          String(project.id) ===
+          String(projectId)
+      );
+
+    if (project) {
+
+      return {
+        project,
+        track
+      };
+
+    }
+
+  }
+
+  return null;
+
+}
 
 // =====================================================
 // REFRESH PROJECT UI
@@ -297,12 +326,15 @@ function saveProject() {
 
 function deleteProject(projectId) {
 
-  const project =
-    projects.find(
-      p => p.id === projectId
-    );
+  const result =
+    findProjectById(projectId);
 
-  if (!project) return;
+  if (!result) return;
+
+  const {
+    project,
+    track
+  } = result;
 
   const confirmed =
     confirm(
@@ -322,9 +354,11 @@ This action cannot be undone.`
     return;
   }
 
-  projects =
-    projects.filter(
-      p => p.id !== projectId
+  track.projects =
+    track.projects.filter(
+      p =>
+        String(p.id) !==
+        String(projectId)
     );
 
   refreshProjectsUI();
@@ -341,12 +375,14 @@ This action cannot be undone.`
 
 function pauseProject(projectId) {
 
-  const project =
-    projects.find(
-      p => p.id === projectId
-    );
+  const result =
+    findProjectById(projectId);
 
-  if (!project) return;
+  if (!result) return;
+
+  const {
+    project
+  } = result;
 
   project.status =
     "paused";
@@ -378,12 +414,14 @@ function pauseProject(projectId) {
 
 function resumeProject(projectId) {
 
-  const project =
-    projects.find(
-      p => p.id === projectId
-    );
+  const result =
+    findProjectById(projectId);
 
-  if (!project) return;
+  if (!result) return;
+
+  const {
+    project
+  } = result;
 
   project.status =
     "active";
@@ -415,12 +453,14 @@ function resumeProject(projectId) {
 
 function completeProject(projectId) {
 
-  const project =
-    projects.find(
-      p => p.id === projectId
-    );
+  const result =
+    findProjectById(projectId);
 
-  if (!project) return;
+  if (!result) return;
+
+  const {
+    project
+  } = result;
 
   const confirmed =
     confirm(

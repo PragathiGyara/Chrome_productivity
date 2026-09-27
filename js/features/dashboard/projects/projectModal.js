@@ -101,6 +101,10 @@ function resetManageProjectsTabs() {
 }
 
 
+// =====================================================
+// GET PROJECTS FOR CURRENT TAB
+// =====================================================
+
 function getProjectsForCurrentTab() {
 
   const statusMap = {
@@ -116,29 +120,35 @@ function getProjectsForCurrentTab() {
 
   };
 
-
   const targetStatus =
     statusMap[
       currentManageProjectsTab
     ];
 
-
   return tracks.flatMap(track =>
 
-    (track.projects || []).map(project => ({
+    (track.projects || [])
 
-      ...project,
+      .filter(
+        project =>
+          String(project.id) !==
+          "general"
+      )
 
-      trackId:
-        track.id,
+      .map(project => ({
 
-      trackName:
-        track.name,
+        ...project,
 
-      trackIcon:
-        track.icon
+        trackId:
+          track.id,
 
-    }))
+        trackName:
+          track.name,
+
+        trackIcon:
+          track.icon
+
+      }))
 
   ).filter(
 
@@ -342,22 +352,33 @@ function attachProjectRowActions(
 
 function updateManageProjectsCounts() {
 
+  const allProjects =
+    tracks.flatMap(
+      track =>
+        (track.projects || [])
+          .filter(
+            project =>
+              String(project.id) !==
+              "general"
+          )
+    );
+
   const currentCount =
-    projects.filter(
+    allProjects.filter(
       project =>
         project.status ===
         "active"
     ).length;
 
   const pausedCount =
-    projects.filter(
+    allProjects.filter(
       project =>
         project.status ===
         "paused"
     ).length;
 
   const completedCount =
-    projects.filter(
+    allProjects.filter(
       project =>
         project.status ===
         "completed"
@@ -382,19 +403,23 @@ function updateManageProjectsCounts() {
 
     currentTab.textContent =
       `Current (${currentCount})`;
+
   }
 
   if (pausedTab) {
 
     pausedTab.textContent =
       `Paused (${pausedCount})`;
+
   }
 
   if (completedTab) {
 
     completedTab.textContent =
       `Completed (${completedCount})`;
+
   }
+
 }
 
 
