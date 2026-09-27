@@ -828,6 +828,105 @@
 
     </div>
 
+    <!-- ================= EDIT PROJECT MODAL ================= -->
+
+    <div
+        id="editProjectModal"
+        class="modal hidden"
+    >
+
+        <div
+            class="
+                modal-content
+                manage-projects-modal-content
+            "
+        >
+
+            <div class="modal-header">
+
+                <h2>
+                    Edit Project
+                </h2>
+
+                <button
+                    id="closeEditProjectModalBtn"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="timetable-form">
+
+                <!-- PROJECT NAME -->
+
+                <label
+                    class="timetable-field-label"
+                    for="editProjectNameInput"
+                >
+                    Project Name
+                </label>
+
+                <input
+                    type="text"
+                    id="editProjectNameInput"
+                    placeholder="Project name"
+                />
+
+
+                <!-- TARGET HOURS -->
+
+                <label
+                    class="timetable-field-label"
+                    for="editProjectTargetInput"
+                >
+                    Hours per day
+                </label>
+
+                <input
+                    type="number"
+                    id="editProjectTargetInput"
+                    placeholder="Hours per day"
+                    min="0.5"
+                    step="0.5"
+                />
+
+
+                <!-- TRACK -->
+
+                <label
+                    class="timetable-field-label"
+                >
+                    Track
+                </label>
+
+                <input
+                    type="text"
+                    id="editProjectTrackDisplay"
+                    disabled
+                />
+
+
+                <!-- ACTIONS -->
+
+                <div class="timetable-actions">
+
+                    <button
+                        id="saveEditProjectBtn"
+                        class="primary-btn"
+                    >
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
     <!-- =====================================
          TIME LOG MODAL

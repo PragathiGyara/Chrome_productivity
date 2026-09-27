@@ -127,130 +127,144 @@ function saveProject() {
       "projectTrackSelect"
     );
 
+
   const name =
-    nameInput.value.trim();
+    nameInput?.value.trim();
 
   const targetHours =
-    Number(targetInput.value);
+    Number(
+      targetInput?.value
+    );
 
-  const selectedTrackId =
-    trackSelect?.value || "";
+  const trackId =
+    trackSelect?.value;
 
 
-  // =========================================
+  // =====================================
   // VALIDATION
-  // =========================================
+  // =====================================
 
   if (!name) {
 
     alert(
-      "Project name required."
+      "Please enter a project name."
     );
 
     return;
+
   }
 
+
   if (
-    isNaN(targetHours) ||
+    !targetHours ||
     targetHours <= 0
   ) {
 
     alert(
-      "Enter valid target hours."
+      "Please enter valid hours per day."
     );
 
     return;
+
   }
 
-  if (!selectedTrackId) {
+
+  if (!trackId) {
 
     alert(
       "Please select a track."
     );
 
     return;
+
   }
 
 
-  // =========================================
-  // FIND SELECTED TRACK
-  // =========================================
+  // =====================================
+  // FIND TRACK
+  // =====================================
 
-  const selectedTrack =
+  const track =
     tracks.find(
-      track =>
-        String(track.id) ===
-        String(selectedTrackId)
+      item =>
+        String(item.id) ===
+        String(trackId)
     );
 
-  if (!selectedTrack) {
+
+  if (!track) {
 
     alert(
-      "Selected track could not be found."
+      "Track not found."
     );
-
-    populateProjectTrackSelect();
 
     return;
-  }
-
-
-  // =========================================
-  // ENSURE PROJECT ARRAY EXISTS
-  // =========================================
-
-  if (!selectedTrack.projects) {
-
-    selectedTrack.projects = [];
 
   }
 
 
-  // =========================================
+  // =====================================
   // DUPLICATE NAME CHECK
-  // =========================================
+  // =====================================
 
-  const duplicateProject =
-    selectedTrack.projects.find(
+  const duplicate =
+    (track.projects || []).some(
       project =>
-        project.name
-          .trim()
-          .toLowerCase()
-        ===
-        name.toLowerCase()
+        String(project.id) !== "general" &&
+        project.name.trim().toLowerCase() ===
+          name.toLowerCase()
     );
 
-  if (duplicateProject) {
+
+  if (duplicate) {
 
     alert(
       "A project with this name already exists in this track."
     );
 
     return;
+
   }
 
 
-  // =========================================
+  // =====================================
   // CREATE PROJECT
-  // =========================================
+  // =====================================
+
+  const today =
+    getLocalDateKey(
+      new Date()
+    );
+
 
   const project = {
 
     id:
       Date.now(),
 
-    name,
+    name:
+      name,
 
     targetHoursPerDay:
       targetHours,
+
+    targetHoursHistory: [
+
+      {
+        hours:
+          targetHours,
+
+        date:
+          today
+      }
+
+    ],
 
     createdAt:
       new Date().toISOString(),
 
     status:
       "active",
-
-    logs: {},
 
     statusHistory: [
 
@@ -259,13 +273,17 @@ function saveProject() {
           "active",
 
         date:
-          getLocalDateKey(),
+          today,
 
         time:
-          getLocalTime()
+          getLocalTime(
+            new Date()
+          )
       }
 
     ],
+
+    logs: {},
 
     reading: [],
 
@@ -278,29 +296,44 @@ function saveProject() {
   };
 
 
-  // =========================================
-  // SAVE PROJECT INSIDE SELECTED TRACK
-  // =========================================
+  // =====================================
+  // ADD TO TRACK
+  // =====================================
 
-  selectedTrack.projects.push(
+  if (!track.projects) {
+
+    track.projects = [];
+
+  }
+
+
+  track.projects.push(
     project
   );
 
 
-  // =========================================
-  // PERSIST TRACKS
-  // =========================================
+  // =====================================
+  // SAVE
+  // =====================================
 
   persistTracks();
 
 
-  // =========================================
-  // RESET FORM
-  // =========================================
+  // =====================================
+  // CLEAR FORM
+  // =====================================
 
-  nameInput.value = "";
+  if (nameInput) {
 
-  targetInput.value = "";
+    nameInput.value = "";
+
+  }
+
+  if (targetInput) {
+
+    targetInput.value = "";
+
+  }
 
   if (trackSelect) {
 
@@ -309,13 +342,13 @@ function saveProject() {
   }
 
 
-  // =========================================
-  // CONFIRMATION
-  // =========================================
+  // =====================================
+  // REFRESH UI
+  // =====================================
 
-  showToast(
-    `Project "${name}" added to ${selectedTrack.name}`
-  );
+  renderManageProjectsContent();
+
+  updateManageProjectsCounts();
 
 }
 
@@ -497,4 +530,184 @@ but its analytics history will be preserved.`
   showToast(
     `Project "${project.name}" completed`
   );
+}
+
+// =====================================================
+// EDIT PROJECT
+// =====================================================
+
+function editProject(
+  projectId,
+  newName,
+  newTargetHours
+) {
+
+  const result =
+    findProjectById(
+      projectId
+    );
+
+
+  if (!result) {
+
+    alert(
+      "Project not found."
+    );
+
+    return false;
+
+  }
+
+
+  const project =
+    result.project;
+
+  const track =
+    result.track;
+
+
+  const name =
+    newName.trim();
+
+  const targetHours =
+    Number(
+      newTargetHours
+    );
+
+
+  // =====================================
+  // VALIDATE NAME
+  // =====================================
+
+  if (!name) {
+
+    alert(
+      "Please enter a project name."
+    );
+
+    return false;
+
+  }
+
+
+  // =====================================
+  // VALIDATE HOURS
+  // =====================================
+
+  if (
+    !targetHours ||
+    targetHours <= 0
+  ) {
+
+    alert(
+      "Please enter valid hours per day."
+    );
+
+    return false;
+
+  }
+
+
+  // =====================================
+  // DUPLICATE NAME CHECK
+  // =====================================
+
+  const duplicate =
+    (track.projects || []).some(
+      otherProject =>
+
+        String(otherProject.id) !==
+          String(project.id) &&
+
+        String(otherProject.id) !==
+          "general" &&
+
+        otherProject.name
+          .trim()
+          .toLowerCase() ===
+          name.toLowerCase()
+
+    );
+
+
+  if (duplicate) {
+
+    alert(
+      "A project with this name already exists in this track."
+    );
+
+    return false;
+
+  }
+
+
+  // =====================================
+  // UPDATE NAME
+  // =====================================
+
+  project.name =
+    name;
+
+
+  // =====================================
+  // UPDATE TARGET HOURS
+  // =====================================
+
+  const today =
+    getLocalDateKey(
+      new Date()
+    );
+
+
+  if (
+    !Array.isArray(
+      project.targetHoursHistory
+    )
+  ) {
+
+    project.targetHoursHistory = [];
+
+  }
+
+
+  const todayHistoryEntry =
+    project.targetHoursHistory.find(
+      entry =>
+        entry.date === today
+    );
+
+
+  if (todayHistoryEntry) {
+
+    todayHistoryEntry.hours =
+      targetHours;
+
+  } else {
+
+    project.targetHoursHistory.push({
+
+      hours:
+        targetHours,
+
+      date:
+        today
+
+    });
+
+  }
+
+
+  project.targetHoursPerDay =
+    targetHours;
+
+
+  // =====================================
+  // SAVE
+  // =====================================
+
+  persistTracks();
+
+
+  return true;
+
 }

@@ -174,10 +174,13 @@ function renderManageProjectsContent() {
 
   if (!container) return;
 
+
   container.innerHTML = "";
+
 
   const filteredProjects =
     getProjectsForCurrentTab();
+
 
   // =========================================
   // EMPTY STATE
@@ -196,82 +199,115 @@ function renderManageProjectsContent() {
         No projects here yet.
 
       </div>
+
     `;
 
     return;
+
   }
+
 
   // =========================================
   // PROJECT ROWS
   // =========================================
 
-  filteredProjects.forEach(project => {
+  filteredProjects.forEach(
+    project => {
 
-    const row =
-      document.createElement("div");
+      const row =
+        document.createElement(
+          "div"
+        );
 
-    row.classList.add(
-      "manage-project-row"
-    );
 
-    row.innerHTML = `
+      row.classList.add(
+        "manage-project-row"
+      );
 
-      <div class="manage-project-name">
-        ${project.name}
-      </div>
 
-      <div class="manage-project-actions">
+      row.innerHTML = `
 
-        ${
-          project.status === "active"
+        <div class="manage-project-name">
+          ${project.name}
+        </div>
 
-          ? `
-            <button
-              class="manage-pause-btn"
-            >
-              Pause
-            </button>
 
-            <button
-              class="manage-complete-btn"
-            >
-              Complete
-            </button>
-          `
+        <div class="manage-project-actions">
 
-          : ""
-        }
+          <button
+            class="manage-edit-btn"
+          >
+            Edit
+          </button>
 
-        ${
-          project.status === "paused"
 
-          ? `
-            <button
-              class="manage-resume-btn"
-            >
-              Resume
-            </button>
-          `
+          ${
+            project.status === "active"
 
-          : ""
-        }
+            ? `
 
-        <button
-          class="manage-delete-btn"
-        >
-          Delete
-        </button>
+              <button
+                class="manage-pause-btn"
+              >
+                Pause
+              </button>
 
-      </div>
-    `;
 
-    attachProjectRowActions(
-      row,
-      project
-    );
+              <button
+                class="manage-complete-btn"
+              >
+                Complete
+              </button>
 
-    container.appendChild(row);
-  });
+            `
+
+            : ""
+
+          }
+
+
+          ${
+            project.status === "paused"
+
+            ? `
+
+              <button
+                class="manage-resume-btn"
+              >
+                Resume
+              </button>
+
+            `
+
+            : ""
+
+          }
+
+
+          <button
+            class="manage-delete-btn"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      `;
+
+
+      attachProjectRowActions(
+        row,
+        project
+      );
+
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+
 }
 
 
@@ -283,6 +319,30 @@ function attachProjectRowActions(
   row,
   project
 ) {
+
+  // =====================================
+  // EDIT
+  // =====================================
+
+  row
+    .querySelector(
+      ".manage-edit-btn"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        openEditProjectModal(
+          project.id
+        );
+
+      }
+    );
+
+
+  // =====================================
+  // PAUSE
+  // =====================================
 
   row
     .querySelector(
@@ -299,6 +359,11 @@ function attachProjectRowActions(
       }
     );
 
+
+  // =====================================
+  // COMPLETE
+  // =====================================
+
   row
     .querySelector(
       ".manage-complete-btn"
@@ -313,6 +378,11 @@ function attachProjectRowActions(
 
       }
     );
+
+
+  // =====================================
+  // RESUME
+  // =====================================
 
   row
     .querySelector(
@@ -329,6 +399,11 @@ function attachProjectRowActions(
       }
     );
 
+
+  // =====================================
+  // DELETE
+  // =====================================
+
   row
     .querySelector(
       ".manage-delete-btn"
@@ -343,6 +418,7 @@ function attachProjectRowActions(
 
       }
     );
+
 }
 
 
@@ -437,17 +513,22 @@ function attachManageProjectsEvents() {
       "manageProjectsModal"
     );
 
+
   modal?.addEventListener(
     "click",
-    (e) => {
+    e => {
 
-      if (e.target === modal) {
+      if (
+        e.target === modal
+      ) {
 
         closeManageProjectsModal();
+
       }
 
     }
   );
+
 
   document
     .getElementById(
@@ -458,38 +539,54 @@ function attachManageProjectsEvents() {
       closeManageProjectsModal
     );
 
+
   document
     .querySelectorAll(
       ".manage-projects-tab"
     )
-    .forEach(tab => {
+    .forEach(
+      tab => {
 
-      tab.addEventListener(
-        "click",
-        () => {
+        tab.addEventListener(
+          "click",
+          () => {
 
-          currentManageProjectsTab =
-            tab.dataset.tab;
+            currentManageProjectsTab =
+              tab.dataset.tab;
 
-          document
-            .querySelectorAll(
-              ".manage-projects-tab"
-            )
-            .forEach(t => {
 
-              t.classList.remove(
-                "active"
+            document
+              .querySelectorAll(
+                ".manage-projects-tab"
+              )
+              .forEach(
+                t => {
+
+                  t.classList.remove(
+                    "active"
+                  );
+
+                }
               );
-            });
 
-          tab.classList.add(
-            "active"
-          );
 
-          renderManageProjectsContent();
-        }
-      );
-    });
+            tab.classList.add(
+              "active"
+            );
+
+
+            renderManageProjectsContent();
+
+          }
+        );
+
+      }
+    );
+
+
+  // =====================================
+  // CREATE PROJECT
+  // =====================================
 
   document
     .getElementById(
@@ -499,4 +596,276 @@ function attachManageProjectsEvents() {
       "click",
       saveProject
     );
+
+
+  // =====================================
+  // EDIT PROJECT MODAL
+  // =====================================
+
+  const editModal =
+    document.getElementById(
+      "editProjectModal"
+    );
+
+
+  editModal?.addEventListener(
+    "click",
+    e => {
+
+      if (
+        e.target === editModal
+      ) {
+
+        closeEditProjectModal();
+
+      }
+
+    }
+  );
+
+
+  document
+    .getElementById(
+      "closeEditProjectModalBtn"
+    )
+    ?.addEventListener(
+      "click",
+      closeEditProjectModal
+    );
+
+
+  document
+    .getElementById(
+      "saveEditProjectBtn"
+    )
+    ?.addEventListener(
+      "click",
+      saveEditedProject
+    );
+
+}
+
+// =====================================================
+// EDIT PROJECT MODAL STATE
+// =====================================================
+
+let editingProjectId = null;
+
+
+// =====================================================
+// OPEN EDIT PROJECT MODAL
+// =====================================================
+
+function openEditProjectModal(
+  projectId
+) {
+
+  const result =
+    findProjectById(
+      projectId
+    );
+
+
+  if (!result) {
+
+    alert(
+      "Project not found."
+    );
+
+    return;
+
+  }
+
+
+  const project =
+    result.project;
+
+  const track =
+    result.track;
+
+
+  editingProjectId =
+    project.id;
+
+
+  // =====================================
+  // PROJECT NAME
+  // =====================================
+
+  const nameInput =
+    document.getElementById(
+      "editProjectNameInput"
+    );
+
+
+  if (nameInput) {
+
+    nameInput.value =
+      project.name;
+
+  }
+
+
+  // =====================================
+  // TARGET HOURS
+  // =====================================
+
+  const targetInput =
+    document.getElementById(
+      "editProjectTargetInput"
+    );
+
+
+  if (targetInput) {
+
+    targetInput.value =
+      project.targetHoursPerDay || "";
+
+  }
+
+
+  // =====================================
+  // TRACK
+  // =====================================
+
+  const trackDisplay =
+    document.getElementById(
+      "editProjectTrackDisplay"
+    );
+
+
+  if (trackDisplay) {
+
+    trackDisplay.value =
+      track.name;
+
+  }
+
+
+  // =====================================
+  // OPEN
+  // =====================================
+
+  const modal =
+    document.getElementById(
+      "editProjectModal"
+    );
+
+
+  if (!modal) return;
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+
+  setTimeout(
+    () => {
+
+      nameInput?.focus();
+
+    },
+    50
+  );
+
+}
+
+
+// =====================================================
+// CLOSE EDIT PROJECT MODAL
+// =====================================================
+
+function closeEditProjectModal() {
+
+  const modal =
+    document.getElementById(
+      "editProjectModal"
+    );
+
+
+  if (!modal) return;
+
+
+  modal.classList.add(
+    "hidden"
+  );
+
+
+  editingProjectId =
+    null;
+
+}
+
+
+// =====================================================
+// SAVE EDITED PROJECT
+// =====================================================
+
+function saveEditedProject() {
+
+  if (
+    editingProjectId === null
+  ) {
+
+    return;
+
+  }
+
+
+  const nameInput =
+    document.getElementById(
+      "editProjectNameInput"
+    );
+
+  const targetInput =
+    document.getElementById(
+      "editProjectTargetInput"
+    );
+
+
+  const name =
+    nameInput?.value.trim();
+
+  const targetHours =
+    Number(
+      targetInput?.value
+    );
+
+
+  const saved =
+    editProject(
+      editingProjectId,
+      name,
+      targetHours
+    );
+
+
+  if (!saved) {
+
+    return;
+
+  }
+
+
+  closeEditProjectModal();
+
+
+  renderManageProjectsContent();
+
+  updateManageProjectsCounts();
+
+
+  // Refresh project tracker if it
+  // exists on the current page.
+
+  if (
+    typeof renderProjects ===
+    "function"
+  ) {
+
+    renderProjects();
+
+  }
+
 }

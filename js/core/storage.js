@@ -87,413 +87,454 @@ function createDefaultProject() {
 }
 
 
+// =====================================================
+// LOAD TRACKS
+// =====================================================
+
 function loadTracks() {
 
-  const stored =
+  const saved =
     localStorage.getItem(
       TRACK_STORAGE_KEY
     );
 
 
-  // =====================================
-  // LOAD OR CREATE TRACKS
-  // =====================================
+  // =====================================================
+  // CREATE DEFAULT TRACKS IF NOTHING EXISTS
+  // =====================================================
 
-  let dataChanged = false;
+  if (!saved) {
 
+    tracks = [
 
-  if (stored) {
+      {
+        id: "college",
+        name: "College",
+        icon: "🎓",
+        color: "#4A90E2",
+        projects: [
+          createDefaultProject()
+        ]
+      },
 
-    tracks =
-      JSON.parse(stored);
+      {
+        id: "projects",
+        name: "Projects",
+        icon: "🚀",
+        color: "#E67E22",
+        projects: [
+          createDefaultProject()
+        ]
+      },
 
-  } else {
+      {
+        id: "learning",
+        name: "Learning",
+        icon: "📚",
+        color: "#9B59B6",
+        projects: [
+          createDefaultProject()
+        ]
+      },
 
-    tracks =
-      getDefaultTracks();
-
-    dataChanged = true;
-
-  }
-
-
-  // =====================================
-  // NORMALIZE TRACKS
-  // =====================================
-
-  tracks.forEach(track => {
-
-    // ===================================
-    // TRACK PROJECTS
-    // ===================================
-
-    if (!Array.isArray(track.projects)) {
-
-      track.projects = [];
-
-      dataChanged = true;
-
-    }
-
-
-    // ===================================
-    // ENSURE GENERAL PROJECT
-    // ===================================
-
-    let generalProject =
-      track.projects.find(
-        project =>
-          String(project.id) ===
-          "general"
-      );
-
-
-    if (!generalProject) {
-
-      generalProject =
-        createDefaultProject();
-
-      track.projects.unshift(
-        generalProject
-      );
-
-      dataChanged = true;
-
-    }
-
-
-    // ===================================
-    // NORMALIZE PROJECTS
-    // ===================================
-
-    track.projects.forEach(project => {
-
-      // =================================
-      // PROJECT ID
-      // =================================
-
-      if (!project.id) {
-
-        project.id =
-          `project-${Date.now()}-${Math.random()
-            .toString(36)
-            .slice(2, 8)}`;
-
-        dataChanged = true;
-
+      {
+        id: "health",
+        name: "Health",
+        icon: "❤️",
+        color: "#2ECC71",
+        projects: [
+          createDefaultProject()
+        ]
       }
 
+    ];
 
-      // =================================
-      // PROJECT NAME
-      // =================================
-
-      if (!project.name) {
-
-        project.name =
-          "Untitled Project";
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT READING
-      // =================================
-
-      if (
-        !Array.isArray(
-          project.reading
-        )
-      ) {
-
-        project.reading = [];
-
-        dataChanged = true;
-
-      }
-
-
-      project.reading.forEach(item => {
-
-        if (!item.links) {
-
-          item.links =
-            item.link
-              ? [item.link]
-              : [];
-
-          delete item.link;
-
-          dataChanged = true;
-
-        }
-
-      });
-
-
-      // =================================
-      // PROJECT TASKS
-      // =================================
-
-      if (
-        !Array.isArray(
-          project.tasks
-        )
-      ) {
-
-        project.tasks = [];
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT DEADLINES
-      // =================================
-
-      if (
-        !Array.isArray(
-          project.deadlines
-        )
-      ) {
-
-        project.deadlines = [];
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT TODOS
-      // =================================
-
-      if (
-        !Array.isArray(
-          project.todos
-        )
-      ) {
-
-        project.todos = [];
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // NORMALIZE PROJECT TODOS
-      // =================================
-
-      project.todos.forEach(
-        (todo, index) => {
-
-          if (!todo.id) {
-
-            todo.id =
-              Date.now() +
-              index;
-
-            dataChanged = true;
-
-          }
-
-
-          if (
-            typeof todo.text !==
-            "string"
-          ) {
-
-            todo.text = "";
-
-            dataChanged = true;
-
-          }
-
-
-          if (
-            typeof todo.completed !==
-            "boolean"
-          ) {
-
-            todo.completed =
-              todo.done ??
-              false;
-
-            dataChanged = true;
-
-          }
-
-
-          if (
-            typeof todo.archived !==
-            "boolean"
-          ) {
-
-            todo.archived =
-              false;
-
-            dataChanged = true;
-
-          }
-
-
-          if (
-            todo.order == null
-          ) {
-
-            todo.order =
-              index;
-
-            dataChanged = true;
-
-          }
-
-
-          if (!todo.createdAt) {
-
-            todo.createdAt =
-              new Date().toISOString();
-
-            dataChanged = true;
-
-          }
-
-
-          if (
-            todo.completedAt ===
-            undefined
-          ) {
-
-            todo.completedAt =
-              todo.completed
-                ? todo.createdAt
-                : null;
-
-            dataChanged = true;
-
-          }
-
-        }
-      );
-
-
-      // =================================
-      // PROJECT NOTES
-      // =================================
-
-      if (
-        typeof project.notes !==
-        "string"
-      ) {
-
-        project.notes = "";
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT LOGS
-      // =================================
-
-      if (!project.logs) {
-
-        project.logs = {};
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT CREATED DATE
-      // =================================
-
-      if (!project.createdAt) {
-
-        project.createdAt =
-          new Date().toISOString();
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT STATUS
-      // =================================
-
-      if (!project.status) {
-
-        project.status =
-          "active";
-
-        dataChanged = true;
-
-      }
-
-
-      // =================================
-      // PROJECT STATUS HISTORY
-      // =================================
-
-      if (
-        !Array.isArray(
-          project.statusHistory
-        ) ||
-        project.statusHistory.length === 0
-      ) {
-
-        const createdAt =
-          new Date(
-            project.createdAt
-          );
-
-
-        project.statusHistory = [
-
-          {
-
-            status:
-              project.status,
-
-            date:
-              getLocalDateKey(
-                createdAt
-              ),
-
-            time:
-              getLocalTime(
-                createdAt
-              )
-
-          }
-
-        ];
-
-        dataChanged = true;
-
-      }
-
-    });
-
-  });
-
-
-  // =====================================
-  // SAVE DATA
-  // =====================================
-
-  if (dataChanged) {
 
     persistTracks();
 
+    return tracks;
+
   }
+
+
+  // =====================================================
+  // PARSE SAVED DATA
+  // =====================================================
+
+  try {
+
+    tracks =
+      JSON.parse(saved);
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load tracks:",
+      error
+    );
+
+
+    tracks = [
+
+      {
+        id: "college",
+        name: "College",
+        icon: "🎓",
+        color: "#4A90E2",
+        projects: [
+          createDefaultProject()
+        ]
+      },
+
+      {
+        id: "projects",
+        name: "Projects",
+        icon: "🚀",
+        color: "#E67E22",
+        projects: [
+          createDefaultProject()
+        ]
+      },
+
+      {
+        id: "learning",
+        name: "Learning",
+        icon: "📚",
+        color: "#9B59B6",
+        projects: [
+          createDefaultProject()
+        ]
+      },
+
+      {
+        id: "health",
+        name: "Health",
+        icon: "❤️",
+        color: "#2ECC71",
+        projects: [
+          createDefaultProject()
+        ]
+      }
+
+    ];
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE TRACKS
+  // =====================================================
+
+  if (!Array.isArray(tracks)) {
+
+    tracks = [];
+
+  }
+
+
+  tracks =
+    tracks.map(
+      track => {
+
+        // -----------------------------------------------
+        // NORMALIZE TRACK
+        // -----------------------------------------------
+
+        track.id =
+          track.id ??
+          `track-${Date.now()}-${Math.random()}`;
+
+        track.name =
+          track.name ??
+          "Unnamed Track";
+
+        track.icon =
+          track.icon ??
+          "📁";
+
+        track.color =
+          track.color ??
+          "#888888";
+
+
+        // -----------------------------------------------
+        // NORMALIZE PROJECT ARRAY
+        // -----------------------------------------------
+
+        if (
+          !Array.isArray(
+            track.projects
+          )
+        ) {
+
+          track.projects = [];
+
+        }
+
+
+        // =================================================
+        // NORMALIZE PROJECTS
+        // =================================================
+
+        track.projects =
+          track.projects.map(
+            project => {
+
+              // -------------------------------------------
+              // BASIC PROJECT DATA
+              // -------------------------------------------
+
+              project.id =
+                project.id ??
+                `project-${Date.now()}-${Math.random()}`;
+
+              project.name =
+                project.name ??
+                "Unnamed Project";
+
+
+              // -------------------------------------------
+              // TARGET HOURS
+              // -------------------------------------------
+
+              project.targetHoursPerDay =
+                Number(
+                  project.targetHoursPerDay
+                ) || 0;
+
+
+              // -------------------------------------------
+              // CREATED DATE
+              // -------------------------------------------
+
+              if (
+                !project.createdAt
+              ) {
+
+                project.createdAt =
+                  new Date().toISOString();
+
+              }
+
+
+              // -------------------------------------------
+              // TARGET HOURS HISTORY
+              //
+              // Existing projects did not previously have
+              // this field, so create an initial record
+              // using their existing target.
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.targetHoursHistory
+                )
+              ) {
+
+                project.targetHoursHistory = [
+
+                  {
+                    hours:
+                      project.targetHoursPerDay,
+
+                    date:
+                      getLocalDateKey(
+                        new Date(
+                          project.createdAt
+                        )
+                      )
+
+                  }
+
+                ];
+
+              }
+
+
+              // -------------------------------------------
+              // READING
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.reading
+                )
+              ) {
+
+                project.reading = [];
+
+              }
+
+
+              // -------------------------------------------
+              // TASKS
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.tasks
+                )
+              ) {
+
+                project.tasks = [];
+
+              }
+
+
+              // -------------------------------------------
+              // DEADLINES
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.deadlines
+                )
+              ) {
+
+                project.deadlines = [];
+
+              }
+
+
+              // -------------------------------------------
+              // TODOS
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.todos
+                )
+              ) {
+
+                project.todos = [];
+
+              }
+
+
+              // -------------------------------------------
+              // NOTES
+              // -------------------------------------------
+
+              if (
+                typeof project.notes !==
+                "string"
+              ) {
+
+                project.notes = "";
+
+              }
+
+
+              // -------------------------------------------
+              // LOGS
+              //
+              // Kept for compatibility with existing
+              // project data.
+              // -------------------------------------------
+
+              if (
+                !project.logs ||
+                typeof project.logs !==
+                  "object" ||
+                Array.isArray(
+                  project.logs
+                )
+              ) {
+
+                project.logs = {};
+
+              }
+
+
+              // -------------------------------------------
+              // STATUS
+              // -------------------------------------------
+
+              project.status =
+                project.status ??
+                "active";
+
+
+              // -------------------------------------------
+              // STATUS HISTORY
+              // -------------------------------------------
+
+              if (
+                !Array.isArray(
+                  project.statusHistory
+                )
+              ) {
+
+                project.statusHistory = [
+
+                  {
+                    status:
+                      project.status,
+
+                    date:
+                      getLocalDateKey(
+                        new Date(
+                          project.createdAt
+                        )
+                      ),
+
+                    time:
+                      getLocalTime(
+                        new Date(
+                          project.createdAt
+                        )
+                      )
+
+                  }
+
+                ];
+
+              }
+
+
+              return project;
+
+            }
+          );
+
+
+        // =================================================
+        // ENSURE GENERAL PROJECT EXISTS
+        // =================================================
+
+        const hasGeneralProject =
+          track.projects.some(
+            project =>
+              String(project.id) ===
+              "general"
+          );
+
+
+        if (
+          !hasGeneralProject
+        ) {
+
+          track.projects.unshift(
+            createDefaultProject()
+          );
+
+        }
+
+
+        return track;
+
+      }
+    );
+
+
+  // =====================================================
+  // SAVE NORMALIZED DATA
+  // =====================================================
+
+  persistTracks();
+
+
+  return tracks;
 
 }
 
