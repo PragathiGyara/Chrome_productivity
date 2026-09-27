@@ -2,15 +2,14 @@
 // PROJECT TIME LOG MODAL
 // =====================================================
 //
-// Separate modal used when adding time directly
-// from the Project Time Tracker.
+// Separate modal for adding time from the Project
+// Time Tracker.
 //
-// IMPORTANT:
-// This does NOT use the existing Time Log modal.
+// Saves directly into the same timeLogEntries storage
+// used by the Time Log.
 //
-// It writes to the SAME timeLogEntries storage,
-// so entries created here automatically appear
-// inside Time Log.
+// Track + Project are locked because the modal is opened
+// from a specific project row.
 // =====================================================
 
 
@@ -23,122 +22,103 @@ let projectTimeLogTrackId = null;
 
 
 // =====================================================
-// INITIALIZE
-// =====================================================
-
-function initializeProjectTimeLogModal() {
-
-  const closeBtn =
-    document.getElementById(
-      "closeProjectTimeLogModalBtn"
-    );
-
-  const saveBtn =
-    document.getElementById(
-      "saveProjectTimeLogBtn"
-    );
-
-
-  closeBtn?.addEventListener(
-    "click",
-    closeProjectTimeLogModal
-  );
-
-
-  saveBtn?.addEventListener(
-    "click",
-    saveProjectTimeLogActivity
-  );
-
-
-  const modal =
-    document.getElementById(
-      "projectTimeLogModal"
-    );
-
-
-  modal?.addEventListener(
-    "click",
-    e => {
-
-      if (
-        e.target === modal
-      ) {
-
-        closeProjectTimeLogModal();
-
-      }
-
-    }
-  );
-
-}
-
-
-// =====================================================
 // OPEN MODAL
 // =====================================================
 
-function openProjectTimeLogModal(
-  project,
-  selectedDate
-) {
 
-  if (!project) return;
+function openProjectTimeLogModal(projectOrId, selectedDate) {
+
+  const modal =
+    document.getElementById("projectTimeLogModal");
+
+  if (!modal) return;
 
 
-  // -------------------------------------
-  // FIND TRACK
-  // -------------------------------------
+  // =====================================================
+  // RESOLVE PROJECT ID
+  // =====================================================
 
-  let owningTrack = null;
+  let projectId;
+
+  if (
+    projectOrId &&
+    typeof projectOrId === "object"
+  ) {
+    projectId = projectOrId.id;
+  } else {
+    projectId = projectOrId;
+  }
+
+
+  // =====================================================
+  // FIND PROJECT IN ACTUAL TRACK DATA
+  // =====================================================
+
+  let foundProject = null;
+  let foundTrack = null;
 
   for (const track of tracks) {
 
-    const foundProject =
+    const project =
       (track.projects || []).find(
         item =>
           String(item.id) ===
-          String(project.id)
+          String(projectId)
       );
 
-    if (foundProject) {
+    if (project) {
 
-      owningTrack = track;
+      foundProject = project;
+      foundTrack = track;
 
       break;
-
     }
-
   }
 
 
-  if (!owningTrack) {
+  // =====================================================
+  // PROJECT NOT FOUND
+  // =====================================================
+
+  if (!foundProject || !foundTrack) {
 
     console.error(
-      "Could not find track for project:",
-      project.id
+      "Project Time Log: project not found",
+      {
+        requestedProjectId: projectId,
+        originalArgument: projectOrId,
+        availableProjects:
+          tracks.flatMap(track =>
+            (track.projects || []).map(project => ({
+              id: project.id,
+              name: project.name,
+              trackId: track.id,
+              trackName: track.name
+            }))
+          )
+      }
     );
 
-    return;
+    alert("Project not found.");
 
+    return;
   }
 
 
-  // -------------------------------------
-  // STORE CONTEXT
-  // -------------------------------------
+  // =====================================================
+  // SAVE STATE
+  // =====================================================
 
   projectTimeLogProjectId =
-    project.id;
+    foundProject.id;
 
   projectTimeLogTrackId =
-    owningTrack.id;
+    foundTrack.id;
 
 
-  // -------------------------------------
+  // =====================================================
   // ACTIVITY
-  // -------------------------------------
+  // =====================================================
 
   const activityInput =
     document.getElementById(
@@ -146,15 +126,13 @@ function openProjectTimeLogModal(
     );
 
   if (activityInput) {
-
     activityInput.value = "";
-
   }
 
 
-  // -------------------------------------
+  // =====================================================
   // TRACK
-  // -------------------------------------
+  // =====================================================
 
   const trackSelect =
     document.getElementById(
@@ -165,27 +143,25 @@ function openProjectTimeLogModal(
 
     trackSelect.innerHTML = "";
 
-    const trackOption =
+    const option =
       document.createElement("option");
 
-    trackOption.value =
-      owningTrack.id;
+    option.value =
+      foundTrack.id;
 
-    trackOption.textContent =
-      owningTrack.name;
+    option.textContent =
+      `${foundTrack.icon || "📁"} ${foundTrack.name}`;
 
-    trackOption.selected = true;
+    trackSelect.appendChild(option);
 
-    trackSelect.appendChild(
-      trackOption
-    );
-
+    trackSelect.value =
+      String(foundTrack.id);
   }
 
 
-  // -------------------------------------
+  // =====================================================
   // PROJECT
-  // -------------------------------------
+  // =====================================================
 
   const projectSelect =
     document.getElementById(
@@ -196,27 +172,25 @@ function openProjectTimeLogModal(
 
     projectSelect.innerHTML = "";
 
-    const projectOption =
+    const option =
       document.createElement("option");
 
-    projectOption.value =
-      project.id;
+    option.value =
+      foundProject.id;
 
-    projectOption.textContent =
-      project.name;
+    option.textContent =
+      foundProject.name;
 
-    projectOption.selected = true;
+    projectSelect.appendChild(option);
 
-    projectSelect.appendChild(
-      projectOption
-    );
-
+    projectSelect.value =
+      String(foundProject.id);
   }
 
 
-  // -------------------------------------
+  // =====================================================
   // DATE
-  // -------------------------------------
+  // =====================================================
 
   const dateInput =
     document.getElementById(
@@ -228,51 +202,23 @@ function openProjectTimeLogModal(
     dateInput.value =
       selectedDate ||
       getLocalDateKey(new Date());
-
   }
 
 
-  // -------------------------------------
+  // =====================================================
   // TIME
-  // -------------------------------------
+  // =====================================================
 
-  populateProjectTimeLogTimes(
-    "09:00",
-    "10:00"
-  );
+  populateProjectTimeLogTimeSelects();
 
 
-  // -------------------------------------
+  // =====================================================
   // OPEN
-  // -------------------------------------
+  // =====================================================
 
-  const modal =
-    document.getElementById(
-      "projectTimeLogModal"
-    );
-
-  if (!modal) return;
-
-
-  modal.classList.remove(
-    "hidden"
-  );
-
-
-  // -------------------------------------
-  // FOCUS ACTIVITY
-  // -------------------------------------
-
-  setTimeout(
-    () => {
-
-      activityInput?.focus();
-
-    },
-    50
-  );
-
+  modal.classList.remove("hidden");
 }
+
 
 
 // =====================================================
@@ -288,29 +234,18 @@ function closeProjectTimeLogModal() {
 
   if (!modal) return;
 
+  modal.classList.add("hidden");
 
-  modal.classList.add(
-    "hidden"
-  );
-
-
-  projectTimeLogProjectId =
-    null;
-
-  projectTimeLogTrackId =
-    null;
-
+  projectTimeLogProjectId = null;
+  projectTimeLogTrackId = null;
 }
 
 
 // =====================================================
-// POPULATE TIMES
+// POPULATE TIME SELECTS
 // =====================================================
 
-function populateProjectTimeLogTimes(
-  startTime = "09:00",
-  endTime = "10:00"
-) {
+function populateProjectTimeLogTimeSelects() {
 
   const startSelect =
     document.getElementById(
@@ -322,122 +257,227 @@ function populateProjectTimeLogTimes(
       "projectTimeLogEndTime"
     );
 
-
-  if (!startSelect || !endSelect) {
-    return;
-  }
+  if (!startSelect || !endSelect) return;
 
 
   startSelect.innerHTML = "";
   endSelect.innerHTML = "";
 
 
-  // -------------------------------------
-  // GENERATE HOURLY OPTIONS
-  // -------------------------------------
-
   for (
-    let hour = 0;
-    hour < 24;
-    hour++
+    let minutes = 0;
+    minutes < 24 * 60;
+    minutes += 5
   ) {
 
-    const value =
-      `${String(hour).padStart(2, "0")}:00`;
+    const hours =
+      Math.floor(minutes / 60);
 
+    const mins =
+      minutes % 60;
+
+    const value =
+      `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 
     const label =
       value;
 
 
+    // Start
+
     const startOption =
       document.createElement("option");
 
-    startOption.value =
-      value;
+    startOption.value = value;
+    startOption.textContent = label;
 
-    startOption.textContent =
-      label;
+    startSelect.appendChild(startOption);
 
-    startSelect.appendChild(
-      startOption
-    );
 
+    // End
 
     const endOption =
       document.createElement("option");
 
-    endOption.value =
-      value;
+    endOption.value = value;
+    endOption.textContent = label;
 
-    endOption.textContent =
-      label;
-
-    endSelect.appendChild(
-      endOption
-    );
-
+    endSelect.appendChild(endOption);
   }
 
 
-  // -------------------------------------
-  // ENSURE SELECTED VALUES EXIST
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Default times
+  // ---------------------------------------------------
 
-  ensureProjectTimeLogTimeOption(
-    startSelect,
-    startTime
-  );
+  const now =
+    new Date();
 
-  ensureProjectTimeLogTimeOption(
-    endSelect,
-    endTime
-  );
+  const currentMinutes =
+    now.getHours() * 60 +
+    now.getMinutes();
+
+  const roundedMinutes =
+    Math.floor(currentMinutes / 5) * 5;
+
+  const startMinutes =
+    Math.max(
+      0,
+      roundedMinutes - 30
+    );
+
+  const endMinutes =
+    Math.min(
+      23 * 60 + 55,
+      roundedMinutes
+    );
 
 
   startSelect.value =
-    startTime;
+    minutesToTime(startMinutes);
 
   endSelect.value =
-    endTime;
+    minutesToTime(endMinutes);
 
+
+  // Make sure end is after start
+
+  if (
+    timeToMinutes(endSelect.value) <=
+    timeToMinutes(startSelect.value)
+  ) {
+
+    endSelect.value =
+      minutesToTime(
+        Math.min(
+          startMinutes + 30,
+          23 * 60 + 55
+        )
+      );
+  }
 }
 
 
 // =====================================================
-// ENSURE TIME OPTION
+// TIME HELPERS
 // =====================================================
 
-function ensureProjectTimeLogTimeOption(
-  select,
-  value
+function timeToMinutes(time) {
+
+  if (!time) return 0;
+
+  const parts =
+    time.split(":");
+
+  const hours =
+    Number(parts[0]);
+
+  const minutes =
+    Number(parts[1]);
+
+  return (
+    hours * 60 +
+    minutes
+  );
+}
+
+
+function minutesToTime(minutes) {
+
+  minutes =
+    Math.max(
+      0,
+      Math.min(
+        23 * 60 + 55,
+        minutes
+      )
+    );
+
+  const hours =
+    Math.floor(minutes / 60);
+
+  const mins =
+    minutes % 60;
+
+  return (
+    `${String(hours).padStart(2, "0")}:` +
+    `${String(mins).padStart(2, "0")}`
+  );
+}
+
+
+// =====================================================
+// ADJUST TIME
+// =====================================================
+
+function adjustProjectTimeLogTime(
+  selectId,
+  amount
 ) {
 
+  const select =
+    document.getElementById(selectId);
+
+  if (!select) return;
+
+  const currentMinutes =
+    timeToMinutes(select.value);
+
+  const newMinutes =
+    currentMinutes + amount;
+
+
+  // Don't allow times outside the day
+
   if (
-    !value ||
-    select.querySelector(
-      `option[value="${value}"]`
-    )
+    newMinutes < 0 ||
+    newMinutes > 23 * 60 + 55
   ) {
-
     return;
-
   }
 
 
-  const option =
-    document.createElement("option");
+  select.value =
+    minutesToTime(newMinutes);
+}
 
-  option.value =
-    value;
 
-  option.textContent =
-    value;
+// =====================================================
+// OVERLAP CHECK
+// =====================================================
 
-  select.appendChild(
-    option
-  );
+function hasProjectTimeLogOverlap(
+  entries,
+  date,
+  start,
+  end
+) {
 
+  const newStart =
+    timeToMinutes(start);
+
+  const newEnd =
+    timeToMinutes(end);
+
+
+  return entries.some(entry => {
+
+    if (entry.date !== date) {
+      return false;
+    }
+
+    const existingStart =
+      timeToMinutes(entry.start);
+
+    const existingEnd =
+      timeToMinutes(entry.end);
+
+
+    return (
+      newStart < existingEnd &&
+      newEnd > existingStart
+    );
+  });
 }
 
 
@@ -445,7 +485,7 @@ function ensureProjectTimeLogTimeOption(
 // SAVE
 // =====================================================
 
-function saveProjectTimeLogActivity() {
+function saveProjectTimeLog() {
 
   const activityInput =
     document.getElementById(
@@ -468,148 +508,111 @@ function saveProjectTimeLogActivity() {
     );
 
 
-  const activity =
+  const title =
     activityInput?.value.trim();
-
 
   const date =
     dateInput?.value;
 
-
   const start =
     startSelect?.value;
-
 
   const end =
     endSelect?.value;
 
 
-  // -------------------------------------
-  // VALIDATION
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Validation
+  // ---------------------------------------------------
 
-  if (!activity) {
+  if (!title) {
 
-    alert(
-      "Please enter an activity."
-    );
-
-    activityInput?.focus();
+    alert("Please enter an activity.");
 
     return;
-
   }
-
 
   if (!date) {
 
-    alert(
-      "Please select a date."
-    );
+    alert("Please select a date.");
 
     return;
-
   }
-
 
   if (!start || !end) {
 
-    alert(
-      "Please select a start and end time."
-    );
+    alert("Please select start and end times.");
 
     return;
-
   }
 
 
-  if (start >= end) {
+  const startMinutes =
+    timeToMinutes(start);
+
+  const endMinutes =
+    timeToMinutes(end);
+
+
+  if (endMinutes <= startMinutes) {
 
     alert(
       "End time must be after start time."
     );
 
     return;
-
   }
 
 
-  if (
-    !projectTimeLogTrackId ||
-    !projectTimeLogProjectId
-  ) {
+  if (!projectTimeLogProjectId ||
+      !projectTimeLogTrackId) {
 
     alert(
-      "Project information is missing."
+      "Project or track information is missing."
     );
 
     return;
-
   }
 
 
-  // -------------------------------------
-  // LOAD CURRENT TIME LOG
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Load existing time logs
+  // ---------------------------------------------------
 
-  const timeLogEntries =
+  const entries =
     loadTimeLogEntriesFromStorage();
 
 
-  // -------------------------------------
-  // CHECK OVERLAP
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Check overlap
+  // ---------------------------------------------------
 
-  const hasOverlap =
-    timeLogEntries.some(
-      entry => {
-
-        if (
-          entry.date !== date
-        ) {
-
-          return false;
-
-        }
-
-
-        const existingStart =
-          entry.start;
-
-        const existingEnd =
-          entry.end;
-
-
-        return (
-          start < existingEnd &&
-          end > existingStart
-        );
-
-      }
-    );
-
-
-  if (hasOverlap) {
+  if (
+    hasProjectTimeLogOverlap(
+      entries,
+      date,
+      start,
+      end
+    )
+  ) {
 
     alert(
       "This time overlaps with an existing Time Log entry."
     );
 
     return;
-
   }
 
 
-  // -------------------------------------
-  // CREATE ENTRY
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Create entry
+  // ---------------------------------------------------
 
-  const newEntry = {
+  const entry = {
 
     id: Date.now(),
 
-    title:
-      activity,
+    title,
 
     trackId:
       projectTimeLogTrackId,
@@ -617,42 +620,36 @@ function saveProjectTimeLogActivity() {
     projectId:
       projectTimeLogProjectId,
 
-    start:
-      start,
+    start,
 
-    end:
-      end,
+    end,
 
-    date:
-      date
-
+    date
   };
 
 
-  timeLogEntries.push(
-    newEntry
-  );
+  entries.push(entry);
 
 
-  // -------------------------------------
-  // SAVE
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Save
+  // ---------------------------------------------------
 
   saveTimeLogEntriesToStorage(
-    timeLogEntries
+    entries
   );
 
 
-  // -------------------------------------
-  // CLOSE
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Close
+  // ---------------------------------------------------
 
   closeProjectTimeLogModal();
 
 
-  // -------------------------------------
-  // REFRESH TIME LOG
-  // -------------------------------------
+  // ---------------------------------------------------
+  // Refresh Time Log
+  // ---------------------------------------------------
 
   if (
     typeof renderTimeLogEntries ===
@@ -660,21 +657,164 @@ function saveProjectTimeLogActivity() {
   ) {
 
     renderTimeLogEntries();
-
   }
 
+
+  // Refresh project tracker if available
+
+  if (
+    typeof renderProjects ===
+    "function"
+  ) {
+
+    renderProjects();
+  }
 }
 
 
 // =====================================================
-// INITIALIZE AFTER DOM LOAD
+// EVENT BINDING
 // =====================================================
 
 document.addEventListener(
   "DOMContentLoaded",
   () => {
 
-    initializeProjectTimeLogModal();
+    const closeBtn =
+      document.getElementById(
+        "closeProjectTimeLogModalBtn"
+      );
+
+    const saveBtn =
+      document.getElementById(
+        "saveProjectTimeLogBtn"
+      );
+
+
+    // -------------------------------------------------
+    // Close
+    // -------------------------------------------------
+
+    if (closeBtn) {
+
+      closeBtn.addEventListener(
+        "click",
+        closeProjectTimeLogModal
+      );
+    }
+
+
+    // -------------------------------------------------
+    // Save
+    // -------------------------------------------------
+
+    if (saveBtn) {
+
+      saveBtn.addEventListener(
+        "click",
+        saveProjectTimeLog
+      );
+    }
+
+
+    // -------------------------------------------------
+    // Start -5
+    // -------------------------------------------------
+
+    const startMinus5 =
+      document.getElementById(
+        "projectTimeLogStartMinus5"
+      );
+
+    if (startMinus5) {
+
+      startMinus5.addEventListener(
+        "click",
+        () => {
+
+          adjustProjectTimeLogTime(
+            "projectTimeLogStartTime",
+            -5
+          );
+
+        }
+      );
+    }
+
+
+    // -------------------------------------------------
+    // Start +5
+    // -------------------------------------------------
+
+    const startPlus5 =
+      document.getElementById(
+        "projectTimeLogStartPlus5"
+      );
+
+    if (startPlus5) {
+
+      startPlus5.addEventListener(
+        "click",
+        () => {
+
+          adjustProjectTimeLogTime(
+            "projectTimeLogStartTime",
+            5
+          );
+
+        }
+      );
+    }
+
+
+    // -------------------------------------------------
+    // End -5
+    // -------------------------------------------------
+
+    const endMinus5 =
+      document.getElementById(
+        "projectTimeLogEndMinus5"
+      );
+
+    if (endMinus5) {
+
+      endMinus5.addEventListener(
+        "click",
+        () => {
+
+          adjustProjectTimeLogTime(
+            "projectTimeLogEndTime",
+            -5
+          );
+
+        }
+      );
+    }
+
+
+    // -------------------------------------------------
+    // End +5
+    // -------------------------------------------------
+
+    const endPlus5 =
+      document.getElementById(
+        "projectTimeLogEndPlus5"
+      );
+
+    if (endPlus5) {
+
+      endPlus5.addEventListener(
+        "click",
+        () => {
+
+          adjustProjectTimeLogTime(
+            "projectTimeLogEndTime",
+            5
+          );
+
+        }
+      );
+    }
 
   }
 );

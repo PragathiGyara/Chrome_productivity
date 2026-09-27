@@ -1094,161 +1094,154 @@
         PROJECT TIME LOG MODAL
     ===================================== -->
 
-    <div
-        id="projectTimeLogModal"
-        class="modal hidden"
-    >
-
-        <div
-            class="
-                modal-content
-                timetable-modal-content
-            "
-        >
-
-            <!-- HEADER -->
+    <div id="projectTimeLogModal" class="modal hidden">
+        <div class="modal-content timetable-modal-content">
 
             <div class="modal-header">
+            <h2>Add Project Time</h2>
+            <button id="closeProjectTimeLogModalBtn">✕</button>
+            </div>
 
-                <h2>
-                    Add Project Time
-                </h2>
+            <div class="timetable-form">
+
+            <label
+                class="timetable-field-label"
+                for="projectTimeLogActivityInput"
+            >
+                Activity
+            </label>
+
+            <input
+                id="projectTimeLogActivityInput"
+                placeholder="Activity name"
+            />
+
+
+            <label
+                class="timetable-field-label"
+                for="projectTimeLogTrackSelect"
+            >
+                Track
+            </label>
+
+            <select
+                id="projectTimeLogTrackSelect"
+                disabled
+            ></select>
+
+
+            <label
+                class="timetable-field-label"
+                for="projectTimeLogProjectSelect"
+            >
+                Project
+            </label>
+
+            <select
+                id="projectTimeLogProjectSelect"
+                disabled
+            ></select>
+
+
+            <label
+                class="timetable-field-label"
+                for="projectTimeLogDateInput"
+            >
+                Date
+            </label>
+
+            <input
+                id="projectTimeLogDateInput"
+                type="date"
+            />
+
+
+            <!-- START TIME -->
+
+            <div class="project-time-control">
+
+                <label
+                class="timetable-field-label"
+                for="projectTimeLogStartTime"
+                >
+                Start Time
+                </label>
+
+                <div class="project-time-input-row">
 
                 <button
-                    id="closeProjectTimeLogModalBtn"
+                    type="button"
+                    class="time-adjust-btn"
+                    id="projectTimeLogStartMinus5"
                 >
-                    ✕
+                    −5
+                </button>
+
+                <select id="projectTimeLogStartTime"></select>
+
+                <button
+                    type="button"
+                    class="time-adjust-btn"
+                    id="projectTimeLogStartPlus5"
+                >
+                    +5
+                </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- END TIME -->
+
+            <div class="project-time-control">
+
+                <label
+                class="timetable-field-label"
+                for="projectTimeLogEndTime"
+                >
+                End Time
+                </label>
+
+                <div class="project-time-input-row">
+
+                <button
+                    type="button"
+                    class="time-adjust-btn"
+                    id="projectTimeLogEndMinus5"
+                >
+                    −5
+                </button>
+
+                <select id="projectTimeLogEndTime"></select>
+
+                <button
+                    type="button"
+                    class="time-adjust-btn"
+                    id="projectTimeLogEndPlus5"
+                >
+                    +5
+                </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="timetable-actions">
+
+                <button
+                id="saveProjectTimeLogBtn"
+                class="primary-btn"
+                >
+                Save
                 </button>
 
             </div>
 
-
-            <!-- FORM -->
-
-            <div class="timetable-form">
-
-                <!-- ACTIVITY -->
-
-                <label
-                    class="timetable-field-label"
-                    for="projectTimeLogActivityInput"
-                >
-                    Activity
-                </label>
-
-                <input
-                    id="projectTimeLogActivityInput"
-                    placeholder="Activity name"
-                />
-
-
-                <!-- TRACK -->
-
-                <label
-                    class="timetable-field-label"
-                    for="projectTimeLogTrackSelect"
-                >
-                    Track
-                </label>
-
-                <select
-                    id="projectTimeLogTrackSelect"
-                    disabled
-                >
-                </select>
-
-
-                <!-- PROJECT -->
-
-                <label
-                    class="timetable-field-label"
-                    for="projectTimeLogProjectSelect"
-                >
-                    Project
-                </label>
-
-                <select
-                    id="projectTimeLogProjectSelect"
-                    disabled
-                >
-                </select>
-
-
-                <!-- DATE -->
-
-                <label
-                    class="timetable-field-label"
-                    for="projectTimeLogDateInput"
-                >
-                    Date
-                </label>
-
-                <input
-                    id="projectTimeLogDateInput"
-                    type="date"
-                />
-
-
-                <!-- TIME -->
-
-                <div
-                    class="timetable-time-row"
-                >
-
-                    <div>
-
-                        <label
-                            class="timetable-field-label"
-                        >
-                            Start Time
-                        </label>
-
-                        <select
-                            id="projectTimeLogStartTime"
-                        >
-                        </select>
-
-                    </div>
-
-
-                    <div>
-
-                        <label
-                            class="timetable-field-label"
-                        >
-                            End Time
-                        </label>
-
-                        <select
-                            id="projectTimeLogEndTime"
-                        >
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ACTIONS -->
-
-                <div
-                    class="timetable-actions"
-                >
-
-                    <button
-                        id="saveProjectTimeLogBtn"
-                        class="primary-btn"
-                    >
-                        Save
-                    </button>
-
-                </div>
-
             </div>
-
         </div>
-
-    </div>
+        </div>
 
 
     <!-- =====================================
