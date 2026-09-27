@@ -783,11 +783,24 @@ function attachProjectRowEvents(
       "click",
       () => {
 
-        // Time-entry behavior will be
-        // connected to Time Log later.
+        if (
+          project.status ===
+          "paused"
+        ) {
+
+          return;
+
+        }
+
+
+        openProjectTimeLogModal(
+          project,
+          todayKey
+        );
 
       }
     );
+
 
   // =====================================
   // DELETE
@@ -805,6 +818,7 @@ function attachProjectRowEvents(
         )
     );
 
+
   // =====================================
   // PAUSE
   // =====================================
@@ -820,6 +834,7 @@ function attachProjectRowEvents(
           project.id
         )
     );
+
 
   // =====================================
   // RESUME
@@ -837,6 +852,7 @@ function attachProjectRowEvents(
         )
     );
 
+
   // =====================================
   // COMPLETE
   // =====================================
@@ -852,6 +868,7 @@ function attachProjectRowEvents(
           project.id
         )
     );
+
 
   // =====================================
   // DRAG SLIDER
@@ -876,7 +893,6 @@ function attachProjectRowEvents(
     );
 
 }
-
 // =====================================================
 // PROJECT SLIDER
 // =====================================================

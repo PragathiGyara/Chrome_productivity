@@ -991,6 +991,166 @@
 
     </div>
 
+    <!-- =====================================
+        PROJECT TIME LOG MODAL
+    ===================================== -->
+
+    <div
+        id="projectTimeLogModal"
+        class="modal hidden"
+    >
+
+        <div
+            class="
+                modal-content
+                timetable-modal-content
+            "
+        >
+
+            <!-- HEADER -->
+
+            <div class="modal-header">
+
+                <h2>
+                    Add Project Time
+                </h2>
+
+                <button
+                    id="closeProjectTimeLogModalBtn"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <div class="timetable-form">
+
+                <!-- ACTIVITY -->
+
+                <label
+                    class="timetable-field-label"
+                    for="projectTimeLogActivityInput"
+                >
+                    Activity
+                </label>
+
+                <input
+                    id="projectTimeLogActivityInput"
+                    placeholder="Activity name"
+                />
+
+
+                <!-- TRACK -->
+
+                <label
+                    class="timetable-field-label"
+                    for="projectTimeLogTrackSelect"
+                >
+                    Track
+                </label>
+
+                <select
+                    id="projectTimeLogTrackSelect"
+                    disabled
+                >
+                </select>
+
+
+                <!-- PROJECT -->
+
+                <label
+                    class="timetable-field-label"
+                    for="projectTimeLogProjectSelect"
+                >
+                    Project
+                </label>
+
+                <select
+                    id="projectTimeLogProjectSelect"
+                    disabled
+                >
+                </select>
+
+
+                <!-- DATE -->
+
+                <label
+                    class="timetable-field-label"
+                    for="projectTimeLogDateInput"
+                >
+                    Date
+                </label>
+
+                <input
+                    id="projectTimeLogDateInput"
+                    type="date"
+                />
+
+
+                <!-- TIME -->
+
+                <div
+                    class="timetable-time-row"
+                >
+
+                    <div>
+
+                        <label
+                            class="timetable-field-label"
+                        >
+                            Start Time
+                        </label>
+
+                        <select
+                            id="projectTimeLogStartTime"
+                        >
+                        </select>
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            class="timetable-field-label"
+                        >
+                            End Time
+                        </label>
+
+                        <select
+                            id="projectTimeLogEndTime"
+                        >
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div
+                    class="timetable-actions"
+                >
+
+                    <button
+                        id="saveProjectTimeLogBtn"
+                        class="primary-btn"
+                    >
+                        Save
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
     <!-- =====================================
          TIMETABLE MODAL
@@ -1245,6 +1405,7 @@
     <script src="js/features/dashboard/projects/trendAnalytics.js"></script>
     <script src="js/features/dashboard/projects/projectDragDrop.js"></script>
     <script src="js/features/dashboard/projects/projectModal.js"></script>
+    <script src="js/features/dashboard/projects/projectTimeLogModal.js"></script>
     <script src="js/features/dashboard/projects/hourDistribution.js"></script>
     <script src="js/features/dashboard/projects/projectsView.js"></script>
 
